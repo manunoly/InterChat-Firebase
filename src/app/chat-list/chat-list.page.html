@@ -1,0 +1,63 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Conversations</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- ios newStyle -->
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Conversations</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+
+  <ion-list class="ion-no-padding imageBack">
+    <ion-item *ngFor="let chat of chatData" class="imageBack" lines="none" button=true (click)="openChat(chat)">
+      <div class="borderBottomLine"></div>
+      <div class="listSection">
+        <div class="UserimgSection">
+          <ion-avatar class="chatImage" slot="start">
+            <ion-img [src]="chat.image"></ion-img>
+            <span class="onlineOffline_icon" [ngStyle]="{'background-color':(chat.status === 'online'? '#4cd137' : '#c23616')}"></span>
+          </ion-avatar>
+        </div>
+        <div class="usernameSection ion-padding-start ion-padding">
+          <ion-text>
+            <h5>
+              <!-- <ion-icon *ngIf="chat.group" name="people" color="medium"></ion-icon>
+              <ion-icon name="microphone" *ngIf="chat.broadcast" color="medium"></ion-icon> -->
+               {{chat.name}}
+            </h5>
+          </ion-text>
+          <p class="descText ion-no-margin ion-no-padding">{{chat.description}}</p>
+        </div>
+      </div>
+      <div slot="end" class="lastSection">
+        <ion-note *ngIf="chat.badge || !chat.time" class="sendTime">{{chat.sendTime}}</ion-note>
+          <ion-badge slot="end" class="userBadge" *ngIf="chat.badge">{{chat.badge}}</ion-badge>
+          <ion-note slot="end" *ngIf="chat.time" class="sendTime">{{chat.time}}</ion-note>
+      </div>
+      
+    </ion-item>
+    <ion-item *ngIf="chatData.length == 0" class="imageBack" lines="none"> 
+
+      <ion-text class="borderBottomLineNoneChat">
+        <p class="ion-text-center">
+          You don't have any Chat <br> 
+          Please start a new one
+        </p>
+      </ion-text>
+      
+    </ion-item>
+  </ion-list>
+
+
+
+
+
+</ion-content>
