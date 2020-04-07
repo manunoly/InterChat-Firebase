@@ -110,7 +110,7 @@
     </ion-fab-button>
   </ion-fab>
 
-  <ion-row *ngIf="loader">
+  <ion-row *ngIf="loader" class="rowTypingSender">
     <ion-col class="ion-no-padding loading-col">
       <div class="imageAvatarRight">
         <div class="imageAvatarBottomLoader">
@@ -138,7 +138,7 @@
 
 <ion-footer [translucent]="true">
   <ion-item>
-    <ion-icon slot="start" name="camera" expand="icon-only" class="footerIcon"></ion-icon>
+    <ion-icon slot="start" name="camera" expand="icon-only"></ion-icon>
     <ion-input class="input-box" type="text" placeholder="Write a message..." [(ngModel)]="user_input"
       (keypress)="userTyping($event)" (keyup.enter)="sendMsg()"></ion-input>
   </ion-item>
