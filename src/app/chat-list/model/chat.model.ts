@@ -13,6 +13,6 @@ export interface iChat {
     typeLastMessage: string;
     timestamp: Number;
     participantsIDS: string[];
-    partipantsMeta: iUser[];
+    participantsMeta: iUser[];
     messages?: iMessage[];
 }

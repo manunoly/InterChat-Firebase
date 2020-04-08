@@ -1,4 +1,3 @@
-
 export interface iMessage {
     idMessage : string;
     idSender : string;

@@ -1,4 +1,3 @@
-
 export interface iUser {
     idUser: string;
     userName: string;
