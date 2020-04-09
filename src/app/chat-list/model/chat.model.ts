@@ -6,12 +6,12 @@ export interface iChat {
     title?: string;
     createdBy: string;
     type: string;
-    createdAt: string;
-    updatedAt: string;
+    createdAt: any;
+    updatedAt: any;
     typing?: boolean;
     lastMessage?: string;
     typeLastMessage: string;
-    timestamp: Number;
+    timestamp: any;
     participantsIDS: string[];
     participantsMeta: iUser[];
     messages?: iMessage[];
