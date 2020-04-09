@@ -4,4 +4,6 @@ export interface iUser {
     avatar: string;
     type?: string;
     image?: string;
+    email?:string;
+    phone?: string;
 }

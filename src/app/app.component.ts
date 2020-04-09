@@ -21,6 +21,16 @@ export class AppComponent implements OnInit {
       title: 'Inbox',
       url: '/folder/Inbox',
       icon: 'mail'
+    },
+    {
+      title: 'Users',
+      url: 'select-user-to-chat',
+      icon: 'chatbubbles'
+    },
+    {
+      title: 'Login',
+      url: 'login',
+      icon: 'contacts'
     }
   ];
 
