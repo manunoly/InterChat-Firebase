@@ -6,6 +6,10 @@
 
 <ion-content>
 
+  <div *ngIf="user">
+    <h5 class="ion-text-center">Hola, estas logueado</h5>
+  </div>
+  
   <ion-grid class="ion-padding" *ngIf="!user">
     <ion-row class="ion-padding">
         <ion-col size-sm="12" size-md="8" offset-md="2">
@@ -28,7 +32,7 @@
     <ion-row class="ion-padding" *ngIf="errorMsg">
         <ion-col size-sm="12" size-md="8" offset-md="2">
             <ion-text color="danger">
-                <h5>
+                <h5 class="ion-text-center">
                     {{errorMsg}}
                 </h5>
             </ion-text>
