@@ -6,7 +6,7 @@ import { iChat } from './../chat-list/model/chat.model';
 
 import { AngularFirestore } from '@angular/fire/firestore';
 
-import { shareReplay } from 'rxjs/operators'
+import { shareReplay, map } from 'rxjs/operators'
 import { Observable } from "rxjs";
 
 import * as firebaseApp from "firebase/app";
@@ -27,7 +27,15 @@ export class ChatService {
   getChats(user: iUser, limit: number = 50): Observable<any> {
     console.log('getChat by user');
 
-    return this.afs.collection<iChat[]>('chat', ref => ref.where('participantsIDS', 'array-contains', user.idUser).limit(limit)).snapshotChanges().pipe(shareReplay(1));
+    return this.afs.collection<iChat>('chat', ref => ref.where('participantsIDS', 'array-contains', user.idUser).limit(limit)).snapshotChanges()
+      .pipe(shareReplay(1), map(x => {
+        return x.map(action => {
+          const data = action.payload.doc.data() as iChat;
+          const id = action.payload.doc.id;
+          return { id, ...data };
+        });
+      })
+      );
   }
 
   getAllChat(limit: number = 50): Observable<any> {
@@ -44,6 +52,7 @@ export class ChatService {
   getMessageByChatId(id: string, limit: number = 50): Observable<any> {
     return this.afs.collection<iMessage[]>('chat/' + id + '/messages', ref => ref.orderBy('timestamp', "desc").limit(limit)).valueChanges().pipe(shareReplay(1));
   }
+
   /**
    * 
    * @param path where to write
@@ -66,8 +75,9 @@ export class ChatService {
    * @param user iUser to chat
    * @param type user | callcenter
    */
+
   async createChat(userCreated: iUser, user: iUser, type: string): Promise<any> {
-    
+
     const chat: iChat = {
       idChat: userCreated.idUser + user.idUser,
       title: 'Chat ' + userCreated.idUser + user.idUser,
@@ -85,6 +95,6 @@ export class ChatService {
 
     return this.updateCreateAt('chat/' + chat.idChat, chat)
   }
-  
+
 
 }
