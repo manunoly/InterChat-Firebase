@@ -4,26 +4,44 @@ import { iUser } from './../chat-list/model/user.model';
 import { iMessage } from './../chat-list/model/message.model';
 import { iChat } from './../chat-list/model/chat.model';
 
+import { AngularFirestore } from '@angular/fire/firestore';
+
+import { shareReplay } from 'rxjs/operators'
+import { Observable } from "rxjs";
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
 
-  private chatCollection: AngularFirestoreCollection<iChat>;
 
   constructor(private afs: AngularFirestore) {
   }
 
-  getChats(user: iUser, limit: number = 20): Promise<iChat[]> {
-    console.log('getChat');
+  /**
+   * @param user // if (user.isAnonymous === false) by firebase auth user
+   * @param limit limit de number of chat, defauld 50
+   */
+  getChats(user: iUser, limit: number = 50): Observable<any> {
+    console.log('getChat by user');
 
-    const chatCollection = this.afs.collection<iChat[]>('chat', ref => ref.where('participantsIDS', 'array-contains', user.idUser)).orderBy('timestamp', "desc").limitToFirst(limit);
-    return chatCollection.get().pipe().toPromise();
+    return this.afs.collection<iChat[]>('chat', ref => ref.where('participantsIDS', 'array-contains', user.idUser).limit(limit)).snapshotChanges().pipe(shareReplay(1));
   }
 
-  getMessageByChatId(id: string, limit: number = 20): Promise<iChat[]> {
-    return this.afs.collection<iMessage[]>('chat/' + id + '/messages').orderBy('timestamp', "desc").limitToFirst(limit);
+  getAllChat(limit: number = 50): Observable<any> {
+    console.log('getAllChat');
+
+    return this.afs.collection<iChat[]>('chat', ref => ref.orderBy('timestamp', "desc").limit(limit)).snapshotChanges().pipe(shareReplay(1));
+
+  }
+
+  /**
+   * @param id chat 
+   * @param limit number of messages, default 50,
+   */
+  getMessageByChatId(id: string, limit: number = 50): Observable<any> {
+    return this.afs.collection<iMessage[]>('chat/' + id + '/messages', ref => ref.orderBy('timestamp', "desc").limit(limit)).snapshotChanges().pipe(shareReplay(1));
   }
 
 }
