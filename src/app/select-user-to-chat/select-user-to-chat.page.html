@@ -1,0 +1,19 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Select user to chat</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-list *ngIf="(users |async) as usersD">
+    <ion-item *ngFor="let user of usersD" >
+      <ion-label> {{user.userName}} </ion-label>
+      
+      <ion-button slot="end" fill="clear" (click)="initChat(user)">
+        <!-- <ion-icon name="chatboxes" size="large" color="primary"></ion-icon> -->
+        <ion-icon name="chatbox" size="large" color="primary"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-list>
+</ion-content>
