@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 
 import { AngularFireAuth } from "@angular/fire/auth";
 import { Observable, BehaviorSubject } from 'rxjs';
@@ -7,6 +7,7 @@ import { DbService } from './db.service';
 import { iUser } from '../chat-list/model/user.model';
 
 import { Storage } from '@ionic/storage';
+import { UtilService } from './util.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,12 +17,13 @@ export class AuthService {
   userSesion: BehaviorSubject<iUser> = new BehaviorSubject(null);
 
   constructor(public afAuth: AngularFireAuth,
+    private zone : NgZone,
     private router: Router,
     private dbService: DbService,
-    private storage: Storage) {
+    private utilService: UtilService) {
 
     this.firebaseUser$ = this.afAuth.authState;
-    console.log(this.firebaseUser$);
+    // console.log(this.firebaseUser$);
 
     this.firebaseUser$.subscribe(async u => {
 
@@ -30,15 +32,7 @@ export class AuthService {
       // this.user = u;
       if (u) {
 
-        this.userSesion.next({
-          uid: u.uid,
-          idUser: null,
-          userName: u.displayName,
-          avatar: u.photoURL,
-          email: u.email
-        });
-
-        const userLocalStorage = await this.getUserFromStorage();
+        const userLocalStorage = await this.utilService.getUserFromStorage();
 
         if (userLocalStorage) {
 
@@ -52,7 +46,7 @@ export class AuthService {
             const responseUser = (await this.dbService.getUser(u.email)).docs[0].data();
             console.log(responseUser);
 
-            this.saveUserSesion({
+            this.utilService.saveUserSesion({
               ...{
                 uid: u.uid,
                 idUser: null,
@@ -74,6 +68,9 @@ export class AuthService {
             });
           } catch (error) {
             console.log(error);
+            this.utilService.showAlert('Information' , 'A problem was ocurred on login. Please try again later');
+            this.logout()
+            this.router.navigate(['login'] , {replaceUrl : true});
 
           }
 
@@ -83,14 +80,14 @@ export class AuthService {
 
       } else {
 
-        this.removeStorage();
+        this.utilService.removeStorage();
         this.userSesion.next(null);
-        this.router.navigateByUrl('login')
+             
 
       }
 
 
-      console.log(this.userSesion.value);
+      // console.log(this.userSesion.value);
 
 
     });
@@ -106,19 +103,9 @@ export class AuthService {
   }
 
   async logout() {
+    this.router.navigateByUrl('login');  
     return await this.afAuth.auth.signOut();
-  }
-
-  saveUserSesion(userToStorage) {
-    this.storage.set('user', JSON.stringify(userToStorage));
-  }
-
-  async getUserFromStorage() {
-    return JSON.parse(await this.storage.get('user')) as iUser;
-  }
-
-  async removeStorage(){
-    return await this.storage.clear();
+  
   }
 
 }

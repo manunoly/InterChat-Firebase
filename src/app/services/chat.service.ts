@@ -8,16 +8,18 @@ import { AngularFirestore } from '@angular/fire/firestore';
 
 import { shareReplay, map } from 'rxjs/operators'
 import { Observable } from "rxjs";
-
-import * as firebaseApp from "firebase/app";
+import { UtilService } from './util.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
 
+ private chatDataActual : any ;
 
-  constructor(private afs: AngularFirestore) {
+
+  constructor(private afs: AngularFirestore,
+    private utilService : UtilService) {
   }
 
   /**
@@ -27,7 +29,9 @@ export class ChatService {
   getChats(user: iUser, limit: number = 50): Observable<any> {
     console.log('getChat by user');
 
-    return this.afs.collection<iChat>('chat', ref => ref.where('participantsIDS', 'array-contains', user.idUser).limit(limit)).snapshotChanges()
+    console.log(user);
+
+    return this.afs.collection<iChat>('chats', ref => ref.where('participantsIDS', 'array-contains', user.idUser).limit(limit)).snapshotChanges()
       .pipe(shareReplay(1), map(x => {
         return x.map(action => {
           const data = action.payload.doc.data() as iChat;
@@ -82,26 +86,88 @@ export class ChatService {
 
     // Lets check if idChat is created by one of the users before
 
+    try {
+      
+      const chatRef = (await this.chatExist(idChat));
+      console.log(chatRef)
+      console.log('chat Exist => ' , chatRef.exists)
+
+      if(!chatRef.exists){ // Create NEW CHAT
+
+        const chat: iChat = {
+          idChat: idChat,
+          title: 'Chat ' + idChat,
+          createdBy: userCreated.idUser,
+          type: type,
+          createdAt: this.utilService.serverTimestamp,
+          updatedAt: this.utilService.serverTimestamp,
+          typing: false,
+          lastMessage: '',
+          typeLastMessage: '',
+          timestamp: this.utilService.serverTimestamp,
+          participantsIDS: [userCreated.idUser, user.idUser],
+          participantsMeta: [userCreated, user]
+        }
+
+        console.log('======Creating new Chat======');
+        console.log(chat);
+        
+        try {
+
+          const createdChat = await this.updateCreateAt('chats/' + idChat , chat);
+
+          return new Promise((resolve)=>{
+            this.chatDataActual = chat;
+            resolve({chatRef : chat , exist : true});
+          })
+
+
+        } catch (error) {
+          console.log(error);
+          this.utilService.showAlert('Info', 'Error Creating chat. Please try again Later');
+        }
+
+        return 
+
+      } else { //CHAT EXIST LETS GO TO THE CHAT OR UPDATE SOMETHING
+
+        return new Promise((resolve)=>{
+          this.chatDataActual = chatRef.data();
+          resolve({chatRef : chatRef.data() , exist : true});
+        })
+
+
+      }
+
+
+
+    } catch (error) {
+
+      console.log(error);
+      
+    } 
+
     // TO_DO
 
+    console.log(this.utilService.serverTimestamp);
 
-    const chat: iChat = {
-      idChat: idChat,
-      title: 'Chat ' + idChat,
-      createdBy: userCreated.idUser,
-      type: type,
-      createdAt: firebaseApp.database.ServerValue.TIMESTAMP,
-      updatedAt: firebaseApp.database.ServerValue.TIMESTAMP,
-      typing: false,
-      lastMessage: '',
-      typeLastMessage: '',
-      timestamp: firebaseApp.database.ServerValue.TIMESTAMP,
-      participantsIDS: [userCreated.idUser, user.idUser],
-      participantsMeta: [userCreated, user]
-    }
+
 
     // return this.updateCreateAt('chats/' + chat.idChat, chat)
 
+  }
+
+
+  setChatData(chatRef){
+    this.chatDataActual = chatRef;
+  }
+
+  get chatData(){
+    return this.chatDataActual
+  }
+
+  private chatExist(idChat : string) {
+   return this.afs.collection('chats').doc(idChat).ref.get();
   }
 
   

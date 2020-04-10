@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
+import { iChat } from './model/chat.model';
+import { Observable } from 'rxjs';
+import { DbService } from '../services/db.service';
+import { ChatService } from '../services/chat.service';
 
 @Component({
   selector: 'app-chat-list',
@@ -8,15 +13,47 @@ import { Router } from '@angular/router';
 })
 export class ChatListPage implements OnInit {
 
-  chatData: Array<any> = [];
+  chatData: Array<iChat> = [];
+  chats: Observable<iChat[]>;
+  loadingChats = false;
 
-  constructor(private router : Router) {
+  constructor(private router : Router,
+    private db : DbService,
+    private chatService: ChatService,
+    private authService : AuthService) {
 
     // this.loadChatData();
     
    }
 
   ngOnInit() {
+
+    this.authService.userSesion.subscribe(user => {
+      if(user){
+
+        this.loadingChats = true;
+
+        this.chats = this.chatService.getChats(this.authService.userSesion.value);
+        this.chats.subscribe(chats => {
+          console.log('tengo estos chats', chats);   
+          this.chatData = chats;
+          chats.forEach(chat => {
+            for (const iterator of chat.participantsMeta) {
+              if(iterator.idUser != this.authService.userSesion.value.idUser){
+                chat.avatarUserChat = iterator.avatar;
+                chat.title = iterator.userName;
+                
+              }                   
+            }          
+          });
+  
+  
+          this.loadingChats = false;
+        });
+
+      }
+    })
+
 
   }
 
@@ -26,101 +63,116 @@ export class ChatListPage implements OnInit {
   }
 
   loadChatData(){
-    this.chatData = [
-    {
-      "name": 'Jovenica',
-      "image": './assets/img/chat/user.jpeg',
-      "description": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
-      "status": 'online',
-      "count": '2',
-      "time": '2 min ago'
 
-    }, {
-      "name": 'Oliver',
-      "image": ' ./assets/img/chat/user3.jpeg',
-      "description": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
-      "status": 'offline',
-      "badge": '4',
-      "sendTime": '18:34',
-      "group": true
+    this.loadingChats = true;
 
-    }, {
-      "name": 'George',
-      "image": ' ./assets/img/chat/user4.jpeg',
-      "description": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
-      "status": 'offline',
-      "count": '2',
-      "sendTime": '18:30',
-      "broadcast": true
 
-    }, {
-      "name": 'Harry',
-      "image": ' ./assets/img/chat/user1.jpeg',
-      "description": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
-      "status": 'online',
-      "badge": '6',
-      "sendTime": '17:55'
-    }, {
-      "name": 'Jack',
-      "image": ' ./assets/img/chat/user.jpeg',
-      "description": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
-      "status": 'offline',
-      "sendTime": '17:55'
-    }, {
-      "name": 'Jacob',
-      "image": ' ./assets/img/chat/user3.jpeg',
-      "description": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
-      "status": 'offline',
-      "count": '1',
-      "sendTime": '17:50'
-    }, {
-      "name": 'Noah',
-      "image": ' ./assets/img/chat/user2.jpeg',
-      "description": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
-      "status": 'offline',
-      "sendTime": '17:40'
-    }, {
-      "name": 'Charlie',
-      "image": ' ./assets/img/chat/user4.jpeg',
-      "description": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
-      "status": 'online',
-      "count": '6',
-      "badge": '8',
-      "sendTime": '17:40'
-    }, {
-      "name": 'Logan',
-      "image": ' ./assets/img/chat/user.jpeg',
-      "description": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
-      "status": 'offline',
-      "badge": '8',
-      "sendTime": '17:40'
-    }, {
-      "name": 'Harrison',
-      "image": ' ./assets/img/chat/user2.jpeg',
-      "description": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
-      "status": 'offline',
-      "sendTime": '17:40'
-    }, {
-      "name": 'Sebastian',
-      "image": ' ./assets/img/chat/user1.jpeg',
-      "description": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
-      "status": 'online',
-      "sendTime": '17:40'
-    }, {
-      "name": 'Zachary',
-      "image": ' ./assets/img/chat/user4.jpeg',
-      "description": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
-      "status": 'offline',
-      "sendTime": '17:40'
-    }, {
-      "name": 'Elijah',
-      "image": ' ./assets/img/chat/user3.jpeg',
-      "description": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
-      "status": 'offline',
-      "badge": '8',
-      "sendTime": '17:40'
-    }
-    ]
+    this.chats = this.chatService.getChats(this.authService.userSesion.value);
+    this.chats.subscribe(chats => {
+      console.log('tengo estos chats', chats);   
+      this.chatData = chats;
+      chats.forEach(chat => {
+        for (const iterator of chat.participantsMeta) {
+          if(iterator.idUser != this.authService.userSesion.value.idUser){
+            chat.avatarUserChat = iterator.avatar;
+            chat.title = iterator.userName;
+            
+          }                   
+        }          
+      });
+
+      this.loadingChats = false;
+    });
+
+    // this.chatData = [
+    // {
+    //   "title": 'Jovenica',
+    //   "avatarUserChat": './assets/img/chat/user.jpeg',
+    //   "lastMessage": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
+    //   "status": 'online',
+    //   "count": '2',
+    //   "updatedAt": '2 min ago', 
+
+    // }, {
+    //   "title": 'Oliver',
+    //   "avatarUserChat": ' ./assets/img/chat/user3.jpeg',
+    //   "lastMessage": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
+    //   "status": 'offline',
+    //   "updatedAt": '18:34'
+
+    // }, {
+    //   "title": 'George',
+    //   "avatarUserChat": ' ./assets/img/chat/user4.jpeg',
+    //   "lastMessage": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
+    //   "status": 'offline',
+    //   "count": '2',
+    //   "updatedAt": '18:30',
+
+    // }, {
+    //   "title": 'Harry',
+    //   "avatarUserChat": ' ./assets/img/chat/user1.jpeg',
+    //   "lastMessage": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
+    //   "status": 'online',
+
+    //   "updatedAt": '17:55'
+    // }, {
+    //   "title": 'Jack',
+    //   "avatarUserChat": ' ./assets/img/chat/user.jpeg',
+    //   "lastMessage": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
+    //   "status": 'offline',
+    //   "updatedAt": '17:55'
+    // }, {
+    //   "title": 'Jacob',
+    //   "avatarUserChat": ' ./assets/img/chat/user3.jpeg',
+    //   "lastMessage": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
+    //   "status": 'offline',
+    //   "count": '1',
+    //   "updatedAt": '17:50'
+    // }, {
+    //   "title": 'Noah',
+    //   "avatarUserChat": ' ./assets/img/chat/user2.jpeg',
+    //   "lastMessage": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
+    //   "status": 'offline',
+    //   "updatedAt": '17:40'
+    // }, {
+    //   "title": 'Charlie',
+    //   "avatarUserChat": ' ./assets/img/chat/user4.jpeg',
+    //   "lastMessage": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
+    //   "status": 'online',
+    //   "count": '6',
+    //   "updatedAt": '17:40'
+    // }, {
+    //   "title": 'Logan',
+    //   "avatarUserChat": ' ./assets/img/chat/user.jpeg',
+    //   "lastMessage": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
+    //   "status": 'offline',
+    //   "updatedAt": '17:40'
+    // }, {
+    //   "title": 'Harrison',
+    //   "avatarUserChat": ' ./assets/img/chat/user2.jpeg',
+    //   "lastMessage": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
+    //   "status": 'offline',
+    //   "updatedAt": '17:40'
+    // }, {
+    //   "title": 'Sebastian',
+    //   "avatarUserChat": ' ./assets/img/chat/user1.jpeg',
+    //   "lastMessage": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
+    //   "status": 'online',
+    //   "updatedAt": '17:40'
+    // }, {
+    //   "title": 'Zachary',
+    //   "avatarUserChat": ' ./assets/img/chat/user4.jpeg',
+    //   "lastMessage": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
+    //   "status": 'offline',
+    //   "updatedAt": '17:40'
+    // }, {
+    //   "title": 'Elijah',
+    //   "avatarUserChat": ' ./assets/img/chat/user3.jpeg',
+    //   "lastMessage": ' Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim laboriosam sunt nulla minima ratione, pariatur quaerat aut ex a ullam? Officia, explicabo optio. Dolores, ab exercitationem? Neque illo soluta sapiente!',
+    //   "status": 'offline',
+    //   "updatedAt": '17:40'
+    // }
+    // ]
   }
 
 }

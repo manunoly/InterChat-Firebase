@@ -1,10 +1,29 @@
-<ion-header>
+<ion-header [translucent]="true">
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
     <ion-title>Select user to chat</ion-title>
+
+    <ion-buttons slot="end">
+     <ion-button>
+      <ion-icon slot="icon-only" ios="reload-circle-outline" md="reload-circle-sharp"></ion-icon>
+     </ion-button>
+    </ion-buttons>
+
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content [fullscreen]="true">
+
+  <ion-row *ngIf="loadingUsers" class="ion-padding-top">
+    <ion-col size="12" class="ion-text-center">
+      <ion-spinner></ion-spinner> <br>
+      <ion-text>
+        <ion-note>Loading...</ion-note>
+      </ion-text>
+    </ion-col>
+  </ion-row> 
 
   <ion-list *ngIf="(users |async)">
     <ion-item *ngFor="let user of usersFiltered" >

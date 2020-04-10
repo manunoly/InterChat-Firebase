@@ -55,7 +55,7 @@
     white-space: nowrap;
     width: 100%;
     color: #bfc3c6;
-    font-size: 16px;
+    font-size: 12px;
   }
   
   ion-img {
@@ -67,16 +67,15 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 97%;
+    // width: 97%;
   }
   
   .borderBottomLine {
-    display: block;
     width: 100%;
-    position: absolute;
+    position: fixed;
     border-bottom: 1px solid #cfcfd1;
     height: 100%;
-    left: 21%;
+    left: 92px;
   }
   
   .borderBottomLineNoneChat {

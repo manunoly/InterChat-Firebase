@@ -54,6 +54,7 @@ export class AppComponent implements OnInit {
   }
 
   logout(){
+    this.selectedIndex = 0;
     this.authService.logout();
   }
 }

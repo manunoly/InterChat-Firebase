@@ -28,7 +28,9 @@ export class LoginPage implements OnInit {
       const response = await this.auth.login(this.email, this.password);
       this.loading = false;
       console.log(response);
-      this.router.navigate(['chat-list']);
+      this.router.navigate(['chat-list'] , {replaceUrl: true});
+      this.email = undefined;
+      this.password = undefined;
 
     } catch (error) {
       console.log(error);
