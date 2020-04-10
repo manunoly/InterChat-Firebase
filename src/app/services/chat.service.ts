@@ -78,9 +78,16 @@ export class ChatService {
 
   async createChat(userCreated: iUser, user: iUser, type: string): Promise<any> {
 
+    const idChat = this.setOneToOneChat(userCreated.idUser , user.idUser);
+
+    // Lets check if idChat is created by one of the users before
+
+    // TO_DO
+
+
     const chat: iChat = {
-      idChat: userCreated.idUser + user.idUser,
-      title: 'Chat ' + userCreated.idUser + user.idUser,
+      idChat: idChat,
+      title: 'Chat ' + idChat,
       createdBy: userCreated.idUser,
       type: type,
       createdAt: firebaseApp.database.ServerValue.TIMESTAMP,
@@ -93,7 +100,25 @@ export class ChatService {
       participantsMeta: [userCreated, user]
     }
 
-    return this.updateCreateAt('chat/' + chat.idChat, chat)
+    // return this.updateCreateAt('chats/' + chat.idChat, chat)
+
+  }
+
+  
+  /** Function setup doc path for one to one chat
+   * 
+   * @param idUser1 id for User #1
+   * @param idUser2 id for User #2
+   *
+   **/
+  private setOneToOneChat(idUser1 : string , idUser2 : string) : string {
+    //Check if user1’s id is less than user2's
+    if (idUser1 < idUser2) {
+      return idUser1 + idUser2;
+    }
+    else {
+      return idUser2 + idUser1;
+    }
   }
 
 

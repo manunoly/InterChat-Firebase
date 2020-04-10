@@ -4,7 +4,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'chat-list',
+    redirectTo: 'login',
     pathMatch: 'full'
   },
   {

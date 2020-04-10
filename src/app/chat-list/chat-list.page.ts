@@ -12,7 +12,7 @@ export class ChatListPage implements OnInit {
 
   constructor(private router : Router) {
 
-    this.loadChatData();
+    // this.loadChatData();
     
    }
 

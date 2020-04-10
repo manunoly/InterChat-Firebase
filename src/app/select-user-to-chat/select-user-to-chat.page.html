@@ -6,8 +6,8 @@
 
 <ion-content>
 
-  <ion-list *ngIf="(users |async) as usersD">
-    <ion-item *ngFor="let user of usersD" >
+  <ion-list *ngIf="(users |async)">
+    <ion-item *ngFor="let user of usersFiltered" >
       <ion-label> {{user.userName}} </ion-label>
       
       <ion-button slot="end" fill="clear" (click)="initChat(user)">

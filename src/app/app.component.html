@@ -1,6 +1,6 @@
 <ion-app>
   <ion-split-pane contentId="main-content">
-    <ion-menu contentId="main-content" type="overlay">
+    <ion-menu contentId="main-content" type="overlay" *ngIf="authService.firebaseUser$ | async ">
       <ion-content>
         <ion-list id="inbox-list">
           <ion-list-header>Rock7Media</ion-list-header>
@@ -11,7 +11,16 @@
               <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
               <ion-label>{{ p.title }}</ion-label>
             </ion-item>
+
           </ion-menu-toggle>
+          
+          <ion-menu-toggle *ngIf="authService.firebaseUser$ | async ">
+            <ion-item (click)="logout()" lines="none" detail="false">
+              <ion-icon slot="start" [ios]="'log-out-outline'" [md]="'log-out-sharp'"></ion-icon>
+              <ion-label>LogOut</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+
         </ion-list>
 
       </ion-content>
