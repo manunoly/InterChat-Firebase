@@ -3,42 +3,57 @@
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>Chat</ion-title>
+    <ion-title>{{chatSelected?.title}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content #IonContent [fullscreen]="true">
   <ion-list>
-    <div *ngFor="let chat of msgList; let i = index; ">
 
-      <ion-row
-        *ngIf="( chat.time != today.toTimeString().slice(0,5) ) && (msgList[i-1] ? msgList[i-1].time != chat.time : false); else elseBlock">
+    <ion-row>
+      <ion-col>
+        <!-- Show Created Date for Chat Always -->
+        <ion-text>{{calendarDayFormat()}}</ion-text>
+      </ion-col>
+    </ion-row>
+
+    <div *ngFor="let message of msgList; let i = index; trackBy: trackByFnmessages ">
+
+    <!-- Validation show grouped Chats for Same Date  -->
+      <ion-row *ngIf=" !checkSameDay(message?.timestamp?.toDate()) ; else elseBlock">
         <ion-col>
-          <ion-text>{{chat.time}}</ion-text>
+          <ion-text>{{ calendarDayFormat(message.timestamp.toDate()) }}</ion-text>
         </ion-col>
       </ion-row>
+
       <ng-template #elseBlock>
         <br>
       </ng-template>
 
-      <ion-row *ngIf="chat.userId == User">
+      <!-- ROW FOR MESSAGE RECIEVED -->
+
+      <ion-row *ngIf="message.idSender == chatSelected.idUserReciever">
         <ion-col class="right ion-no-padding"
-          [ngClass]="{'clubbed':((msgList[i+1] && msgList[i+1].userId != chat.userId)|| !msgList[i+1])}">
+          [ngClass]="{'clubbed':((msgList[i+1] && msgList[i+1].idSender != message.idSender)|| !msgList[i+1])}">
           <div class="imageAvatarRight">
+
             <div class="imageAvatarBottom">
-              <ion-avatar class="avatar" [ngClass]="(msgList[i+1] && msgList[i+1].userId == chat.userId)?'hidden':''">
+              <ion-avatar class="avatar"
+                [ngClass]="(msgList[i+1] && msgList[i+1].idSender == message.idSender)?'hidden':''">
                 <!-- <div class="imageAvatarBottomIcon">
                   <ion-icon name="add" expand="icon-only" color="light"> </ion-icon>
                 </div> -->
-                <ion-img [src]="chat.userAvatar"></ion-img>
+                <ion-img [src]="userSesion?.avatar ? userSesion?.avatar : './assets/icon/favicon.png'"></ion-img>
               </ion-avatar>
             </div>
             <ion-label color="light">
-              <div class="chatDiv" [ngClass]="{'sharper':((msgList[i+1] && msgList[i+1].userId == chat.userId) && 
-              (msgList[i-1] && msgList[i-1].userId == chat.userId)),
-              'sharper-top':(msgList[i-1] && msgList[i-1].userId == chat.userId),
-              'sharper-bottom':(msgList[i+1] && msgList[i+1].userId == chat.userId)}">
-                <p class="ion-text-wrap ion-padding">{{chat.message}}
+              <div class="chatDiv" [ngClass]="{'sharper':((msgList[i+1] && msgList[i+1].idSender == message.idSender) && 
+              (msgList[i-1] && msgList[i-1].idSender == message.idSender)),
+              'sharper-top':(msgList[i-1] && msgList[i-1].idSender == message.idSender),
+              'sharper-bottom':(msgList[i+1] && msgList[i+1].idSender == message.idSender)}">
+
+                <p class="ion-text-wrap ion-padding">
+                  {{message.message}}
                 </p>
 
                 <div class="corner-parent-right">
@@ -49,7 +64,7 @@
 
                 <div class="timeBubbleChat">
                   <ion-text color="medium">
-                    <p><small>{{chat.time}}</small></p>
+                    <p><small>{{message.timestamp.toDate() | date: 'shortTime'}}</small></p>
                   </ion-text>
                 </div>
 
@@ -59,19 +74,20 @@
         </ion-col>
       </ion-row>
 
-      <ion-row *ngIf="chat.userId == toUser">
+      <!-- ROW FOR MESSAGES Sended -->
+      <ion-row *ngIf="message.idSender == userSesion.idUser">
         <ion-col class="left ion-no-padding"
-          [ngClass]="{'clubbed':((msgList[i+1] && msgList[i+1].userId != chat.userId)|| !msgList[i+1])}">
+          [ngClass]="{'clubbed':((msgList[i+1] && msgList[i+1].idSender != message.idSender)|| !msgList[i+1])}">
           <div class="imageAvatarLeft">
             <ion-label color="light">
-              <div class="chatDiv" [ngClass]="{'sharper':((msgList[i+1] && msgList[i+1].userId == chat.userId) && 
-              (msgList[i-1] && msgList[i-1].userId == chat.userId)),
-              'sharper-top':(msgList[i-1] && msgList[i-1].userId == chat.userId),
-              'sharper-bottom':(msgList[i+1] && msgList[i+1].userId == chat.userId)}">
+              <div class="chatDiv" [ngClass]="{'sharper':((msgList[i+1] && msgList[i+1].idSender == message.idSender) && 
+              (msgList[i-1] && msgList[i-1].idSender == message.idSender)),
+              'sharper-top':(msgList[i-1] && msgList[i-1].idSender == message.idSender),
+              'sharper-bottom':(msgList[i+1] && msgList[i+1].idSender == message.idSender)}">
 
-              <p class="ion-text-wrap ion-padding">
-                {{chat.message}}
-              </p>
+                <p class="ion-text-wrap ion-padding">
+                  {{message.message}}
+                </p>
 
                 <div class="corner-parent-left">
                   <div class="corner-child-left">
@@ -79,22 +95,23 @@
                   </div>
                 </div>
 
-                 <div class="timeBubbleChat">
+                <div class="timeBubbleChat">
                   <ion-text color="medium">
-                    <p><small>{{chat.time}}</small></p>
+                    <p><small>{{message.timestamp.toDate() | date: 'shortTime'}}</small></p>
                   </ion-text>
                 </div>
-               
+
 
               </div>
             </ion-label>
             <div class="imageAvatarBottom">
               <!-- <ion-icon class="imageAvatarBottomIcon" name="add" expand="icon-only" color="success"></ion-icon> -->
-              <ion-avatar class="avatar" [ngClass]="(msgList[i+1] && msgList[i+1].userId == chat.userId)?'hidden':''">
+              <ion-avatar class="avatar"
+                [ngClass]="(msgList[i+1] && msgList[i+1].idSender == message.idSender)?'hidden':''">
                 <!-- <div class="imageAvatarBottomIcon">
                   <ion-icon name="add" expand="icon-only" color="light"> </ion-icon>
                 </div> -->
-                <ion-img [src]="chat.userAvatar"></ion-img>
+                <ion-img [src]="userSesion?.avatar ? userSesion?.avatar : './assets/icon/favicon.png'"></ion-img>
               </ion-avatar>
             </div>
           </div>

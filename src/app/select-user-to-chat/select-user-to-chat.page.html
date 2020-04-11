@@ -27,7 +27,7 @@
 
   <ion-list *ngIf="(users |async)">
     <ion-item *ngFor="let user of usersFiltered" >
-      <ion-label> {{user.userName}} </ion-label>
+      <ion-label> {{user.userName | titlecase}} </ion-label>
       
       <ion-button slot="end" fill="clear" (click)="initChat(user)">
         <!-- <ion-icon name="chatboxes" size="large" color="primary"></ion-icon> -->

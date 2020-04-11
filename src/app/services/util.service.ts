@@ -63,4 +63,8 @@ export class UtilService {
   get serverTimestamp() {
     return firebase.firestore.FieldValue.serverTimestamp();
   }
+
+  get timestampServerNow(){
+    return firebase.firestore.Timestamp.now();
+  }
 }

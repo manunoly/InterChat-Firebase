@@ -20,4 +20,6 @@ export interface iChat {
     avatarUserChat?: string;
     status?: string;
     count?: string;
+    idUserReciever? : string; //only for app purpose
+    userReciever? : iUser; //only for app purpose
 }

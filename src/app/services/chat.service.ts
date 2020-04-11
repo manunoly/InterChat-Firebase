@@ -45,7 +45,7 @@ export class ChatService {
   getAllChat(limit: number = 50): Observable<any> {
     console.log('getAllChat');
 
-    return this.afs.collection<iChat[]>('chat', ref => ref.orderBy('timestamp', "desc").limit(limit)).snapshotChanges().pipe(shareReplay(1));
+    return this.afs.collection<iChat[]>('chats', ref => ref.orderBy('timestamp', "desc").limit(limit)).snapshotChanges().pipe(shareReplay(1));
 
   }
 
@@ -54,7 +54,7 @@ export class ChatService {
    * @param limit number of messages, default 50,
    */
   getMessageByChatId(id: string, limit: number = 50): Observable<any> {
-    return this.afs.collection<iMessage[]>('chat/' + id + '/messages', ref => ref.orderBy('timestamp', "desc").limit(limit)).valueChanges().pipe(shareReplay(1));
+    return this.afs.collection<iMessage[]>('chats/' + id + '/messages', ref => ref.orderBy('timestamp', "desc").limit(limit)).valueChanges().pipe(shareReplay(1));
   }
 
   /**
@@ -119,51 +119,48 @@ export class ChatService {
           return new Promise((resolve)=>{
             this.chatDataActual = chat;
             resolve({chatRef : chat , exist : true});
-          })
-
+          });
 
         } catch (error) {
           console.log(error);
           this.utilService.showAlert('Info', 'Error Creating chat. Please try again Later');
         }
 
-        return 
-
       } else { //CHAT EXIST LETS GO TO THE CHAT OR UPDATE SOMETHING
 
         return new Promise((resolve)=>{
           this.chatDataActual = chatRef.data();
           resolve({chatRef : chatRef.data() , exist : true});
-        })
-
-
+        });
       }
 
-
-
     } catch (error) {
-
-      console.log(error);
-      
+      console.log(error);     
     } 
-
-    // TO_DO
-
-    console.log(this.utilService.serverTimestamp);
-
-
-
-    // return this.updateCreateAt('chats/' + chat.idChat, chat)
 
   }
 
+  async pushNewMessageChat(idChat : string , message : iMessage){
+
+    try {
+
+      const response = await this.updateCreateAt('chats/' + idChat +'/messages/' , message);
+
+
+    } catch (error) {
+      console.log(error);
+      this.utilService.showAlert('Info', 'Error sending message. Please try again Later');
+    }
+    
+
+  }
 
   setChatData(chatRef){
     this.chatDataActual = chatRef;
   }
 
   get chatData(){
-    return this.chatDataActual
+    return this.chatDataActual;
   }
 
   private chatExist(idChat : string) {

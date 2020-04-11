@@ -5,6 +5,7 @@ import { iChat } from './model/chat.model';
 import { Observable } from 'rxjs';
 import { DbService } from '../services/db.service';
 import { ChatService } from '../services/chat.service';
+import { UtilService } from '../services/util.service';
 
 @Component({
   selector: 'app-chat-list',
@@ -20,7 +21,8 @@ export class ChatListPage implements OnInit {
   constructor(private router : Router,
     private db : DbService,
     private chatService: ChatService,
-    private authService : AuthService) {
+    private authService : AuthService,
+    private utilService: UtilService) {
 
     // this.loadChatData();
     
@@ -38,10 +40,15 @@ export class ChatListPage implements OnInit {
           console.log('tengo estos chats', chats);   
           this.chatData = chats;
           chats.forEach(chat => {
+            
             for (const iterator of chat.participantsMeta) {
               if(iterator.idUser != this.authService.userSesion.value.idUser){
+                
                 chat.avatarUserChat = iterator.avatar;
                 chat.title = iterator.userName;
+                chat.idUserReciever = iterator.idUser;
+                chat.userReciever = iterator;
+
                 
               }                   
             }          
@@ -59,6 +66,7 @@ export class ChatListPage implements OnInit {
 
   openChat(selectedChat){
     console.log(selectedChat);
+    this.chatService.setChatData(selectedChat);
     this.router.navigate(['chat']);
   }
 
