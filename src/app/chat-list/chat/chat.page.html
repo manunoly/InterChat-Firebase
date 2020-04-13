@@ -13,16 +13,16 @@
     <ion-row>
       <ion-col>
         <!-- Show Created Date for Chat Always -->
-        <ion-text>{{calendarDayFormat()}}</ion-text>
+        <ion-text color="medium">Chat Created at {{calendarDayFormat()}}</ion-text>
       </ion-col>
     </ion-row>
 
     <div *ngFor="let message of msgList; let i = index; trackBy: trackByFnmessages ">
 
     <!-- Validation show grouped Chats for Same Date  -->
-      <ion-row *ngIf=" !checkSameDay(message?.timestamp?.toDate()) ; else elseBlock">
+      <ion-row *ngIf=" !checkSameDay(i) ; else elseBlock">
         <ion-col>
-          <ion-text>{{ calendarDayFormat(message.timestamp.toDate()) }}</ion-text>
+          <ion-text class="chatsDatesGrouped">{{ calendarDayFormat(message.timestamp.toDate()) }}</ion-text>
         </ion-col>
       </ion-row>
 

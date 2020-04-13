@@ -22,7 +22,7 @@ export class ChatListPage implements OnInit {
     private db : DbService,
     private chatService: ChatService,
     private authService : AuthService,
-    private utilService: UtilService) {
+    public utilService: UtilService) {
 
     // this.loadChatData();
     

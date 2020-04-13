@@ -5,6 +5,8 @@ import { iUser } from '../chat-list/model/user.model';
 import * as firebase from 'firebase/app';
 import { LoadingController, AlertController } from '@ionic/angular';
 
+import * as moment from 'moment';
+
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +14,8 @@ import { LoadingController, AlertController } from '@ionic/angular';
 export class UtilService {
 
   loading: any;
+
+  private today = new Date();
 
   constructor(private storage: Storage,
     private loadingController: LoadingController,
@@ -66,5 +70,21 @@ export class UtilService {
 
   get timestampServerNow(){
     return firebase.firestore.Timestamp.now();
+  }  
+
+  calendarDayFormat(dateRef : Date) {
+    return moment(dateRef).calendar(this.today, {
+      sameDay: '[Today]',
+      nextDay: 'DD/MM/YYYY',
+      nextWeek: 'DD/MM/YYYY',
+      lastDay: '[Yesterday]',
+      lastWeek: 'DD/MM/YYYY',
+      sameElse: 'DD/MM/YYYY'
+    });
   }
+
+  isDifferentDayFromToday(dateToCheck : Date): boolean {
+    return moment(dateToCheck).isSame(this.today, 'day');
+  }
+
 }

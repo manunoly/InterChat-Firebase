@@ -34,11 +34,13 @@ export class ChatPage implements OnInit {
 
   userSesion: iUser;
 
+  messageDateString : string;
+
   constructor(public activRoute: ActivatedRoute,
     private router: Router,
     private authService: AuthService,
     private afs: AngularFirestore,
-    private utilService: UtilService,
+    public utilService: UtilService,
     private db: DbService,
     private chatService: ChatService) {
 
@@ -91,19 +93,6 @@ export class ChatPage implements OnInit {
       console.log(newMsg);
       this.msgList.push(newMsg);
       this.chatService.pushNewMessageChat(this.chatSelected.idChat, newMsg);
-
-      // ==================================================
-      // ================ TO_DO ===========================
-      // ==================================================
-      // ==================================================
-      // ==================================================
-      // = Luego de nuevo mensaje actualizar lo siguiente:
-      // = * Actualizar LastMessage
-      // = * Actualizar UpdatedAt
-      // = * Actualizar Type LastMessage
-      // ==================================================
-      // ==================================================
-      // ==================================================
 
       this.user_input = "";
       this.scrollDown();
@@ -185,13 +174,13 @@ export class ChatPage implements OnInit {
     return message.idMessage;
   }
 
-  checkSameDay(dateMessage: Date) {
-
-    return moment(dateMessage.toISOString()).isSame(this.today.toISOString(), 'day');
+  checkSameDay(messageIndex: number) {
+    if (messageIndex === 0) return false;
+    return moment(this.msgList[messageIndex - 1].timestamp.toDate()).isSame(this.msgList[messageIndex].timestamp.toDate(), 'day');
   }
 
   calendarDayFormat(dateRef: Date = this.chatSelected.createdAt.toDate()) {
-    return moment().calendar(dateRef.toISOString(), {
+    return moment(dateRef.toISOString()).calendar(this.today, {
       sameDay: '[Today]',
       nextDay: 'DD/MM/YYYY',
       nextWeek: 'DD/MM/YYYY',

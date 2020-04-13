@@ -54,7 +54,7 @@ export class ChatService {
    * @param limit number of messages, default 50,
    */
   getMessageByChatId(id: string, limit: number = 50): Observable<any> {
-    return this.afs.collection<iMessage[]>('chats/' + id + '/messages', ref => ref.orderBy('timestamp', "desc").limit(limit)).valueChanges().pipe(shareReplay(1));
+    return this.afs.collection<iMessage[]>('chats/' + id + '/messages', ref => ref.orderBy('timestamp', "asc").limit(limit)).valueChanges().pipe(shareReplay(1));
   }
 
   /**
@@ -146,6 +146,14 @@ export class ChatService {
 
       const response = await this.updateCreateAt('chats/' + idChat +'/messages/' , message);
 
+      // UPDATING CHAT WITH LAST DATA FROM MESSAGE
+      const chatUpdate : iChat = {
+        typeLastMessage : message.type,
+        updatedAt: message.timestamp,
+        lastMessage: message.message      
+      }
+
+      this.updateCreateAt('chats/' + idChat , chatUpdate );
 
     } catch (error) {
       console.log(error);

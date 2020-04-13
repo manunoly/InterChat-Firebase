@@ -35,7 +35,7 @@
   <ion-list class="ion-no-padding imageBack"  *ngIf="(chats |async)">
     <ion-item *ngFor="let chat of chatData" class="imageBack" lines="none" button=true (click)="openChat(chat)">
       <div class="borderBottomLine"></div>
-      <div slot="start" class="listSection">
+      <div class="listSection">
         <div class="UserimgSection">
           <ion-avatar class="chatImage" slot="start">
             <ion-img [src]="chat.avatarUserChat ? chat.avatarUserChat : './assets/icon/favicon.png'"></ion-img>
@@ -45,9 +45,9 @@
 
           </ion-avatar>
         </div>
-        <div class="usernameSection ion-padding-start ion-padding">
+        <div class="usernameSection ion-padding-start ion-padding ion-text-nowrap">
           <ion-text>
-            <h5>
+            <h5 class="overflow-hidden">
               <!-- <ion-icon *ngIf="chat.group" name="people" color="medium"></ion-icon>
               <ion-icon name="microphone" *ngIf="chat.broadcast" color="medium"></ion-icon> -->
                {{chat.title}}
@@ -56,14 +56,14 @@
           <p class="descText ion-no-margin ion-no-padding">{{chat.lastMessage ? chat.lastMessage : 'Chat Created'}}</p>
         </div>
       </div>
-      <div slot="end" class="lastSection">
+      <div slot="end" class="lastSection ion-no-margin">
 
           <!-- <ion-note *ngIf="!chat.updatedAt" class="sendTime">{{chat.updatedAt}}</ion-note> -->
 
           <!-- para cuantos mensajes sin leer -->
           <!-- <ion-badge slot="end" class="userBadge" *ngIf="chat.badge">{{chat.badge}}</ion-badge> -->
 
-          <ion-note slot="end" *ngIf="chat.updatedAt" class="sendTime">{{chat.updatedAt.toDate() | date: 'shortTime'}}</ion-note>
+          <ion-note slot="end" *ngIf="chat.updatedAt" class="sendTime">{{ utilService.isDifferentDayFromToday(chat.updatedAt.toDate()) ? (chat.updatedAt.toDate() | date: 'shortTime') : utilService.calendarDayFormat(chat.updatedAt.toDate()) }}</ion-note>
       </div>
       
     </ion-item>
