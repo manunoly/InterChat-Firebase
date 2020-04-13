@@ -27,8 +27,4 @@ export class User {
         return this.user.type;
     }
 
-    getImage() {
-        return this.user.image;
-    }
-
 }

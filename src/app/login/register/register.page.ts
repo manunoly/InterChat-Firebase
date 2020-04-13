@@ -27,11 +27,11 @@ export class RegisterPage implements OnInit {
 
   buildForm() {
     this.loginForm = new FormGroup({
-      displayName: new FormControl('manuel', [Validators.required, Validators.minLength(6), Validators.maxLength(100)]),
-      phone: new FormControl('111111111', [Validators.required, Validators.minLength(6), Validators.maxLength(12)]),
-      email: new FormControl('manuel@gmail.com', [Validators.required, Validators.email, Validators.minLength(6), Validators.maxLength(100)]),
-      password: new FormControl('123456', [Validators.required, Validators.minLength(6), Validators.maxLength(100)]),
-      passwordC: new FormControl('123456', [Validators.required, Validators.minLength(6), Validators.maxLength(100)])
+      displayName: new FormControl('', [Validators.required, Validators.minLength(6), Validators.maxLength(100)]),
+      phone: new FormControl('', [Validators.required, Validators.minLength(6), Validators.maxLength(12)]),
+      email: new FormControl('', [Validators.required, Validators.email, Validators.minLength(6), Validators.maxLength(100)]),
+      password: new FormControl('', [Validators.required, Validators.minLength(6), Validators.maxLength(100)]),
+      passwordC: new FormControl('', [Validators.required, Validators.minLength(6), Validators.maxLength(100)])
     });
   }
 
