@@ -1,56 +1,77 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>login</ion-title>
-  </ion-toolbar>
+    <ion-toolbar>
+        <ion-title>Login</ion-title>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
 
-  <div *ngIf="user">
-    <h5 class="ion-text-center">Hola, estas logueado</h5>
-  </div>
-  
-  <ion-grid class="ion-padding" *ngIf="!user">
-    <ion-row class="ion-padding">
-        <ion-col size-sm="12" size-md="8" offset-md="2">
-            <ion-item>
-                <ion-label position="floating">
-                    Email
-                </ion-label>
-                <ion-input type="email" [(ngModel)]="email" [autofocus]="true"></ion-input>
-            </ion-item>
+    <div *ngIf="user" class="ion-padding">
+        <ion-grid class="ion-padding" *ngIf="!user">
+            <ion-row class="ion-padding">
+                <ion-col size-sm="12" size-md="8" offset-md="2">
 
-            <ion-item>
-                <ion-label position="floating">
-                    Password
-                </ion-label>
-                <ion-input type="password" [(ngModel)]="password"></ion-input>
-            </ion-item>
-        </ion-col>
-    </ion-row>
+                    <h5 class="ion-text-center">Hola, estas logueado</h5>
 
-    <ion-row class="ion-padding" *ngIf="errorMsg">
-        <ion-col size-sm="12" size-md="8" offset-md="2">
-            <ion-text color="danger">
-                <h5 class="ion-text-center">
-                    {{errorMsg}}
-                </h5>
-            </ion-text>
-        </ion-col>
-        <ion-col size="12" class="ion-text-center">
-            <ion-spinner *ngIf="loading" color="secondary"></ion-spinner>
-        </ion-col>
-    </ion-row>
+                    <ion-button expand="block" shape="round">
+                        Ver mis Chats
+                    </ion-button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </div>
 
-    <ion-row class="ion-padding">
-        <ion-col size-sm="10" size-md="6" offset-md="3">
+    <ion-grid class="ion-padding" *ngIf="!user">
+        <ion-row class="ion-padding">
+            <ion-col size-sm="12" size-md="8" offset-md="2">
+                <ion-item>
+                    <ion-label position="floating">
+                        Email
+                    </ion-label>
+                    <ion-input type="email" [(ngModel)]="email" [autofocus]="true"></ion-input>
+                </ion-item>
 
-            <ion-button [disabled]="!email || !password" expand="block" shape="round" (click)="login()">
-                Login
-            </ion-button>
+                <ion-item>
+                    <ion-label position="floating">
+                        Password
+                    </ion-label>
+                    <ion-input type="password" [(ngModel)]="password"></ion-input>
+                </ion-item>
+            </ion-col>
+        </ion-row>
 
-        </ion-col>
-    </ion-row>
-</ion-grid>
+        <ion-row class="ion-padding" *ngIf="errorMsg">
+            <ion-col size-sm="12" size-md="8" offset-md="2">
+                <ion-text color="danger">
+                    <h5 class="ion-text-center">
+                        {{errorMsg}}
+                    </h5>
+                </ion-text>
+            </ion-col>
+            <ion-col size="12" class="ion-text-center">
+                <ion-spinner *ngIf="loading" color="secondary"></ion-spinner>
+            </ion-col>
+        </ion-row>
+
+        <ion-row class="ion-padding">
+            <ion-col size-sm="10" size-md="6" offset-md="3">
+
+                <ion-button [disabled]="!email || !password" expand="block" shape="round" (click)="login()">
+                    Login
+                </ion-button>
+
+            </ion-col>
+        </ion-row>
+
+        <ion-row class="ion-padding">
+            <ion-col size-sm="10" size-md="6" offset-md="3">
+
+                <ion-button expand="block" fill="clear" (click)="register()">
+                    Register
+                </ion-button>
+
+            </ion-col>
+        </ion-row>
+    </ion-grid>
 
 </ion-content>

@@ -4,7 +4,6 @@ export interface iUser {
     userName: string;
     avatar: string;
     type?: string;
-    image?: string;
     email?:string;
     phone?: string;
 }
