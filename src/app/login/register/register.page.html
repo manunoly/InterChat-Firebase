@@ -1,0 +1,85 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Register</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-grid class="ion-padding ion-text-center">
+
+    <form [formGroup]="loginForm" (ngSubmit)="register()">
+      <ion-row>
+        <ion-col>
+          <ion-item class="ion-text-capitalize">
+            <ion-label position="floating" color="primary">
+              Full Name
+            </ion-label>
+            <ion-input formControlName="displayName"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating" color="primary">
+              Phone
+            </ion-label>
+            <ion-input type="tel" formControlName="phone"></ion-input>
+          </ion-item>
+
+          <ion-item class="ion-text-lowercase">
+            <ion-label position="floating" color="primary">
+              <span class="ion-text-capitalize"> Email </span>
+            </ion-label>
+            <ion-input formControlName="email"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating" color="primary">
+              Password
+            </ion-label>
+            <ion-input [type]="typeP" formControlName="password"></ion-input>
+            <div slot="end" class="ion-no-padding ion-no-margin item-float-end ion-padding-top">
+              <ion-button fill="clear" (click)="typeP = typeP=='text'? 'password': 'text'">
+                <ion-icon [name]="typeP == 'text' ? 'eye-off': 'eye'"></ion-icon>
+              </ion-button>
+            </div>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating" color="primary">
+              Confirm password
+            </ion-label>
+            <ion-input [type]="typeP" formControlName="passwordC"></ion-input>
+          </ion-item>
+
+          <div class="ion-text-start"
+            *ngIf="loginForm.get('passwordC').value && loginForm.get('password').value && loginForm.get('passwordC').value != loginForm.get('password').value ">
+            <ion-text color="danger">
+              <small>Password don't match</small>
+            </ion-text>
+          </div>
+
+        </ion-col>
+      </ion-row>
+
+      <ion-row class="ion-padding">
+        <ion-col size="8" offset="2">
+          <ion-button [disabled]="!loginForm.valid || loginForm.value.password != loginForm.value.passwordC"
+            fill="outline" expand="block" shape="round" type="submit">
+            Register
+          </ion-button>
+        </ion-col>
+        <ion-col size="12" class="ion-text-center">
+          <h6>
+            Password is handler by GOOGLE services.
+          </h6>
+
+          <ion-button (click)="close()" fill="clear">
+            Back
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </form>
+  </ion-grid>
+
+
+</ion-content>

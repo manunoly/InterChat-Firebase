@@ -1,6 +1,8 @@
+import { RegisterPage } from './register/register.page';
 import { AuthService } from './../services/auth.service';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { ModalController } from '@ionic/angular';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +17,8 @@ export class LoginPage implements OnInit {
   user;
 
   constructor(public auth: AuthService,
-    private router: Router) { }
+    private router: Router,
+    private modalController: ModalController) { }
 
   ngOnInit() {
   }
@@ -43,6 +46,20 @@ export class LoginPage implements OnInit {
     // setTimeout(() => {
     //   this.errorMsg = '';
     // }, 400);
+  }
+
+  async register(){
+    const modal = await this.modalController.create({
+      component: RegisterPage,
+      componentProps: { }
+    });
+    modal.onDidDismiss()
+      .then((data) => {
+       console.log(data);
+      });
+    return await modal.present();
+
+    
   }
 
   logout(){

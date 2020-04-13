@@ -20,19 +20,19 @@ export class DbService {
    * @param userSesion 
    * @param limit 
    */
-  getUsers(userSesion : iUser ,limit: number = 50): Observable<any> {
+  getUsers(userSesion: iUser, limit: number = 50): Observable<any> {
     const idUserSesion = (userSesion.idUser) ? userSesion.idUser : userSesion.uid;
     console.log(idUserSesion)
     return this.afs.collection<iUser[]>('users', ref => ref.limit(limit)).valueChanges().pipe(shareReplay(1));
   }
 
-   /**
-   * get actualUser from firebase 
-   * @param email  
-   */
-  getUser(email : string ) {
+  /**
+  * get actualUser from firebase 
+  * @param email  
+  */
+  getUser(email: string) {
 
-    return this.afs.collection<iUser>('users' , ref => ref.where('email', '==', email).limit(1)).get().pipe(take(1)).toPromise();    
+    return this.afs.collection<iUser>('users', ref => ref.where('email', '==', email).limit(1)).get().pipe(take(1)).toPromise();
 
   }
 
@@ -40,7 +40,7 @@ export class DbService {
    * experimental Search Users
    *   
    */
-  getUsersPromise(userSesion: iUser, limit: number = 50) : Promise<iUser[]> {
+  getUsersPromise(userSesion: iUser, limit: number = 50): Promise<iUser[]> {
 
     let resolveFunction: (result: iUser[]) => void;
     const promise = new Promise<iUser[]>(resolve => {
@@ -50,9 +50,9 @@ export class DbService {
     console.log(idUserSesion)
     let collectionL = this.afs.collection<iUser>('users', ref =>
       ref.where('idUser', '<', idUserSesion)).valueChanges();
-      collectionL.subscribe(data => {
+    collectionL.subscribe(data => {
       let CollectionR = this.afs.collection<iUser>('users', ref =>
-      ref.where('idUser', '>', idUserSesion)).valueChanges();
+        ref.where('idUser', '>', idUserSesion)).valueChanges();
       CollectionR.subscribe(data2 => {
         data2 = data2.concat(data);
         resolveFunction(data2)
@@ -61,6 +61,22 @@ export class DbService {
 
     return promise;
     // return this.afs.collection<iUser[]>('users', ref => ref.where('idUser', '<', idUserSesion).where('idUser', '>', idUserSesion).limit(limit)).valueChanges().pipe(shareReplay(1));
+  }
+
+    /**
+   * 
+   * @param path where to write
+   * @param data data to set
+   */
+  updateCreateAt(path: string, data: Object): Promise<any> {
+    const segments = path.split("/").filter(v => v);
+    if (segments.length % 2) {
+      // Odd is always a collection
+      return this.afs.collection(path).add(data);
+    } else {
+      // Even is always document
+      return this.afs.doc(path).set(data, { merge: true });
+    }
   }
 
 }

@@ -4,10 +4,11 @@ import { AngularFireAuth } from "@angular/fire/auth";
 import { Observable, BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
 import { DbService } from './db.service';
-import { iUser } from '../chat-list/model/user.model';
 
 import { Storage } from '@ionic/storage';
 import { UtilService } from './util.service';
+
+import { iUser } from '../chat-list/model/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -17,10 +18,11 @@ export class AuthService {
   userSesion: BehaviorSubject<iUser> = new BehaviorSubject(null);
 
   constructor(public afAuth: AngularFireAuth,
-    private zone : NgZone,
+    private zone: NgZone,
     private router: Router,
     private dbService: DbService,
-    private utilService: UtilService) {
+    private utilService: UtilService,
+    private util: UtilService) {
 
     this.firebaseUser$ = this.afAuth.authState;
     // console.log(this.firebaseUser$);
@@ -68,9 +70,9 @@ export class AuthService {
             });
           } catch (error) {
             console.log(error);
-            this.utilService.showAlert('Information' , 'A problem was ocurred on login. Please try again later');
+            this.utilService.showAlert('Information', 'A problem was ocurred on login. Please try again later');
             this.logout()
-            this.router.navigate(['login'] , {replaceUrl : true});
+            this.router.navigate(['login'], { replaceUrl: true });
 
           }
 
@@ -82,7 +84,8 @@ export class AuthService {
 
         this.utilService.removeStorage();
         this.userSesion.next(null);
-             
+        this.router.navigate(['login'], { replaceUrl: true });
+
 
       }
 
@@ -103,9 +106,38 @@ export class AuthService {
   }
 
   async logout() {
-    this.router.navigateByUrl('login');  
+    this.router.navigateByUrl('login');
     return await this.afAuth.auth.signOut();
-  
+  }
+
+
+  async register(data) {
+    this.util.showLoading();
+
+    try {
+      const userD = await this.afAuth.auth.createUserWithEmailAndPassword(data.email, data.password);
+
+      let user: iUser =
+      {
+        idUser: data.id ? data.id : userD.user.uid,
+        uid: userD.user.uid,
+        userName: data.displayName ? data.displayName : "Automatic User",
+        avatar: data.avatar ? data.avatar : "./assets/icon/favicon.png",
+        type: data.type ? data.type : 'user',
+        email: data.email ? data.email : "",
+        phone: data.phone ? data.phone : "",
+      }
+
+      await this.dbService.updateCreateAt('users',user);
+
+      this.util.dismissLoading();
+
+      return true;
+    } catch (error) {
+      this.util.dismissLoading();
+      this.util.showAlert('Unexpected error');
+      return false;
+    }
   }
 
 }
