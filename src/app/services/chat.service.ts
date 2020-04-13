@@ -99,12 +99,12 @@ export class ChatService {
           title: 'Chat ' + idChat,
           createdBy: userCreated.idUser,
           type: type,
-          createdAt: this.utilService.serverTimestamp,
-          updatedAt: this.utilService.serverTimestamp,
+          createdAt: this.utilService.timestampServerNow,
+          updatedAt: this.utilService.timestampServerNow,
           typing: false,
           lastMessage: '',
           typeLastMessage: '',
-          timestamp: this.utilService.serverTimestamp,
+          timestamp: this.utilService.timestampServerNow,
           participantsIDS: [userCreated.idUser, user.idUser],
           participantsMeta: [userCreated, user]
         }
@@ -117,6 +117,14 @@ export class ChatService {
           const createdChat = await this.updateCreateAt('chats/' + idChat , chat);
 
           return new Promise((resolve)=>{
+
+            // overwrite data needed on chat
+            chat.avatarUserChat = user.avatar;
+            chat.title = user.userName;
+            chat.idUserReciever = user.idUser;
+            chat.userReciever = user;
+
+            // Save to Service to proceed to the chat page
             this.chatDataActual = chat;
             resolve({chatRef : chat , exist : true});
           });
@@ -129,6 +137,7 @@ export class ChatService {
       } else { //CHAT EXIST LETS GO TO THE CHAT OR UPDATE SOMETHING
 
         return new Promise((resolve)=>{
+          // Save to Service to proceed to the chat page
           this.chatDataActual = chatRef.data();
           resolve({chatRef : chatRef.data() , exist : true});
         });

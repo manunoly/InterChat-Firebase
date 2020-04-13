@@ -50,7 +50,7 @@
             <h5 class="overflow-hidden">
               <!-- <ion-icon *ngIf="chat.group" name="people" color="medium"></ion-icon>
               <ion-icon name="microphone" *ngIf="chat.broadcast" color="medium"></ion-icon> -->
-               {{chat.title}}
+               {{chat.title | titlecase }}
             </h5>
           </ion-text>
           <p class="descText ion-no-margin ion-no-padding">{{chat.lastMessage ? chat.lastMessage : 'Chat Created'}}</p>
@@ -72,7 +72,8 @@
       <ion-text class="borderBottomLineNoneChat">
         <p class="ion-text-center">
           You don't have any Chat <br> 
-          Please start a new one
+          Please start a new one, or maybe you don't <br>
+          have internet connection to retrieve data <br>
         </p>
       </ion-text>
       

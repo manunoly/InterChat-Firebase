@@ -20,10 +20,18 @@ export class DbService {
    * @param userSesion 
    * @param limit 
    */
-  getUsers(userSesion : iUser ,limit: number = 50): Observable<any> {
-    const idUserSesion = (userSesion.idUser) ? userSesion.idUser : userSesion.uid;
-    console.log(idUserSesion)
+  getUsers(userSesion? : iUser ,limit: number = 50): Observable<any> {
+
     return this.afs.collection<iUser[]>('users', ref => ref.limit(limit)).valueChanges().pipe(shareReplay(1));
+  }
+
+   /**
+   * get sync users from firebase only once
+   * @param userSesion 
+   * @param limit 
+   */
+  getUsersOneTime(userSesion? : iUser ,limit: number = 50){
+    return this.afs.collection<iUser[]>('users', ref => ref.limit(limit)).get().pipe(take(1)).toPromise();
   }
 
    /**

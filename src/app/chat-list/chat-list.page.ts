@@ -90,6 +90,11 @@ export class ChatListPage implements OnInit {
       });
 
       this.loadingChats = false;
+    },
+
+    (errors) => {
+      console.log(errors);
+      
     });
 
     // this.chatData = [

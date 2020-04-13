@@ -6,7 +6,7 @@
     <ion-title>Select user to chat</ion-title>
 
     <ion-buttons slot="end">
-     <ion-button>
+     <ion-button (click)="getUserFromDatabase()">
       <ion-icon slot="icon-only" ios="reload-circle-outline" md="reload-circle-sharp"></ion-icon>
      </ion-button>
     </ion-buttons>
@@ -25,7 +25,8 @@
     </ion-col>
   </ion-row> 
 
-  <ion-list *ngIf="(users |async)">
+  <!-- <ion-list *ngIf="(users |async)"> -->
+  <ion-list>
     <ion-item *ngFor="let user of usersFiltered" >
       <ion-label> {{user.userName | titlecase}} </ion-label>
       
