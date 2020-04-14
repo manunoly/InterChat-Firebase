@@ -165,16 +165,21 @@ export class ChatPage implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.chatService.getNewsMessageByChatId(this.chatSelected.idChat, this.msgList[this.msgList.length - 1].timestamp).subscribe(messages => {
 
-        console.log('Mensajes Nuevos para este chat ', messages);
+        console.log('======NewMessages on this ChatSesion======');
+        console.log(messages);
 
-        for (const iterator of messages) {
-          this.msgList.push(iterator);
-        }
+        this.msgList = [...this.msgList , ...messages];
+        // avoid same message to push on the view locally when come from db
+        this.msgList =  this.msgList.filter((message,index) =>  this.msgList.findIndex(messageUnique => (messageUnique.idMessage === message.idMessage)) === index);
 
-        this.storageApp.setMessagesByChat(this.chatSelected.idChat, messages);
+        this.storageApp.setMessagesByChat(this.chatSelected.idChat,  this.msgList);
         this.scrollDown();
 
       }));
+
+      console.log('======ALL MESSAGES======')
+      console.log(this.msgList);
+      
   }
 
   subscribeAndGetAllMessages() {
