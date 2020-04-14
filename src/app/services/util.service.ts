@@ -6,6 +6,7 @@ import * as firebase from 'firebase/app';
 import { LoadingController, AlertController } from '@ionic/angular';
 
 import * as moment from 'moment';
+import { Subscription } from 'rxjs';
 
 
 @Injectable({
@@ -60,7 +61,7 @@ export class UtilService {
     return await this.storage.remove(key);
   }
 
-  async removeStorage() {
+  async removeALLStorage() {
     return await this.storage.clear();
   }
 
@@ -85,6 +86,22 @@ export class UtilService {
 
   isDifferentDayFromToday(dateToCheck : Date): boolean {
     return moment(dateToCheck).isSame(this.today, 'day');
+  }
+
+  getInstanceFirebase(){
+    return firebase
+  }
+
+  newTimeStampFirestore(seconds : number , nanoseconds : number){
+    return new firebase.firestore.Timestamp(seconds , nanoseconds)
+  }
+
+  unsubscribeFrom(subscriptions : Subscription[]){
+    if(subscriptions){
+      for (const subscription of subscriptions) {        
+        subscription.unsubscribe();        
+      }
+    }
   }
 
 }

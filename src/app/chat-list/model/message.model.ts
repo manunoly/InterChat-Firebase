@@ -2,7 +2,7 @@ export interface iMessage {
     idMessage : string;
     idSender : string;
     message: string;
-    timestamp: any;
+    timestamp: firebase.firestore.Timestamp;
     file?: string;
     type: string;
   }

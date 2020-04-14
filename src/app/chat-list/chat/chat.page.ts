@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { IonContent } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
@@ -11,13 +11,15 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { iUser } from '../model/user.model';
 
 import * as moment from 'moment';
+import { StorageAppService } from 'src/app/services/storage-app.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-chat',
   templateUrl: './chat.page.html',
   styleUrls: ['./chat.page.scss'],
 })
-export class ChatPage implements OnInit {
+export class ChatPage implements OnInit, OnDestroy {
 
   @ViewChild('IonContent', { static: false }) content: IonContent
   paramData: any;
@@ -34,7 +36,9 @@ export class ChatPage implements OnInit {
 
   userSesion: iUser;
 
-  messageDateString : string;
+  messageDateString: string;
+
+  subscriptions: Subscription[] = [];
 
   constructor(public activRoute: ActivatedRoute,
     private router: Router,
@@ -42,7 +46,8 @@ export class ChatPage implements OnInit {
     private afs: AngularFirestore,
     public utilService: UtilService,
     private db: DbService,
-    private chatService: ChatService) {
+    private chatService: ChatService,
+    private storageApp: StorageAppService) {
 
     // this.today.setHours(0,0,0); //valor de hoy a la media noche para verificar cambio de dia por probar si la validacion con moment falla
 
@@ -52,21 +57,17 @@ export class ChatPage implements OnInit {
     if (this.chatSelected) {
 
       console.log(this.chatSelected);
+      this.loadMessageHistory();
 
-      this.chatService.getMessageByChatId(this.chatSelected.idChat).subscribe(messages => {
+      // this.subscribeAndGetAllMessages();
 
-        console.log('estos son los mensajes de este chat ', messages);
-        this.msgList = messages;
-        this.scrollDown();
-
-      });
       this.scrollDown();
 
     } else {
       this.router.navigate(['chat-list']);
     }
 
-    this.loadMessageHistory();
+    // this.loadMessageHistory();
   }
 
   ngOnInit() {
@@ -74,6 +75,14 @@ export class ChatPage implements OnInit {
     this.scrollDown();
 
   }
+
+  ngOnDestroy() {
+
+    this.utilService.unsubscribeFrom(this.subscriptions);
+    this.subscriptions = [];
+
+  }
+
   sendMsg() {
     if (this.user_input !== '') {
 
@@ -125,49 +134,62 @@ export class ChatPage implements OnInit {
     this.scrollDown()
   }
 
-  loadMessageHistory() {
-    // this.msgList = [
-    //   {
-    //     userId: "Bot",
-    //     userName: "Bot",
-    //     userAvatar: "./assets/icon/favicon.png",
-    //     time: "12:00",
-    //     message: "Hello, have you seen this great chat UI",
-    //     id: 0
-    //   },
-    //   {
-    //     userId: "Me",
-    //     userName: "Me",
-    //     userAvatar: "./assets/icon/favicon.png",
-    //     time: "12:03",
-    //     message: "Yeah, I see this. This looks great. ",
-    //     id: 1,
-    //   },
-    //   {
-    //     userId: "Bot",
-    //     userName: "Bot",
-    //     userAvatar: "./assets/icon/favicon.png",
-    //     time: "12:05",
-    //     message: "... and this is absolutely Awesome",
-    //     id: 3
-    //   },
-    //   {
-    //     userId: "Me",
-    //     userName: "Me",
-    //     userAvatar: "./assets/icon/favicon.png",
-    //     time: "12:06",
-    //     message: "wow ! that's great.",
-    //     id: 4
-    //   },
-    //   {
-    //     userId: "Bot",
-    //     userName: "Bot",
-    //     userAvatar: "./assets/icon/favicon.png",
-    //     time: "12:07",
-    //     message: "Let's Check this chat App with nice base Style and with Ionic 5",
-    //     id: 5
-    //   }
-    // ];
+  async loadMessageHistory() {
+
+    const messagesStorage = await this.storageApp.getMessagesByChat(this.chatSelected.idChat);
+
+    if (messagesStorage) {
+
+      console.log(messagesStorage);
+
+      for (const iterator of messagesStorage) {
+        iterator.timestamp = this.utilService.newTimeStampFirestore(iterator.timestamp.seconds, iterator.timestamp.nanoseconds);
+      }
+
+      this.msgList = messagesStorage;
+
+      this.subscribeAndGetOnlyNewMessages();
+
+
+    } else {
+      console.log('none messages on storage');
+      this.subscribeAndGetAllMessages();
+    }
+
+  }
+
+  subscribeAndGetOnlyNewMessages() {
+
+    console.log('Getting New Messages...');
+
+    this.subscriptions.push(
+      this.chatService.getNewsMessageByChatId(this.chatSelected.idChat, this.msgList[this.msgList.length - 1].timestamp).subscribe(messages => {
+
+        console.log('Mensajes Nuevos para este chat ', messages);
+
+        for (const iterator of messages) {
+          this.msgList.push(iterator);
+        }
+
+        this.storageApp.setMessagesByChat(this.chatSelected.idChat, messages);
+        this.scrollDown();
+
+      }));
+  }
+
+  subscribeAndGetAllMessages() {
+
+    console.log('Getting ALL THE MESSAGES...');
+    this.subscriptions.push(
+
+      this.chatService.getMessageByChatId(this.chatSelected.idChat).subscribe(messages => {
+
+        console.log('estos son los mensajes de este chat ', messages);
+        this.msgList = messages;
+        this.storageApp.setMessagesByChat(this.chatSelected.idChat, messages);
+        this.scrollDown();
+
+      }));
   }
 
   trackByFnmessages(id, message: iMessage) {

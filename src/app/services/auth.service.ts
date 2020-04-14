@@ -82,7 +82,7 @@ export class AuthService {
 
       } else {
 
-        this.utilService.removeStorage();
+        this.utilService.removeKeyStorage('user');
         this.userSesion.next(null);
         this.router.navigate(['login'], { replaceUrl: true });
 

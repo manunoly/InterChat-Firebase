@@ -57,6 +57,16 @@ export class ChatService {
     return this.afs.collection<iMessage[]>('chats/' + id + '/messages', ref => ref.orderBy('timestamp', "asc").limit(limit)).valueChanges().pipe(shareReplay(1));
   }
 
+   /**
+   * @param id chat 
+   * @param lastDateMessageUser last timestamp Message On Storage
+   * @param limit number of messages, default 50,
+   */
+  getNewsMessageByChatId(id: string , lastDateMessageUser : firebase.firestore.Timestamp , limit: number = 50): Observable<any> {
+    return this.afs.collection<iMessage[]>('chats/' + id + '/messages', ref => ref.orderBy('timestamp', "asc").where('timestamp' , '>' , lastDateMessageUser.toDate()).limit(limit)).valueChanges().pipe(shareReplay(1));
+  }
+
+
   /**
    * 
    * @param path where to write
