@@ -9,6 +9,7 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { shareReplay, map } from 'rxjs/operators'
 import { Observable, BehaviorSubject } from "rxjs";
 import { UtilService } from './util.service';
+import { StorageAppService } from 'src/app/services/storage-app.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,8 @@ export class ChatService {
   public offlineData$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   constructor(private afs: AngularFirestore,
-    private utilService: UtilService) { }
+    private utilService: UtilService,
+    private storageAppService: StorageAppService) { }
 
   clearChatdata() {
     this.chatDataActual = "";
@@ -32,8 +34,7 @@ export class ChatService {
   }
 
   async loadChatData(user: iUser) {
-    this.chatDataObj = this.getChats(user).subscribe(chats => {
-      console.log('tengo estos chats', chats);
+    this.chatDataObj = this.getChats(user).subscribe(async (chats) => {
 
       if (this.chatData$.value)
         this.chatData$.value.forEach(chat => {
@@ -41,13 +42,28 @@ export class ChatService {
           // TODO:encontrar la diferencia entre la data antigua y nueva y lanzar toast con el mensaje y quien lo envia
 
         });
+      else if (chats.length == 0) {
+        const tmpChat = await (await this.storageAppService.getChats());
+        if (tmpChat.length > 0) {
+          chats = tmpChat.map(x => {
+            return {
+              ...x, ...{
+                createdAt: this.utilService.newTimeStampFirestore(x.createdAt.seconds, x.createdAt.nanoseconds),
+                updatedAt: this.utilService.newTimeStampFirestore(x.createdAt.seconds, x.createdAt.nanoseconds),
+                timestamp: this.utilService.newTimeStampFirestore(x.createdAt.seconds, x.createdAt.nanoseconds)
+              }
+            }
+          });
+        }
+      }
+
+      console.log('tengo estos chats', chats);
 
       chats.forEach(chat => {
 
         for (const iterator of chat.participantsMeta) {
           if (iterator.idUser != user.idUser) {
 
-            // FIXME:Javier no entendi para que utilizas esto bro, creo me lo habias explicado pero no lo recorde la verdad
             chat.avatarUserChat = iterator.avatar;
             chat.title = iterator.userName;
             chat.idUserReciever = iterator.idUser;
@@ -59,10 +75,8 @@ export class ChatService {
       });
 
       this.chatData$.next(chats);
-
-      setTimeout(() => {
-        //TODO:write in storage, only read data from storage when can't read from db
-      }, 1);
+      this.offlineData$.next(false);
+      this.storageAppService.setChats(chats);
 
     });
   }
@@ -76,7 +90,7 @@ export class ChatService {
 
     console.log(user);
 
-    return this.afs.collection<iChat>('chats', ref => ref.where('participantsIDS', 'array-contains', user.idUser).limit(limit)).snapshotChanges()
+    return this.afs.collection<iChat>('chats', ref => ref.where('participantsIDS', 'array-contains', user.idUser).orderBy('updatedAt', 'desc').limit(limit)).snapshotChanges()
       .pipe(shareReplay(1), map(x => {
         return x.map(action => {
           const data = action.payload.doc.data() as iChat;
