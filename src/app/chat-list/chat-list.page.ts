@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
-import { iChat } from './model/chat.model';
-import { Observable } from 'rxjs';
-import { DbService } from '../services/db.service';
+
 import { ChatService } from '../services/chat.service';
 import { UtilService } from '../services/util.service';
+
+import { iChat } from './model/chat.model';
+
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-chat-list',
@@ -14,88 +15,58 @@ import { UtilService } from '../services/util.service';
 })
 export class ChatListPage implements OnInit {
 
-  chatData: Array<iChat> = [];
   chats: Observable<iChat[]>;
-  loadingChats = false;
+  offline:Observable<boolean>;
 
-  constructor(private router : Router,
-    private db : DbService,
+  constructor(private router: Router,
     private chatService: ChatService,
-    private authService : AuthService,
-    public utilService: UtilService) {
-
-    // this.loadChatData();
-    
-   }
+    public utilService: UtilService) { }
 
   ngOnInit() {
-
-    this.authService.userSesion.subscribe(user => {
-      if(user){
-
-        this.loadingChats = true;
-
-        this.chats = this.chatService.getChats(this.authService.userSesion.value);
-        this.chats.subscribe(chats => {
-          console.log('tengo estos chats', chats);   
-          this.chatData = chats;
-          chats.forEach(chat => {
-            
-            for (const iterator of chat.participantsMeta) {
-              if(iterator.idUser != this.authService.userSesion.value.idUser){
-                
-                chat.avatarUserChat = iterator.avatar;
-                chat.title = iterator.userName;
-                chat.idUserReciever = iterator.idUser;
-                chat.userReciever = iterator;
-
-                
-              }                   
-            }          
-          });
-  
-  
-          this.loadingChats = false;
-        });
-
-      }
-    })
-
-
+    this.chats = this.chatService.chatData$;
+    this.offline = this.chatService.offlineData$;
   }
 
-  openChat(selectedChat){
+  openChat(selectedChat) {
     console.log(selectedChat);
     this.chatService.setChatData(selectedChat);
     this.router.navigate(['chat']);
   }
 
-  loadChatData(){
+  reloadChatData(){
+    
+    // TODO:how to reload data
 
-    this.loadingChats = true;
+  }
+
+  loadChatData() {
+
+    // TODO: JAVIER decide si borras todo esto, creo ya no hace falta el boton de actualizar tampoco
+
+    // this.loadingChats = true;
 
 
-    this.chats = this.chatService.getChats(this.authService.userSesion.value);
-    this.chats.subscribe(chats => {
-      console.log('tengo estos chats', chats);   
-      this.chatData = chats;
-      chats.forEach(chat => {
-        for (const iterator of chat.participantsMeta) {
-          if(iterator.idUser != this.authService.userSesion.value.idUser){
-            chat.avatarUserChat = iterator.avatar;
-            chat.title = iterator.userName;
-            
-          }                   
-        }          
-      });
+    // this.chats = this.chatService.getChats(this.authService.userSesion.value);
+    // this.chats.subscribe(chats => {
+    //   console.log('tengo estos chats', chats);   
+    //   this.chatData = chats;
+    //   chats.forEach(chat => {
+    //     for (const iterator of chat.participantsMeta) {
+    //       if(iterator.idUser != this.authService.userSesion.value.idUser){
+    //         chat.avatarUserChat = iterator.avatar;
+    //         chat.title = iterator.userName;
 
-      this.loadingChats = false;
-    },
+    //       }                   
+    //     }          
+    //   });
 
-    (errors) => {
-      console.log(errors);
-      
-    });
+    //   this.loadingChats = false;
+    // },
+
+    // (errors) => {
+    //   console.log(errors);
+
+    // });
 
     // this.chatData = [
     // {

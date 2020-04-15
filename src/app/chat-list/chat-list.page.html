@@ -5,11 +5,11 @@
     </ion-buttons>
     <ion-title>Conversations</ion-title>
 
-    <ion-buttons slot="end">
-      <ion-button (click)="loadChatData()">
-       <ion-icon slot="icon-only" ios="reload-circle-outline" md="reload-circle-sharp"></ion-icon>
+    <ion-buttons slot="end" *ngIf="offline | async" >
+      <ion-button (click)="reloadChatData()">
+        <ion-icon slot="icon-only" ios="reload-circle-outline" md="reload-circle-sharp"></ion-icon>
       </ion-button>
-     </ion-buttons>
+    </ion-buttons>
 
   </ion-toolbar>
 </ion-header>
@@ -22,17 +22,18 @@
     </ion-toolbar>
   </ion-header>
 
-  <ion-row *ngIf="loadingChats" class="ion-padding-top">
-    <ion-col size="12" class="ion-text-center">
-      <ion-spinner></ion-spinner> <br>
-      <ion-text>
-        <ion-note>Loading...</ion-note>
-      </ion-text>
-    </ion-col>
-  </ion-row> 
+  <ng-template #loading>
+    <ion-row class="ion-padding-top">
+      <ion-col size="12" class="ion-text-center">
+        <ion-spinner></ion-spinner> <br>
+        <ion-text>
+          <ion-note>Loading...</ion-note>
+        </ion-text>
+      </ion-col>
+    </ion-row>
+  </ng-template>
 
-
-  <ion-list class="ion-no-padding imageBack"  *ngIf="(chats |async)">
+  <ion-list class="ion-no-padding imageBack" *ngIf="(chats | async) as chatData; else loading">
     <ion-item *ngFor="let chat of chatData" class="imageBack" lines="none" button=true (click)="openChat(chat)">
       <div class="borderBottomLine"></div>
       <div class="listSection">
@@ -50,7 +51,7 @@
             <h5 class="overflow-hidden">
               <!-- <ion-icon *ngIf="chat.group" name="people" color="medium"></ion-icon>
               <ion-icon name="microphone" *ngIf="chat.broadcast" color="medium"></ion-icon> -->
-               {{chat.title | titlecase }}
+              {{chat.title | titlecase }}
             </h5>
           </ion-text>
           <p class="descText ion-no-margin ion-no-padding">{{chat.lastMessage ? chat.lastMessage : 'Chat Created'}}</p>
@@ -58,25 +59,34 @@
       </div>
       <div slot="end" class="lastSection ion-no-margin">
 
-          <!-- <ion-note *ngIf="!chat.updatedAt" class="sendTime">{{chat.updatedAt}}</ion-note> -->
+        <!-- <ion-note *ngIf="!chat.updatedAt" class="sendTime">{{chat.updatedAt}}</ion-note> -->
 
-          <!-- para cuantos mensajes sin leer -->
-          <!-- <ion-badge slot="end" class="userBadge" *ngIf="chat.badge">{{chat.badge}}</ion-badge> -->
+        <!-- para cuantos mensajes sin leer -->
+        <!-- <ion-badge slot="end" class="userBadge" *ngIf="chat.badge">{{chat.badge}}</ion-badge> -->
 
-          <ion-note slot="end" *ngIf="chat.updatedAt" class="sendTime">{{ utilService.isDifferentDayFromToday(chat.updatedAt.toDate()) ? (chat.updatedAt.toDate() | date: 'shortTime') : utilService.calendarDayFormat(chat.updatedAt.toDate()) }}</ion-note>
+        <ion-note slot="end" *ngIf="chat.updatedAt" class="sendTime">
+          {{ utilService.isDifferentDayFromToday(chat.updatedAt.toDate()) ? (chat.updatedAt.toDate() | date: 'shortTime') : utilService.calendarDayFormat(chat.updatedAt.toDate()) }}
+        </ion-note>
       </div>
-      
+
     </ion-item>
-    <ion-item *ngIf="chatData.length == 0" class="imageBack" lines="none"> 
+    <ion-item *ngIf="chatData.length == 0" class="imageBack" lines="none">
 
       <ion-text class="borderBottomLineNoneChat">
         <p class="ion-text-center">
-          You don't have any Chat <br> 
+          You don't have any Chat <br>
           Please start a new one, or maybe you don't <br>
           have internet connection to retrieve data <br>
         </p>
+
+        <div class="ion-text-center ion-padding">
+          <ion-button slot="end" fill="clear" routerLink="/select-user-to-chat">
+            <!-- <ion-icon name="chatboxes" size="large" color="primary"></ion-icon> -->
+            Select user to chat
+          </ion-button>
+        </div>
       </ion-text>
-      
+
     </ion-item>
   </ion-list>
 

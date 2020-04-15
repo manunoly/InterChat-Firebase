@@ -7,7 +7,7 @@ import { iChat } from './../chat-list/model/chat.model';
 import { AngularFirestore } from '@angular/fire/firestore';
 
 import { shareReplay, map } from 'rxjs/operators'
-import { Observable } from "rxjs";
+import { Observable, BehaviorSubject } from "rxjs";
 import { UtilService } from './util.service';
 
 @Injectable({
@@ -15,11 +15,56 @@ import { UtilService } from './util.service';
 })
 export class ChatService {
 
- private chatDataActual : any ;
-
+  private chatDataActual: any;
+  public chatData$: BehaviorSubject<iChat[]> = new BehaviorSubject(null);
+  private chatDataObj;
+  public offlineData$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   constructor(private afs: AngularFirestore,
-    private utilService : UtilService) {
+    private utilService: UtilService) { }
+
+  clearChatdata() {
+    this.chatDataActual = "";
+    if (this.chatDataObj)
+      this.chatDataObj.unsubscribe();
+
+    // TODO:Remove data from storage javier si se cerro la sesion;
+  }
+
+  async loadChatData(user: iUser) {
+    this.chatDataObj = this.getChats(user).subscribe(chats => {
+      console.log('tengo estos chats', chats);
+
+      if (this.chatData$.value)
+        this.chatData$.value.forEach(chat => {
+          console.log('tengo este chat antiguo antes de cambiarlo', chat);
+          // TODO:encontrar la diferencia entre la data antigua y nueva y lanzar toast con el mensaje y quien lo envia
+
+        });
+
+      chats.forEach(chat => {
+
+        for (const iterator of chat.participantsMeta) {
+          if (iterator.idUser != user.idUser) {
+
+            // FIXME:Javier no entendi para que utilizas esto bro, creo me lo habias explicado pero no lo recorde la verdad
+            chat.avatarUserChat = iterator.avatar;
+            chat.title = iterator.userName;
+            chat.idUserReciever = iterator.idUser;
+            chat.userReciever = iterator;
+
+
+          }
+        }
+      });
+
+      this.chatData$.next(chats);
+
+      setTimeout(() => {
+        //TODO:write in storage, only read data from storage when can't read from db
+      }, 1);
+
+    });
   }
 
   /**
@@ -57,18 +102,17 @@ export class ChatService {
     return this.afs.collection<iMessage[]>('chats/' + id + '/messages', ref => ref.orderBy('timestamp', "asc").limit(limit)).valueChanges().pipe(shareReplay(1));
   }
 
-   /**
-   * @param id chat 
-   * @param lastDateMessageUser last timestamp Message On Storage
-   * @param limit number of messages, default 50,
-   */
-  getNewsMessageByChatId(id: string , lastDateMessageUser : firebase.firestore.Timestamp , limit: number = 50): Observable<any> {
-    return this.afs.collection<iMessage[]>('chats/' + id + '/messages', ref => ref.orderBy('timestamp', "asc").where('timestamp' , '>' , lastDateMessageUser.toDate()).limit(limit)).valueChanges().pipe(shareReplay(1));
+  /**
+  * @param id chat 
+  * @param lastDateMessageUser last timestamp Message On Storage
+  * @param limit number of messages, default 50,
+  */
+  getNewsMessageByChatId(id: string, lastDateMessageUser: firebase.firestore.Timestamp, limit: number = 50): Observable<any> {
+    return this.afs.collection<iMessage[]>('chats/' + id + '/messages', ref => ref.orderBy('timestamp', "asc").where('timestamp', '>', lastDateMessageUser.toDate()).limit(limit)).valueChanges().pipe(shareReplay(1));
   }
 
 
   /**
-   * 
    * @param path where to write
    * @param data data to set
    */
@@ -84,7 +128,6 @@ export class ChatService {
   }
 
   /**
-   * 
    * @param userCreated iUser that create the chat
    * @param user iUser to chat
    * @param type user | callcenter
@@ -92,17 +135,17 @@ export class ChatService {
 
   async createChat(userCreated: iUser, user: iUser, type: string): Promise<any> {
 
-    const idChat = this.setOneToOneChat(userCreated.idUser , user.idUser);
+    const idChat = this.setOneToOneChat(userCreated.idUser, user.idUser);
 
     // Lets check if idChat is created by one of the users before
 
     try {
-      
+
       const chatRef = (await this.chatExist(idChat));
       console.log(chatRef)
-      console.log('chat Exist => ' , chatRef.exists)
+      console.log('chat Exist => ', chatRef.exists)
 
-      if(!chatRef.exists){ // Create NEW CHAT
+      if (!chatRef.exists) { // Create NEW CHAT
 
         const chat: iChat = {
           idChat: idChat,
@@ -121,12 +164,12 @@ export class ChatService {
 
         console.log('======Creating new Chat======');
         console.log(chat);
-        
+
         try {
 
-          const createdChat = await this.updateCreateAt('chats/' + idChat , chat);
+          const createdChat = await this.updateCreateAt('chats/' + idChat, chat);
 
-          return new Promise((resolve)=>{
+          return new Promise((resolve) => {
 
             // overwrite data needed on chat
             chat.avatarUserChat = user.avatar;
@@ -136,7 +179,7 @@ export class ChatService {
 
             // Save to Service to proceed to the chat page
             this.chatDataActual = chat;
-            resolve({chatRef : chat , exist : true});
+            resolve({ chatRef: chat, exist: true });
           });
 
         } catch (error) {
@@ -146,62 +189,61 @@ export class ChatService {
 
       } else { //CHAT EXIST LETS GO TO THE CHAT OR UPDATE SOMETHING
 
-        return new Promise((resolve)=>{
+        return new Promise((resolve) => {
           // Save to Service to proceed to the chat page
           this.chatDataActual = chatRef.data();
-          resolve({chatRef : chatRef.data() , exist : true});
+          resolve({ chatRef: chatRef.data(), exist: true });
         });
       }
 
     } catch (error) {
-      console.log(error);     
-    } 
+      console.log(error);
+    }
 
   }
 
-  async pushNewMessageChat(idChat : string , message : iMessage){
+  async pushNewMessageChat(idChat: string, message: iMessage) {
 
     try {
 
-      const response = await this.updateCreateAt('chats/' + idChat +'/messages/' , message);
+      const response = await this.updateCreateAt('chats/' + idChat + '/messages/', message);
 
       // UPDATING CHAT WITH LAST DATA FROM MESSAGE
-      const chatUpdate : iChat = {
-        typeLastMessage : message.type,
+      const chatUpdate: iChat = {
+        typeLastMessage: message.type,
         updatedAt: message.timestamp,
-        lastMessage: message.message      
+        lastMessage: message.message
       }
 
-      this.updateCreateAt('chats/' + idChat , chatUpdate );
+      this.updateCreateAt('chats/' + idChat, chatUpdate);
 
     } catch (error) {
       console.log(error);
       this.utilService.showAlert('Info', 'Error sending message. Please try again Later');
     }
-    
 
   }
 
-  setChatData(chatRef){
+  setChatData(chatRef) {
     this.chatDataActual = chatRef;
   }
 
-  get chatData(){
+  get chatData() {
     return this.chatDataActual;
   }
 
-  private chatExist(idChat : string) {
-   return this.afs.collection('chats').doc(idChat).ref.get();
+  private chatExist(idChat: string) {
+    return this.afs.collection('chats').doc(idChat).ref.get();
   }
 
-  
+
   /** Function setup doc path for one to one chat
    * 
    * @param idUser1 id for User #1
    * @param idUser2 id for User #2
    *
    **/
-  private setOneToOneChat(idUser1 : string , idUser2 : string) : string {
+  private setOneToOneChat(idUser1: string, idUser2: string): string {
     //Check if user1’s id is less than user2's
     if (idUser1 < idUser2) {
       return idUser1 + idUser2;

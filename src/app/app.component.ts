@@ -4,6 +4,7 @@ import { Platform } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AuthService } from './services/auth.service';
+import { ChatService } from 'src/app/services/chat.service';
 
 @Component({
   selector: 'app-root',
@@ -29,7 +30,8 @@ export class AppComponent implements OnInit {
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
-    public authService : AuthService,
+    public authService: AuthService,
+    private chatService: ChatService
   ) {
     this.initializeApp();
   }
@@ -38,6 +40,7 @@ export class AppComponent implements OnInit {
     this.platform.ready().then(() => {
       this.statusBar.styleLightContent();
       this.splashScreen.hide();
+      this.checkUser();
     });
   }
 
@@ -48,8 +51,18 @@ export class AppComponent implements OnInit {
     }
   }
 
-  logout(){
+  async checkUser() {
+    this.authService.userSesion.subscribe(user => {
+      if (user) {
+        this.chatService.loadChatData(user);
+      }else
+      this.chatService.clearChatdata();
+    })
+  }
+
+  logout() {
     this.selectedIndex = 0;
     this.authService.logout();
+
   }
 }
