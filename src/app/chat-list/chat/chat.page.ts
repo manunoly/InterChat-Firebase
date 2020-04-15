@@ -51,7 +51,6 @@ export class ChatPage implements OnInit, OnDestroy {
     private chatService: ChatService,
     private storageApp: StorageAppService) {
 
-    // this.today.setHours(0,0,0); //valor de hoy a la media noche para verificar cambio de dia por probar si la validacion con moment falla
 
     this.chatSelected = this.chatService.chatData;
     this.userSesion = this.authService.userSesion.value;

@@ -17,6 +17,8 @@ import { IonicStorageModule } from '@ionic/storage';
 
 import { environment } from 'src/environments/environment';
 
+import {AutosizeModule} from 'ngx-autosize';
+
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
@@ -25,12 +27,14 @@ import { environment } from 'src/environments/environment';
     IonicModule.forRoot(),
     AppRoutingModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFirestoreModule.enablePersistence(),
     AngularFireAuthModule,
     AngularFirestoreModule,
     IonicStorageModule.forRoot({
       name: '__mydb',
       driverOrder: ['indexeddb', 'sqlite', 'websql']
-    })
+    }),
+    AutosizeModule
   ],
   providers: [
     StatusBar,

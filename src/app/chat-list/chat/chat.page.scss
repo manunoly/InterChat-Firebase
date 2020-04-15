@@ -214,6 +214,13 @@ ion-text {
     color: #d7d8dac7;
   }
 }
+
+ion-textarea {
+  margin-top: 0;
+  --padding-top: 1rem;
+  --padding-bottom: 1rem;
+}
+
 ion-col {
   display: flex;
   justify-content: center;

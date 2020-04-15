@@ -62,8 +62,8 @@
               'sharper-bottom':(msgList[i+1] && msgList[i+1].idSender == message.idSender)}">
 
                 <ion-text color="dark">
-                  <p class="ion-text-wrap ion-padding" color="dark">
-                    {{message.message}}
+                  <p class="ion-text-wrap ion-padding" color="dark"
+                  [innerText]="message.message">
                   </p>
                 </ion-text>
 
@@ -98,8 +98,8 @@
               'sharper-bottom':(msgList[i+1] && msgList[i+1].idSender == message.idSender)}">
 
                 <ion-text color="dark">
-                  <p class="ion-text-wrap ion-padding" color="dark">
-                    {{message.message}}
+                  <p class="ion-text-wrap ion-padding" color="dark" 
+                  [innerText]="message.message">                    
                   </p>
                 </ion-text>
 
@@ -135,11 +135,11 @@
     </div>
   </ion-list>
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+  <!-- <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button (click)=" sendMsg()">
       <ion-icon name="send" expand="icon-only"></ion-icon>
     </ion-fab-button>
-  </ion-fab>
+  </ion-fab> -->
 
   <!-- section for another user typing...  -->
   <ion-row *ngIf="loader" class="rowTypingSender">
@@ -169,9 +169,17 @@
 </ion-content>
 
 <ion-footer [translucent]="true">
-  <ion-item>
+  <ion-item class="ion-align-items-center">
     <ion-icon slot="start" name="camera" expand="icon-only"></ion-icon>
-    <ion-input class="input-box" type="text" placeholder="Write a message..." [(ngModel)]="user_input"
-      (keypress)="userTyping($event)" (keyup.enter)="sendMsg()"></ion-input>
+    
+    <ion-textarea autosize [maxRows]="4" [spellcheck]="true" [rows]="1" class="input-box" placeholder="Write a message..." [(ngModel)]="user_input"
+      (keypress)="userTyping($event)"></ion-textarea>
+
+      <ion-buttons slot="end" >
+        <ion-button (click)="sendMsg()" color="primary">
+          <ion-icon slot="icon-only" ios="send-outline" md="send-sharp"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+
   </ion-item>
 </ion-footer>

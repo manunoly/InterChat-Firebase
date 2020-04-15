@@ -20,29 +20,29 @@ export class StorageAppService {
     this.storage.set(`${idUserSesion}_contacts`, JSON.stringify(dataContacts));
   }
 
- /**
-  * Get Users Contacts from Storage
-  * @param idUserSesion 
-  * @return iUser[] | null
-  */
-  async getContactsUser(idUserSesion: string) : Promise<iUser[] | null> {
+  /**
+   * Get Users Contacts from Storage
+   * @param idUserSesion 
+   * @return iUser[] | null
+   */
+  async getContactsUser(idUserSesion: string): Promise<iUser[] | null> {
     return JSON.parse(await this.storage.get(`${idUserSesion}_contacts`)) as iUser[] | null;
   }
 
-  setMessagesByChat(idChat : string , dataMessages: iMessage[]){
-    if(dataMessages.length != 0)
+  setMessagesByChat(idChat: string, dataMessages: iMessage[]) {
+    if (dataMessages.length != 0)
       this.storage.set(idChat, JSON.stringify(dataMessages));
   }
 
-  async getMessagesByChat(idChat: string) : Promise<iMessage[] | null> {
+  async getMessagesByChat(idChat: string): Promise<iMessage[] | null> {
     return await JSON.parse(await this.storage.get(idChat)) as iMessage[] | null;
   }
 
-  setChats(chats: iChat[]){
-      this.storage.set('chats', JSON.stringify(chats));
+  setChats(chats: iChat[]) {
+    this.storage.set('chats', JSON.stringify(chats));
   }
 
-  async getChats() : Promise<iChat[] | null> {
+  async getChats(): Promise<iChat[] | null> {
     return await JSON.parse(await this.storage.get('chats')) as iChat[] | null;
   }
 
