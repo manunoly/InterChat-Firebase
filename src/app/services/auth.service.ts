@@ -80,7 +80,7 @@ export class AuthService {
 
         this.router.navigate(['/chat-list'], { replaceUrl: true });
 
-      } else {
+      } else { // Logout
 
         this.utilService.removeKeyStorage('user');
         this.userSesion.next(null);

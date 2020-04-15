@@ -16,7 +16,7 @@ export class StorageAppService {
    * @param dataContacts 
    */
   setContactsUser(idUserSesion: string, dataContacts: iUser[]) {
-    this.storage.set(idUserSesion, JSON.stringify(dataContacts));
+    this.storage.set(`${idUserSesion}_contacts`, JSON.stringify(dataContacts));
   }
 
  /**
@@ -25,7 +25,7 @@ export class StorageAppService {
   * @return iUser[] | null
   */
   async getContactsUser(idUserSesion: string) : Promise<iUser[] | null> {
-    return JSON.parse(await this.storage.get(idUserSesion)) as iUser[] | null;
+    return JSON.parse(await this.storage.get(`${idUserSesion}_contacts`)) as iUser[] | null;
   }
 
   setMessagesByChat(idChat : string , dataMessages: iMessage[]){

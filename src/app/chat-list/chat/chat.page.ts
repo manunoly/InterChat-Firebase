@@ -40,6 +40,8 @@ export class ChatPage implements OnInit, OnDestroy {
 
   subscriptions: Subscription[] = [];
 
+  loadingChats = false;
+
   constructor(public activRoute: ActivatedRoute,
     private router: Router,
     private authService: AuthService,
@@ -185,9 +187,14 @@ export class ChatPage implements OnInit, OnDestroy {
   subscribeAndGetAllMessages() {
 
     console.log('Getting ALL THE MESSAGES...');
+
+    this.loadingChats = true;
+
     this.subscriptions.push(
 
       this.chatService.getMessageByChatId(this.chatSelected.idChat).subscribe(messages => {
+
+        this.loadingChats = false;
 
         console.log('estos son los mensajes de este chat ', messages);
         this.msgList = messages;

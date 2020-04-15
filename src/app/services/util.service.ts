@@ -3,7 +3,7 @@ import { Storage } from '@ionic/storage';
 import { iUser } from '../chat-list/model/user.model';
 
 import * as firebase from 'firebase/app';
-import { LoadingController, AlertController } from '@ionic/angular';
+import { LoadingController, AlertController, ToastController } from '@ionic/angular';
 
 import * as moment from 'moment';
 import { Subscription } from 'rxjs';
@@ -20,7 +20,8 @@ export class UtilService {
 
   constructor(private storage: Storage,
     private loadingController: LoadingController,
-    private alertController: AlertController) { }
+    private alertController: AlertController,
+    private toastController: ToastController) { }
 
 
   async showLoading(msg = 'Please wait') {
@@ -38,7 +39,7 @@ export class UtilService {
     } catch (error) { console.log(error); }
   }
 
-  async showAlert(title: string, subtitle: string = '', message: string = '' , buttonsD = ['Accept']) {
+  async showAlert(title: string, subtitle: string = '', message: string = '', buttonsD = ['Accept']) {
     const alert = await this.alertController.create({
       header: title,
       subHeader: subtitle,
@@ -47,6 +48,28 @@ export class UtilService {
     });
 
     await alert.present();
+  }
+
+  async showToast(message: string) {
+
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 1500
+    });
+    toast.present();
+
+  }
+
+  async showToastNewMessageRecieved(nameSender: string, message: string) {
+
+    const toast = await this.toastController.create({
+      header: `Message From ${this.toTitleCase(nameSender)}`,
+      message: `${message}`,
+      duration: 1500,
+      position: "top"
+    });
+    toast.present();
+
   }
 
   saveUserSesion(userToStorage) {
@@ -69,11 +92,11 @@ export class UtilService {
     return firebase.firestore.FieldValue.serverTimestamp();
   }
 
-  get timestampServerNow(){
+  get timestampServerNow() {
     return firebase.firestore.Timestamp.now();
-  }  
+  }
 
-  calendarDayFormat(dateRef : Date) {
+  calendarDayFormat(dateRef: Date) {
     return moment(dateRef).calendar(this.today, {
       sameDay: '[Today]',
       nextDay: 'DD/MM/YYYY',
@@ -84,24 +107,34 @@ export class UtilService {
     });
   }
 
-  isDifferentDayFromToday(dateToCheck : Date): boolean {
+  isDifferentDayFromToday(dateToCheck: Date): boolean {
     return moment(dateToCheck).isSame(this.today, 'day');
   }
 
-  getInstanceFirebase(){
+  getInstanceFirebase() {
     return firebase
   }
 
-  newTimeStampFirestore(seconds : number , nanoseconds : number){
-    return new firebase.firestore.Timestamp(seconds , nanoseconds)
+  /**
+   * Create new TimeStamp Firebase
+   * @param seconds 
+   * @param nanoseconds 
+   * @return firebase.firestore.Timestamp
+   */
+  newTimeStampFirestore(seconds: number, nanoseconds: number) {
+    return new firebase.firestore.Timestamp(seconds, nanoseconds)
   }
 
-  unsubscribeFrom(subscriptions : Subscription[]){
-    if(subscriptions){
-      for (const subscription of subscriptions) {        
-        subscription.unsubscribe();        
+  unsubscribeFrom(subscriptions: Subscription[]) {
+    if (subscriptions) {
+      for (const subscription of subscriptions) {
+        subscription.unsubscribe();
       }
     }
+  }
+
+  toTitleCase(str: string) {
+    return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
   }
 
 }

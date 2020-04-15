@@ -7,8 +7,9 @@ import { iChat } from './../chat-list/model/chat.model';
 import { AngularFirestore } from '@angular/fire/firestore';
 
 import { shareReplay, map } from 'rxjs/operators'
-import { Observable, BehaviorSubject } from "rxjs";
+import { Observable, BehaviorSubject, Subscription } from "rxjs";
 import { UtilService } from './util.service';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,28 +18,48 @@ export class ChatService {
 
   private chatDataActual: any;
   public chatData$: BehaviorSubject<iChat[]> = new BehaviorSubject(null);
-  private chatDataObj;
+  private chatDataObj : Subscription;
   public offlineData$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   constructor(private afs: AngularFirestore,
-    private utilService: UtilService) { }
+    private utilService: UtilService,
+    private authService: AuthService) { }
 
   clearChatdata() {
     this.chatDataActual = "";
     if (this.chatDataObj)
       this.chatDataObj.unsubscribe();
 
+    this.chatData$.next(null); //cleanup chatList
+    
     // TODO:Remove data from storage javier si se cerro la sesion;
   }
 
   async loadChatData(user: iUser) {
-    this.chatDataObj = this.getChats(user).subscribe(chats => {
+    this.chatDataObj = this.getChats(user).subscribe((chats) => {
       console.log('tengo estos chats', chats);
 
       if (this.chatData$.value)
-        this.chatData$.value.forEach(chat => {
-          console.log('tengo este chat antiguo antes de cambiarlo', chat);
-          // TODO:encontrar la diferencia entre la data antigua y nueva y lanzar toast con el mensaje y quien lo envia
+        this.chatData$.value.forEach((oldChat , index) => {
+          // console.log('tengo este chat antiguo antes de verificarlo', oldChat);
+
+
+          if(oldChat.idChat == chats[index].idChat){
+            // console.log('same ChatID, lets check if lastMessage changed....')
+            if(oldChat.lastMessage != chats[index].lastMessage){
+              console.log('New Message in some Chat');
+              console.log(chats[index]);
+              if(chats[index].lastMessageIdSender != this.authService.userSesion.value.idUser){
+                //new message received by some other user
+                console.log('======NEW MESSAGE FROM======');
+                console.log(`User => ${chats[index].lastMessageUserName}`)
+
+                this.utilService.showToastNewMessageRecieved(chats[index].lastMessageUserName , chats[index].lastMessage);
+              }
+
+            }
+          }
+
 
         });
 
@@ -47,7 +68,7 @@ export class ChatService {
         for (const iterator of chat.participantsMeta) {
           if (iterator.idUser != user.idUser) {
 
-            // FIXME:Javier no entendi para que utilizas esto bro, creo me lo habias explicado pero no lo recorde la verdad
+            
             chat.avatarUserChat = iterator.avatar;
             chat.title = iterator.userName;
             chat.idUserReciever = iterator.idUser;
@@ -71,7 +92,7 @@ export class ChatService {
    * @param user // if (user.isAnonymous === false) by firebase auth user
    * @param limit limit de number of chat, defauld 50
    */
-  getChats(user: iUser, limit: number = 50): Observable<any> {
+  getChats(user: iUser, limit: number = 50): Observable<iChat[]> {
     console.log('getChat by user');
 
     console.log(user);
@@ -212,7 +233,9 @@ export class ChatService {
       const chatUpdate: iChat = {
         typeLastMessage: message.type,
         updatedAt: message.timestamp,
-        lastMessage: message.message
+        lastMessage: message.message,
+        lastMessageIdSender: message.idSender,
+        lastMessageUserName: this.authService.userSesion.value.userName,
       }
 
       this.updateCreateAt('chats/' + idChat, chatUpdate);

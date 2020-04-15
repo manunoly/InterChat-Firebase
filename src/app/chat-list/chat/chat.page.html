@@ -17,9 +17,18 @@
       </ion-col>
     </ion-row>
 
+    <ion-row *ngIf="loadingChats" class="ion-padding-top">
+      <ion-col size="12" class="ion-text-center">
+        <ion-spinner></ion-spinner> <br>
+        <ion-text>
+          <ion-note>Loading...</ion-note>
+        </ion-text>
+      </ion-col>
+    </ion-row>
+
     <div *ngFor="let message of msgList; let i = index; trackBy: trackByFnmessages ">
 
-    <!-- Validation show grouped Chats for Same Date  -->
+      <!-- Validation show grouped Chats for Same Date  -->
       <ion-row *ngIf=" !checkSameDay(i) ; else elseBlock">
         <ion-col>
           <ion-text class="chatsDatesGrouped">{{ calendarDayFormat(message.timestamp.toDate()) }}</ion-text>
@@ -52,9 +61,12 @@
               'sharper-top':(msgList[i-1] && msgList[i-1].idSender == message.idSender),
               'sharper-bottom':(msgList[i+1] && msgList[i+1].idSender == message.idSender)}">
 
-                <p class="ion-text-wrap ion-padding">
-                  {{message.message}}
-                </p>
+                <ion-text color="dark">
+                  <p class="ion-text-wrap ion-padding" color="dark">
+                    {{message.message}}
+                  </p>
+                </ion-text>
+
 
                 <div class="corner-parent-right">
                   <div class="corner-child-right">
@@ -64,7 +76,7 @@
 
                 <div class="timeBubbleChat">
                   <ion-text color="medium">
-                    <p><small>{{message.timestamp.toDate() | date: 'shortTime'}}</small></p>
+                    <p class="timeChat"><small>{{message.timestamp.toDate() | date: 'shortTime'}}</small></p>
                   </ion-text>
                 </div>
 
@@ -85,9 +97,11 @@
               'sharper-top':(msgList[i-1] && msgList[i-1].idSender == message.idSender),
               'sharper-bottom':(msgList[i+1] && msgList[i+1].idSender == message.idSender)}">
 
-                <p class="ion-text-wrap ion-padding">
-                  {{message.message}}
-                </p>
+                <ion-text color="dark">
+                  <p class="ion-text-wrap ion-padding" color="dark">
+                    {{message.message}}
+                  </p>
+                </ion-text>
 
                 <div class="corner-parent-left">
                   <div class="corner-child-left">
@@ -97,7 +111,7 @@
 
                 <div class="timeBubbleChat">
                   <ion-text color="medium">
-                    <p><small>{{message.timestamp.toDate() | date: 'shortTime'}}</small></p>
+                    <p class="timeChat"><small>{{message.timestamp.toDate() | date: 'shortTime'}}</small></p>
                   </ion-text>
                 </div>
 
@@ -127,6 +141,7 @@
     </ion-fab-button>
   </ion-fab>
 
+  <!-- section for another user typing...  -->
   <ion-row *ngIf="loader" class="rowTypingSender">
     <ion-col class="ion-no-padding loading-col">
       <div class="imageAvatarRight">
