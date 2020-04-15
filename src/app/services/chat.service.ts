@@ -10,6 +10,7 @@ import { shareReplay, map } from 'rxjs/operators'
 import { Observable, BehaviorSubject, Subscription } from "rxjs";
 import { UtilService } from './util.service';
 import { AuthService } from './auth.service';
+import { StorageAppService } from 'src/app/services/storage-app.service';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +24,8 @@ export class ChatService {
 
   constructor(private afs: AngularFirestore,
     private utilService: UtilService,
-    private authService: AuthService) { }
+    private authService: AuthService,
+    private storageAppService: StorageAppService) { }
 
   clearChatdata() {
     this.chatDataActual = "";
@@ -36,8 +38,7 @@ export class ChatService {
   }
 
   async loadChatData(user: iUser) {
-    this.chatDataObj = this.getChats(user).subscribe((chats) => {
-      console.log('tengo estos chats', chats);
+    this.chatDataObj = this.getChats(user).subscribe(async (chats) => {
 
       if (this.chatData$.value)
         this.chatData$.value.forEach((oldChat , index) => {
@@ -62,13 +63,28 @@ export class ChatService {
 
 
         });
+      else if (chats.length == 0) {
+        const tmpChat = await (await this.storageAppService.getChats());
+        if (tmpChat.length > 0) {
+          chats = tmpChat.map(x => {
+            return {
+              ...x, ...{
+                createdAt: this.utilService.newTimeStampFirestore(x.createdAt.seconds, x.createdAt.nanoseconds),
+                updatedAt: this.utilService.newTimeStampFirestore(x.createdAt.seconds, x.createdAt.nanoseconds),
+                timestamp: this.utilService.newTimeStampFirestore(x.createdAt.seconds, x.createdAt.nanoseconds)
+              }
+            }
+          });
+        }
+      }
+
+      console.log('tengo estos chats', chats);
 
       chats.forEach(chat => {
 
         for (const iterator of chat.participantsMeta) {
           if (iterator.idUser != user.idUser) {
 
-            
             chat.avatarUserChat = iterator.avatar;
             chat.title = iterator.userName;
             chat.idUserReciever = iterator.idUser;
@@ -80,10 +96,8 @@ export class ChatService {
       });
 
       this.chatData$.next(chats);
-
-      setTimeout(() => {
-        //TODO:write in storage, only read data from storage when can't read from db
-      }, 1);
+      this.offlineData$.next(false);
+      this.storageAppService.setChats(chats);
 
     });
   }
@@ -97,7 +111,7 @@ export class ChatService {
 
     console.log(user);
 
-    return this.afs.collection<iChat>('chats', ref => ref.where('participantsIDS', 'array-contains', user.idUser).limit(limit)).snapshotChanges()
+    return this.afs.collection<iChat>('chats', ref => ref.where('participantsIDS', 'array-contains', user.idUser).orderBy('updatedAt', 'desc').limit(limit)).snapshotChanges()
       .pipe(shareReplay(1), map(x => {
         return x.map(action => {
           const data = action.payload.doc.data() as iChat;

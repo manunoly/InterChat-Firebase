@@ -5,7 +5,6 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
 import { DbService } from './db.service';
 
-import { Storage } from '@ionic/storage';
 import { UtilService } from './util.service';
 
 import { iUser } from '../chat-list/model/user.model';
@@ -21,8 +20,7 @@ export class AuthService {
     private zone: NgZone,
     private router: Router,
     private dbService: DbService,
-    private utilService: UtilService,
-    private util: UtilService) {
+    private utilService: UtilService) {
 
     this.firebaseUser$ = this.afAuth.authState;
     // console.log(this.firebaseUser$);
@@ -112,7 +110,7 @@ export class AuthService {
 
 
   async register(data) {
-    this.util.showLoading();
+    this.utilService.showLoading();
 
     try {
       const userD = await this.afAuth.auth.createUserWithEmailAndPassword(data.email, data.password);
@@ -130,12 +128,12 @@ export class AuthService {
 
       await this.dbService.updateCreateAt('users',user);
 
-      this.util.dismissLoading();
+      this.utilService.dismissLoading();
 
       return true;
     } catch (error) {
-      this.util.dismissLoading();
-      this.util.showAlert('Unexpected error');
+      this.utilService.dismissLoading();
+      this.utilService.showAlert('Unexpected error');
       return false;
     }
   }

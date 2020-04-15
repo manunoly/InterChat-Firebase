@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
 import { iUser } from '../chat-list/model/user.model';
 import { iMessage } from '../chat-list/model/message.model';
+import { iChat } from './../chat-list/model/chat.model';
 
 @Injectable({
   providedIn: 'root'
@@ -35,6 +36,14 @@ export class StorageAppService {
 
   async getMessagesByChat(idChat: string) : Promise<iMessage[] | null> {
     return await JSON.parse(await this.storage.get(idChat)) as iMessage[] | null;
+  }
+
+  setChats(chats: iChat[]){
+      this.storage.set('chats', JSON.stringify(chats));
+  }
+
+  async getChats() : Promise<iChat[] | null> {
+    return await JSON.parse(await this.storage.get('chats')) as iChat[] | null;
   }
 
 
