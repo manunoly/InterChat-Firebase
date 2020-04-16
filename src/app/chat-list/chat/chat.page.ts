@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { IonContent } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
@@ -13,6 +13,9 @@ import { iUser } from '../model/user.model';
 import * as moment from 'moment';
 import { StorageAppService } from 'src/app/services/storage-app.service';
 import { Subscription } from 'rxjs';
+import { ManageAttachFilesService } from 'src/app/services/manage-attach-files.service';
+import { Keyboard } from '@ionic-native/keyboard/ngx';
+import { iFile } from '../model/file.model';
 
 @Component({
   selector: 'app-chat',
@@ -42,6 +45,8 @@ export class ChatPage implements OnInit, OnDestroy {
 
   loadingChats = false;
 
+  attachBox = false;
+
   constructor(public activRoute: ActivatedRoute,
     private router: Router,
     private authService: AuthService,
@@ -49,7 +54,10 @@ export class ChatPage implements OnInit, OnDestroy {
     public utilService: UtilService,
     private db: DbService,
     private chatService: ChatService,
-    private storageApp: StorageAppService) {
+    private storageApp: StorageAppService,
+    private keyboard: Keyboard,
+    public manageFiles: ManageAttachFilesService,
+    private detectorChangeRef : ChangeDetectorRef) {
 
 
     this.chatSelected = this.chatService.chatData;
@@ -57,12 +65,12 @@ export class ChatPage implements OnInit, OnDestroy {
 
     if (this.chatSelected) {
 
+      this.scrollDown();
+
       console.log(this.chatSelected);
       this.loadMessageHistory();
 
       // this.subscribeAndGetAllMessages();
-
-      this.scrollDown();
 
     } else {
       this.router.navigate(['chat-list']);
@@ -74,6 +82,7 @@ export class ChatPage implements OnInit, OnDestroy {
   ngOnInit() {
 
     this.scrollDown();
+    this.keyboardWatch();
 
   }
 
@@ -84,6 +93,42 @@ export class ChatPage implements OnInit, OnDestroy {
 
   }
 
+
+  /**
+   * 
+   * @param type 'camera' | 'gallery'
+   */
+  async selectAttach(type: string) {
+
+    try {
+      const resultData = await this.manageFiles.selectAttachAction(type);
+      console.log(resultData);
+
+      this.sendMsgAttach(resultData);
+
+    } catch (error) {
+      console.log('error retrieve attach');
+      console.log(error);
+    }
+
+
+  }
+
+  sendMsgAttach(file : iFile){
+
+    const newMsg: iMessage = {
+      idMessage: 'idMessage',
+      idSender: this.authService.userSesion.value.idUser,
+      timestamp: this.utilService.timestampServerNow,
+      type: file.type,
+      message: 'file',
+      path: file.path,
+    }
+    this.msgList.push(newMsg);
+    this.scrollDown();
+    this.detectorChangeRef.detectChanges();
+    this.toggleAttachBox();    
+  }
   sendMsg() {
     if (this.user_input !== '') {
 
@@ -124,6 +169,7 @@ export class ChatPage implements OnInit, OnDestroy {
   }
 
   private scrollDown() {
+    console.log('scrolling down...');
     setTimeout(() => {
       this.content.scrollToBottom(50)
     }, 50);
@@ -157,6 +203,7 @@ export class ChatPage implements OnInit, OnDestroy {
       this.subscribeAndGetAllMessages();
     }
 
+    this.scrollDown();
   }
 
   subscribeAndGetOnlyNewMessages() {
@@ -169,18 +216,18 @@ export class ChatPage implements OnInit, OnDestroy {
         console.log('======NewMessages on this ChatSesion======');
         console.log(messages);
 
-        this.msgList = [...this.msgList , ...messages];
+        this.msgList = [...this.msgList, ...messages];
         // avoid same message to push on the view locally when come from db
-        this.msgList =  this.msgList.filter((message,index) =>  this.msgList.findIndex(messageUnique => (messageUnique.idMessage === message.idMessage)) === index);
+        this.msgList = this.msgList.filter((message, index) => this.msgList.findIndex(messageUnique => (messageUnique.idMessage === message.idMessage)) === index);
 
-        this.storageApp.setMessagesByChat(this.chatSelected.idChat,  this.msgList);
+        this.storageApp.setMessagesByChat(this.chatSelected.idChat, this.msgList);
         this.scrollDown();
 
       }));
 
-      console.log('======ALL MESSAGES======')
-      console.log(this.msgList);
-      
+    console.log('======ALL MESSAGES======')
+    console.log(this.msgList);
+
   }
 
   subscribeAndGetAllMessages() {
@@ -205,6 +252,43 @@ export class ChatPage implements OnInit, OnDestroy {
 
   trackByFnmessages(id, message: iMessage) {
     return message.idMessage;
+  }
+
+
+  async keyboardWatch() {
+    this.keyboard.onKeyboardWillShow().subscribe({
+      next: x => {
+        this.scrollDown();
+      },
+      error: e => {
+        console.log(e);
+      }
+    });
+    this.keyboard.onKeyboardWillHide().subscribe({
+      next: x => {
+        this.scrollDown();
+      },
+      error: e => {
+        console.log(e);
+      }
+    });
+
+  }
+
+  ionContentTapped() {
+    console.log('content tapped...');
+    this.attachBox = false;
+  }
+
+  ionInputTapped() {
+    console.log('input tapped...');
+    this.attachBox = false;
+  }
+
+  toggleAttachBox() {
+    this.attachBox = !this.attachBox;
+    console.log(this.attachBox);
+    this.scrollDown();
   }
 
   checkSameDay(messageIndex: number) {

@@ -7,7 +7,8 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content #IonContent [fullscreen]="true">
+<ion-content #IonContent [fullscreen]="true" (click)="ionContentTapped()">
+
   <ion-list>
 
     <ion-row>
@@ -62,8 +63,7 @@
               'sharper-bottom':(msgList[i+1] && msgList[i+1].idSender == message.idSender)}">
 
                 <ion-text color="dark">
-                  <p class="ion-text-wrap ion-padding" color="dark"
-                  [innerText]="message.message">
+                  <p class="ion-text-wrap ion-padding" color="dark" [innerText]="message.message">
                   </p>
                 </ion-text>
 
@@ -97,11 +97,13 @@
               'sharper-top':(msgList[i-1] && msgList[i-1].idSender == message.idSender),
               'sharper-bottom':(msgList[i+1] && msgList[i+1].idSender == message.idSender)}">
 
-                <ion-text color="dark">
-                  <p class="ion-text-wrap ion-padding" color="dark" 
-                  [innerText]="message.message">                    
+                <ion-text color="dark" *ngIf="message.type == 'string'">
+                  <p class="ion-text-wrap ion-padding" color="dark" [innerText]="message.message">
                   </p>
                 </ion-text>
+
+                <img *ngIf="message.type != 'string'" [src]="message.path">
+
 
                 <div class="corner-parent-left">
                   <div class="corner-child-left">
@@ -169,17 +171,103 @@
 </ion-content>
 
 <ion-footer [translucent]="true">
-  <ion-item class="ion-align-items-center">
-    <ion-icon slot="start" name="camera" expand="icon-only"></ion-icon>
-    
-    <ion-textarea autosize [maxRows]="4" [spellcheck]="true" [rows]="1" class="input-box" placeholder="Write a message..." [(ngModel)]="user_input"
-      (keypress)="userTyping($event)"></ion-textarea>
+  <ion-item class="ion-align-items-center ion-no-padding">
 
-      <ion-buttons slot="end" >
-        <ion-button (click)="sendMsg()" color="primary">
-          <ion-icon slot="icon-only" ios="send-outline" md="send-sharp"></ion-icon>
-        </ion-button>
-      </ion-buttons>
+    <ion-buttons slot="start">
+      <ion-button (click)="toggleAttachBox()" color="primary">
+        <ion-icon slot="icon-only" ios="attach-outline" md="attach-sharp"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-textarea #area autosize [maxRows]="4" [spellcheck]="true" [rows]="1" class="input-box"
+      placeholder="Write a message..." [(ngModel)]="user_input" (ionFocus)="ionInputTapped()" (keypress)="userTyping($event)"></ion-textarea>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="sendMsg()" color="primary">
+        <ion-icon slot="icon-only" ios="send-outline" md="send-sharp"></ion-icon>
+      </ion-button>
+    </ion-buttons>
 
   </ion-item>
+
+  <ng-container *ngIf="attachBox">
+
+    <ion-list>
+      <ion-row class="attchRow">
+
+        <!-- <ion-col class="footer_col ion-activatable ripple-parent" size="4">
+          <ion-label class="attchLabel">
+  
+            <ion-icon class="attchIcon" slot="icon-only" ios="document-outline" md="document-sharp"></ion-icon>
+
+            <p>Document</p>
+           
+          </ion-label>
+
+          <ion-ripple-effect></ion-ripple-effect>
+        </ion-col> -->
+
+        <ion-col class="footer_col ion-activatable ripple-parent" size="4" (click)="selectAttach('camera')">
+          <ion-label class="attchLabel">
+  
+            <ion-icon class="attchIcon" slot="icon-only" ios="camera-outline" md="camera-sharp"></ion-icon>
+
+            <p>Camera</p>
+          </ion-label>
+          
+          <ion-ripple-effect></ion-ripple-effect>
+        </ion-col>
+  
+        <ion-col class="footer_col ion-activatable ripple-parent" size="4" (click)="selectAttach('gallery')">
+          <ion-label class="attchLabel">
+  
+            <ion-icon class="attchIcon" slot="icon-only" ios="images-outline" md="images-sharp"></ion-icon>
+  
+            <p>Gallery</p>
+          </ion-label>
+  
+          <ion-ripple-effect></ion-ripple-effect>
+        </ion-col>
+
+        <!-- <ion-col class="footer_col ion-activatable ripple-parent" size="4">
+          <ion-label class="attchLabel">
+  
+            <ion-icon class="attchIcon" slot="icon-only" ios="mic-outline" md="mic-sharp"></ion-icon>
+  
+            <p>Audio</p>
+          </ion-label>
+
+          <ion-ripple-effect></ion-ripple-effect>
+        </ion-col>
+
+        <ion-col class="footer_col ion-activatable ripple-parent" size="4">
+          <ion-label class="attchLabel">
+  
+            <ion-icon class="attchIcon" slot="icon-only" ios="location-outline" md="location-sharp"></ion-icon>
+  
+            <p>Location</p>
+          </ion-label>
+
+          <ion-ripple-effect></ion-ripple-effect>
+        </ion-col>
+
+        <ion-col class="footer_col ion-activatable ripple-parent" size="4">
+          <ion-label class="attchLabel">
+  
+            <ion-icon class="attchIcon" slot="icon-only" ios="videocam-outline" md="videocam-sharp"></ion-icon>
+  
+            <p>Video</p>
+  
+          </ion-label>
+
+          <ion-ripple-effect></ion-ripple-effect>
+        </ion-col> -->
+
+      </ion-row>
+    </ion-list>
+
+  </ng-container>
+ 
+
+
 </ion-footer>

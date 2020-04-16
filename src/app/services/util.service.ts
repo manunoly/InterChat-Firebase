@@ -80,6 +80,10 @@ export class UtilService {
     return JSON.parse(await this.storage.get('user')) as iUser;
   }
 
+  async getKeyStorage(key : string){
+    return JSON.parse(await this.storage.get(key));
+  }
+
   async removeKeyStorage(key: string) {
     return await this.storage.remove(key);
   }

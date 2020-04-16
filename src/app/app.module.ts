@@ -12,8 +12,15 @@ import { AppRoutingModule } from './app-routing.module';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { AngularFireStorageModule } from '@angular/fire/storage';
 
 import { IonicStorageModule } from '@ionic/storage';
+import { Keyboard } from '@ionic-native/keyboard/ngx';
+import { ImagePicker } from '@ionic-native/image-picker/ngx';
+import { File } from '@ionic-native/File/ngx';
+import { MediaCapture } from '@ionic-native/media-capture/ngx';
+import { Media } from '@ionic-native/media/ngx';
+import { WebView } from '@ionic-native/ionic-webview/ngx';
 
 import { environment } from 'src/environments/environment';
 
@@ -29,6 +36,7 @@ import {AutosizeModule} from 'ngx-autosize';
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
     AngularFirestoreModule,
+    AngularFireStorageModule,
     IonicStorageModule.forRoot({
       name: '__mydb',
       driverOrder: ['indexeddb', 'sqlite', 'websql']
@@ -38,7 +46,13 @@ import {AutosizeModule} from 'ngx-autosize';
   providers: [
     StatusBar,
     SplashScreen,
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    Keyboard,
+    ImagePicker,
+    MediaCapture,
+    File,
+    Media,
+    WebView   
   ],
   bootstrap: [AppComponent]
 })

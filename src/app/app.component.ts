@@ -5,6 +5,7 @@ import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AuthService } from './services/auth.service';
 import { ChatService } from 'src/app/services/chat.service';
+import { ManageAttachFilesService } from './services/manage-attach-files.service';
 
 @Component({
   selector: 'app-root',
@@ -31,7 +32,8 @@ export class AppComponent implements OnInit {
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     public authService: AuthService,
-    private chatService: ChatService
+    private chatService: ChatService,
+    private manageFiles: ManageAttachFilesService
   ) {
     this.initializeApp();
   }
@@ -41,6 +43,7 @@ export class AppComponent implements OnInit {
       this.statusBar.styleLightContent();
       this.splashScreen.hide();
       this.checkUser();
+      this.manageFiles.ngOnInit();
     });
   }
 

@@ -3,6 +3,6 @@ export interface iMessage {
     idSender : string;
     message: string;
     timestamp: firebase.firestore.Timestamp;
-    file?: string;
+    path?: string;
     type: string;
   }
