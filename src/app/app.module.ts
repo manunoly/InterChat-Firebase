@@ -27,7 +27,6 @@ import {AutosizeModule} from 'ngx-autosize';
     IonicModule.forRoot(),
     AppRoutingModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
-    AngularFirestoreModule.enablePersistence(),
     AngularFireAuthModule,
     AngularFirestoreModule,
     IonicStorageModule.forRoot({

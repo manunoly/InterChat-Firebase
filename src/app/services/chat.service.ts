@@ -224,10 +224,20 @@ export class ChatService {
 
       } else { //CHAT EXIST LETS GO TO THE CHAT OR UPDATE SOMETHING
 
+        console.log('Chat Exist let Proceed to chat page')
         return new Promise((resolve) => {
           // Save to Service to proceed to the chat page
-          this.chatDataActual = chatRef.data();
-          resolve({ chatRef: chatRef.data(), exist: true });
+
+          const chat = chatRef.data();
+          // overwrite data needed on chat
+          chat.avatarUserChat = user.avatar;
+          chat.title = user.userName;
+          chat.idUserReciever = user.idUser;
+          chat.userReciever = user;
+
+          console.log(chatRef.data());
+          this.chatDataActual = chat;
+          resolve({ chatRef: chat, exist: true });
         });
       }
 
