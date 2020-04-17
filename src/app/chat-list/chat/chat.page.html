@@ -23,7 +23,7 @@
     </ion-col>
   </ion-row>
 
-  <ion-list *ngIf="chatSelected" >
+  <ion-list *ngIf="chatSelected">
 
     <ion-row>
       <ion-col>
@@ -72,7 +72,10 @@
                   </p>
                 </ion-text>
 
-                <img *ngIf="message.type == 'image'" [src]="message.fileURL">
+                <div *ngIf="message.type == 'image'" class="imgBox" (click)="openModalImage(message)">
+                  <div class="img" [ngStyle]="{'background-image': 'url(' + message.fileURL +')'}">
+                  </div>
+                </div>
 
                 <div class="corner-parent-right">
                   <div class="corner-child-right">
@@ -108,7 +111,11 @@
                   </p>
                 </ion-text>
 
-                <img *ngIf="message.type != 'string'" [src]="isCordova ? message.path : message.fileURL">
+                <div *ngIf="message.type == 'image'" class="imgBox" (click)="openModalImage(message)">
+                  <div class="img"
+                    [ngStyle]="{'background-image': 'url(' + (isCordova ? message.path : message.fileURL) +')'}">
+                  </div>
+                </div>
 
 
                 <div class="corner-parent-left">

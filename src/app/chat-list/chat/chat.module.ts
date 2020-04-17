@@ -9,6 +9,7 @@ import { ChatPageRoutingModule } from './chat-routing.module';
 import { ChatPage } from './chat.page';
 
 import {AutosizeModule} from 'ngx-autosize';
+import { ModalImagePageModule } from 'src/app/modals/modal-image/modal-image.module';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import {AutosizeModule} from 'ngx-autosize';
     FormsModule,
     IonicModule,
     ChatPageRoutingModule,
-    AutosizeModule
+    AutosizeModule,
+    ModalImagePageModule
   ],
   declarations: [ChatPage]
 })

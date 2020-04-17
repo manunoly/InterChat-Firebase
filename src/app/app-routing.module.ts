@@ -16,10 +16,6 @@ const routes: Routes = [
     loadChildren: () => import('./chat-list/chat/chat.module').then(m => m.ChatPageModule)
   },
   {
-    path: 'folder/:id',
-    loadChildren: () => import('./folder/folder.module').then(m => m.FolderPageModule)
-  },
-  {
     path: 'select-user-to-chat',
     loadChildren: () => import('./select-user-to-chat/select-user-to-chat.module').then(m => m.SelectUserToChatPageModule)
   },
@@ -27,8 +23,11 @@ const routes: Routes = [
     path: 'login',
     loadChildren: () => import('./login/login.module').then(m => m.LoginPageModule)
   },
+  {
+    path: 'modal-image',
+    loadChildren: () => import('./modals/modal-image/modal-image.module').then( m => m.ModalImagePageModule)
+  },
 
-  
   {
     path: '**',
     redirectTo: 'chat-list',
