@@ -110,7 +110,8 @@ export class ChatPage implements OnInit, OnDestroy {
         const resultData = await this.manageFiles.selectAttachAction(type);
         console.log(resultData);
 
-        this.sendMsgAttach(resultData);
+        if(resultData)
+          this.sendMsgAttach(resultData);
 
       } catch (error) {
         console.log('error retrieve attach');
@@ -298,8 +299,13 @@ export class ChatPage implements OnInit, OnDestroy {
       }));
   }
 
-  checkPath(message: iMessage) {
-    console.log(this.manageFiles.pathForFile(message.path));
+  checkPath(path : string) {
+    console.log()
+    return this.manageFiles.pathForFile(path );
+  }
+
+  pictNotLoading(event , urlBackup : string) { 
+    event.target.src = urlBackup; 
   }
 
   trackByFnmessages(id, message: iMessage) {

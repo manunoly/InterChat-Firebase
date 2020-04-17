@@ -108,8 +108,7 @@
                   </p>
                 </ion-text>
 
-                <img *ngIf="message.type != 'string'" [src]="isCordova ? message.path : message.fileURL">
-
+                <img *ngIf="message.type != 'string'" [src]=" (isCordova ? message.path  : message.fileURL)" (error)="pictNotLoading($event , message.fileURL)">
 
                 <div class="corner-parent-left">
                   <div class="corner-child-left">
@@ -214,7 +213,7 @@
           <ion-ripple-effect></ion-ripple-effect>
         </ion-col> -->
 
-        <ion-col class="footer_col ion-activatable ripple-parent" size="4" (click)="selectAttach('camera')">
+        <ion-col class="footer_col ion-activatable ripple-parent" size="6" (click)="selectAttach('camera')">
           <ion-label class="attchLabel">
 
             <ion-icon class="attchIcon" slot="icon-only" ios="camera-outline" md="camera-sharp"></ion-icon>
@@ -225,7 +224,7 @@
           <ion-ripple-effect></ion-ripple-effect>
         </ion-col>
 
-        <ion-col class="footer_col ion-activatable ripple-parent" size="4" (click)="selectAttach('gallery')">
+        <ion-col class="footer_col ion-activatable ripple-parent" size="6" (click)="selectAttach('gallery')">
           <ion-label class="attchLabel">
 
             <ion-icon class="attchIcon" slot="icon-only" ios="images-outline" md="images-sharp"></ion-icon>

@@ -80,8 +80,11 @@ export class ManageAttachFilesService implements OnInit {
     try {
       const results = await this.imagePicker.getPictures({ maximumImagesCount: 1, quality: 40 });
       console.log('Picked Images ', results);
-      const fileResult = await this.copyFileToLocalDir(results[0]);
-      return fileResult;
+
+      if(results.length > 0){
+        const fileResult = await this.copyFileToLocalDir(results[0]);
+        return fileResult;
+      }     
 
     }
     catch (error) {
