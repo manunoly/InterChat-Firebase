@@ -17,6 +17,7 @@ import { IonicStorageModule } from '@ionic/storage';
 
 import { environment } from 'src/environments/environment';
 
+import { NativeAudio } from '@ionic-native/native-audio/ngx';
 import {AutosizeModule} from 'ngx-autosize';
 
 @NgModule({
@@ -37,6 +38,7 @@ import {AutosizeModule} from 'ngx-autosize';
   ],
   providers: [
     StatusBar,
+    NativeAudio,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],

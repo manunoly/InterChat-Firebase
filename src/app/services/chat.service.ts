@@ -1,3 +1,4 @@
+import { PlaySoundService } from './play-sound.service';
 import { Injectable } from '@angular/core';
 
 import { iUser } from './../chat-list/model/user.model';
@@ -7,7 +8,7 @@ import { iChat } from './../chat-list/model/chat.model';
 import { AngularFirestore } from '@angular/fire/firestore';
 
 import { shareReplay, map } from 'rxjs/operators'
-import { Observable, BehaviorSubject, Subscription } from "rxjs";
+import { Observable, BehaviorSubject, Subscription, of, fromEvent } from "rxjs";
 import { UtilService } from './util.service';
 import { AuthService } from './auth.service';
 import { StorageAppService } from 'src/app/services/storage-app.service';
@@ -19,13 +20,14 @@ export class ChatService {
 
   private chatDataActual: any;
   public chatData$: BehaviorSubject<iChat[]> = new BehaviorSubject(null);
-  private chatDataObj : Subscription;
+  private chatDataObj: Subscription;
   public offlineData$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   constructor(private afs: AngularFirestore,
     private utilService: UtilService,
     private authService: AuthService,
-    private storageAppService: StorageAppService) { }
+    private storageAppService: StorageAppService,
+    private sound: PlaySoundService) { }
 
   clearChatdata() {
     this.chatDataActual = "";
@@ -33,29 +35,31 @@ export class ChatService {
       this.chatDataObj.unsubscribe();
 
     this.chatData$.next(null); //cleanup chatList
-    
+
     // TODO:Remove data from storage javier si se cerro la sesion;
   }
 
   async loadChatData(user: iUser) {
+
     this.chatDataObj = this.getChats(user).subscribe(async (chats) => {
 
       if (this.chatData$.value)
-        this.chatData$.value.forEach((oldChat , index) => {
+        this.chatData$.value.forEach((oldChat, index) => {
           // console.log('tengo este chat antiguo antes de verificarlo', oldChat);
 
 
-          if(oldChat.idChat == chats[index].idChat){
+          if (oldChat.idChat == chats[index].idChat) {
             // console.log('same ChatID, lets check if lastMessage changed....')
-            if(oldChat.lastMessage != chats[index].lastMessage){
+            if (oldChat.lastMessage != chats[index].lastMessage) {
               console.log('New Message in some Chat');
               console.log(chats[index]);
-              if(chats[index].lastMessageIdSender != this.authService.userSesion.value.idUser){
+              if (chats[index].lastMessageIdSender != this.authService.userSesion.value.idUser) {
                 //new message received by some other user
                 console.log('======NEW MESSAGE FROM======');
                 console.log(`User => ${chats[index].lastMessageUserName}`)
 
-                this.utilService.showToastNewMessageRecieved(chats[index].lastMessageUserName , chats[index].lastMessage);
+                this.utilService.showToastNewMessageRecieved(chats[index].lastMessageUserName, chats[index].lastMessage);
+                this.sound.play();
               }
 
             }
