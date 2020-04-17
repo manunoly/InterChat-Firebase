@@ -1,13 +1,15 @@
 import { Injectable, OnInit } from '@angular/core';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { MediaCapture, MediaFile, CaptureError } from '@ionic-native/media-capture/ngx';
-import { File, FileEntry } from '@ionic-native/File/ngx';
+import { File, Entry, FileEntry } from '@ionic-native/File/ngx';
 import { Media, MediaObject } from '@ionic-native/media/ngx';
 import { Platform } from '@ionic/angular';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
 import { Storage } from '@ionic/storage';
-import { iFile } from '../chat-list/model/file.model';
+import { iFile, iFileUpload } from '../chat-list/model/file.model';
 import { UtilService } from './util.service';
+import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
+import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
 
 
 const MEDIA_FOLDER_NAME = 'chatDemo_Media';
@@ -20,14 +22,18 @@ export class ManageAttachFilesService implements OnInit {
 
   files = [];
 
+  public uploadProgress = 0;
+
   constructor(private storage: Storage,
     private utilService: UtilService,
+    private camera: Camera,
     private imagePicker: ImagePicker,
     private mediaCapture: MediaCapture,
     private file: File,
     private media: Media,
     private plt: Platform,
-    private webView: WebView) {
+    private webView: WebView,
+    private fireStorage: AngularFireStorage) {
 
   }
 
@@ -37,14 +43,17 @@ export class ManageAttachFilesService implements OnInit {
       let path = this.file.dataDirectory;
       console.log(path);
 
-      this.file.checkDir(path, MEDIA_FOLDER_NAME).then(() => {
-        this.loadStoredFiles();
-      }, err => {
-        this.file.createDir(path, MEDIA_FOLDER_NAME, false).then(() => {
+      if (this.utilService.isCordova()) {
+        this.file.checkDir(path, MEDIA_FOLDER_NAME).then(() => {
           this.loadStoredFiles();
-        })
-      });
-    })
+        }, err => {
+          this.file.createDir(path, MEDIA_FOLDER_NAME, false).then(() => {
+            this.loadStoredFiles();
+          })
+        });
+      }
+
+    });
   }
 
   /**
@@ -69,10 +78,9 @@ export class ManageAttachFilesService implements OnInit {
 
   private async pickImages() {
     try {
-      const results = await this.imagePicker.getPictures({ maximumImagesCount: 1 });
-      console.log('Image ===> ');
-      console.log(results);
-      const fileResult = this.copyFileToLocalDir(results[0]);
+      const results = await this.imagePicker.getPictures({ maximumImagesCount: 1, quality: 40 });
+      console.log('Picked Images ', results);
+      const fileResult = await this.copyFileToLocalDir(results[0]);
       return fileResult;
 
     }
@@ -84,13 +92,20 @@ export class ManageAttachFilesService implements OnInit {
 
   private async capturePhoto() {
     try {
-      const data = await this.mediaCapture.captureImage() as MediaFile[];
-      if (data.length > 0) {
-        console.log('Result => ');
-        console.log(data[0].fullPath);
-        const fileResult = this.copyFileToLocalDir(data[0].fullPath);
-        return fileResult;
+
+      const options: CameraOptions = {
+        quality: 40,
+        saveToPhotoAlbum: false,
+        correctOrientation: true,
+        encodingType: this.camera.EncodingType.JPEG,
       }
+
+      const photoPath = await this.camera.getPicture(options);
+
+      console.log(photoPath);
+      const fileResult = await this.copyFileToLocalDir(photoPath);
+      return fileResult;
+
     }
     catch (error) {
       console.log('========error Capture Photo========');
@@ -98,12 +113,84 @@ export class ManageAttachFilesService implements OnInit {
     }
   }
 
+  //======================================================
+  //======================================================
+  //===================FIREBASE STORAGE===================
+  //======================================================
+  //======================================================
+
+
+  /** FIRE STOREGA UPLOAD
+   * 
+   * 
+   */
+  async uploadFile(file: Entry) {
+
+    console.log(file);
+    const path = file.nativeURL.substr(0, file.nativeURL.lastIndexOf('/') + 1);
+    console.log(path);
+
+    let buffer: ArrayBuffer;
+    try {
+
+      buffer = await this.file.readAsArrayBuffer(path, file.name);
+
+    } catch (error) {
+      console.log('Error Read as a bufferArray');
+      console.log(error);
+      return;
+    }
+
+    const type = this.getMimeType(file.name.split('.').pop());
+    const fileBlob = new Blob([buffer], type);
+    const randomId = Math.random().toString(36).substring(2, 8);
+
+    // FIRESTORE LOGIC
+    const uploadTask = this.fireStorage.upload(`files/${file.name}_${randomId}`, fileBlob);
+
+    uploadTask.percentageChanges().subscribe(changes => {
+      console.log('========Uploading File========')
+      console.log(changes);
+      this.uploadProgress = changes * 0.01;
+    });
+
+    // RETURNIG PROMISE
+    return new Promise<iFileUpload>((resolve, reject) => {
+
+      uploadTask.then(async res => {
+
+        console.log(res);
+        console.log('========File Upload Finished!========');
+        this.uploadProgress = 0;
+
+        const fileURL = await res.ref.getDownloadURL();
+        const fileName = res.ref.name;
+
+        resolve({ ok: true, fileURL, fileName })
+      },
+        (error) => {
+          console.log(error);
+          console.log('========problem uploading file========');
+          reject({ ok: false, error });
+        })
+
+
+    })
+
+  }
+
+  //======================================================
+  //======================================================
+  //======================================================
+  //======================================================
+  //======================================================
+
   /**
    * 
    * @param filePath 
    * @returns iFile
    */
-  resolveFileFromFullPath(filePath : string) : iFile{
+  resolveFileFromFullPath(filePath: string): iFile {
 
     let myPath = filePath;
     // Make sure we copy from the right location
@@ -111,15 +198,15 @@ export class ManageAttachFilesService implements OnInit {
       myPath = 'file://' + filePath;
     }
 
-    const type = myPath.split('.').pop() as string;
+    const extension = myPath.split('.').pop() as string;
     const name = myPath.substr(myPath.lastIndexOf('/') + 1);
-    const mimeType = this.getMimeType(type).type
+    const mimeType = this.getMimeType(extension).type
     const path = this.pathForFile(filePath);
 
-    return {name , type , mimeType , filePath , path }
+    return { name, extension, mimeType, filePath, path }
   }
 
-  private copyFileToLocalDir(fullPath) {
+  private async copyFileToLocalDir(fullPath) {
     console.log('copy now: ', fullPath);
     let myPath = fullPath;
     // Make sure we copy from the right location
@@ -135,24 +222,34 @@ export class ManageAttachFilesService implements OnInit {
     const copyFrom = myPath.substr(0, myPath.lastIndexOf('/') + 1);
     const copyTo = this.file.dataDirectory + MEDIA_FOLDER_NAME;
 
-    this.file.copyFile(copyFrom, name, copyTo, newName).then(() => {
-      // this.loadFiles();
-      this.updateStoredFiles(newName);
-    }, err => console.log('error: ', err));
 
-    return {
-      name: newName,
-      type: fileExtension,
-      filePath: fullPath,
-      path: this.pathForFile(fullPath),
-      mimeType: this.getMimeType(fileExtension).type
-    } as iFile;
+    try {
+      const fileEntry = await this.file.copyFile(copyFrom, name, copyTo, newName);
+      console.log(fileEntry);
+      this.updateStoredFiles(newName);
+
+      return {
+        name: newName,
+        type: this.getMimeType(fileExtension).messageType,
+        extension: fileExtension,
+        filePath: this.file.dataDirectory + MEDIA_FOLDER_NAME + '/' + newName,
+        path: this.pathForFile(this.file.dataDirectory + MEDIA_FOLDER_NAME + '/' + newName),
+        mimeType: this.getMimeType(fileExtension).type,
+        fileEntry: fileEntry
+      } as iFile;
+
+    } catch (error) {
+      console.log('error Copy file to App Folder')
+      console.log(error);
+
+    }
+
 
   }
 
-  pathForFile(file) {
+  pathForFile(file): string | null {
     if (file === null) {
-      return '';
+      return null;
     } else {
       let converted = this.webView.convertFileSrc(file);
       return converted;
@@ -202,17 +299,18 @@ export class ManageAttachFilesService implements OnInit {
   }
 
   private getMimeType(fileExt: string) {
-    if (fileExt == 'wav') return { type: 'audio/wav' };
-    else if (fileExt == 'jpg') return { type: 'image/jpg' };
-    else if (fileExt == 'jpeg') return { type: 'image/jpeg' };
-    else if (fileExt == 'png') return { type: 'image/png' };
-    else if (fileExt == 'mp4') return { type: 'video/mp4' };
-    else if (fileExt == 'MOV') return { type: 'video/quicktime' };
+    if (fileExt == 'wav') return { type: 'audio/wav', messageType: 'audio' };
+    else if (fileExt == 'm4a') return { type: 'audio/m4a', messageType: 'audio' };
+    else if (fileExt == 'jpg') return { type: 'image/jpg', messageType: 'image' };
+    else if (fileExt == 'jpeg') return { type: 'image/jpeg', messageType: 'image' };
+    else if (fileExt == 'png') return { type: 'image/png', messageType: 'image' };
+    else if (fileExt == 'mp4') return { type: 'video/mp4', messageType: 'video' };
+    else if (fileExt == 'MOV') return { type: 'video/quicktime', messageType: 'video' };
   }
 
   private loadFiles() {
     this.file.listDir(this.file.dataDirectory, MEDIA_FOLDER_NAME).then(res => {
-      this.files = res;
+      // this.files = res;
       console.log('files: ', res);
     });
   }

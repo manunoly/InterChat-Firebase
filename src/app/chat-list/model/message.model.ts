@@ -5,4 +5,8 @@ export interface iMessage {
     timestamp: firebase.firestore.Timestamp;
     path?: string;
     type: string;
+    fileName?: string;
+    fileURL?: string;
+    fileMimeTyme?: string;
+    localFileName?: string;
   }

@@ -3,7 +3,7 @@ import { Storage } from '@ionic/storage';
 import { iUser } from '../chat-list/model/user.model';
 
 import * as firebase from 'firebase/app';
-import { LoadingController, AlertController, ToastController } from '@ionic/angular';
+import { LoadingController, AlertController, ToastController, Platform } from '@ionic/angular';
 
 import * as moment from 'moment';
 import { Subscription } from 'rxjs';
@@ -21,7 +21,8 @@ export class UtilService {
   constructor(private storage: Storage,
     private loadingController: LoadingController,
     private alertController: AlertController,
-    private toastController: ToastController) { }
+    private toastController: ToastController,
+    private platform: Platform) { }
 
 
   async showLoading(msg = 'Please wait') {
@@ -139,6 +140,10 @@ export class UtilService {
 
   toTitleCase(str: string) {
     return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+  }
+
+  isCordova() : boolean {
+    return this.platform.is('cordova');
   }
 
 }

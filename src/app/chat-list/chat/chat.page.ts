@@ -44,8 +44,11 @@ export class ChatPage implements OnInit, OnDestroy {
   subscriptions: Subscription[] = [];
 
   loadingChats = false;
+  loadingAFile = false;
 
   attachBox = false;
+
+  isCordova = false;
 
   constructor(public activRoute: ActivatedRoute,
     private router: Router,
@@ -57,8 +60,9 @@ export class ChatPage implements OnInit, OnDestroy {
     private storageApp: StorageAppService,
     private keyboard: Keyboard,
     public manageFiles: ManageAttachFilesService,
-    private detectorChangeRef : ChangeDetectorRef) {
+    private detectorChangeRef: ChangeDetectorRef) {
 
+    this.isCordova = this.utilService.isCordova();
 
     this.chatSelected = this.chatService.chatData;
     this.userSesion = this.authService.userSesion.value;
@@ -70,6 +74,7 @@ export class ChatPage implements OnInit, OnDestroy {
       console.log(this.chatSelected);
       this.loadMessageHistory();
 
+      this.scrollDown();
       // this.subscribeAndGetAllMessages();
 
     } else {
@@ -100,35 +105,77 @@ export class ChatPage implements OnInit, OnDestroy {
    */
   async selectAttach(type: string) {
 
-    try {
-      const resultData = await this.manageFiles.selectAttachAction(type);
-      console.log(resultData);
+    if (this.isCordova) {
+      try {
+        const resultData = await this.manageFiles.selectAttachAction(type);
+        console.log(resultData);
 
-      this.sendMsgAttach(resultData);
+        this.sendMsgAttach(resultData);
 
-    } catch (error) {
-      console.log('error retrieve attach');
-      console.log(error);
+      } catch (error) {
+        console.log('error retrieve attach');
+        console.log(error);
+      }
+    } else {
+      this.utilService.showToast('This Functionality is not supported on Web');
     }
-
 
   }
 
-  sendMsgAttach(file : iFile){
+  async sendMsgAttach(file: iFile) {
+
+    const idMessage = this.afs.createId();
+
+    console.log(idMessage);
 
     const newMsg: iMessage = {
-      idMessage: 'idMessage',
+      idMessage: idMessage,
       idSender: this.authService.userSesion.value.idUser,
       timestamp: this.utilService.timestampServerNow,
       type: file.type,
-      message: 'file',
+      message: file.type,
       path: file.path,
+      fileMimeTyme: file.mimeType,
+      localFileName: file.name,
     }
+
+    console.log(newMsg);
+
     this.msgList.push(newMsg);
     this.scrollDown();
     this.detectorChangeRef.detectChanges();
-    this.toggleAttachBox();    
+    this.toggleAttachBox();
+
+    try {
+
+      this.loadingAFile = true;
+      const resultUploadFile = await this.manageFiles.uploadFile(file.fileEntry);
+      console.log(resultUploadFile);
+
+      this.loadingAFile = false;
+
+      // Realizando Correciones luego de la carga del archivo
+      const indexMessage = this.msgList.findIndex(message => message.idMessage === idMessage);
+
+      this.msgList[indexMessage].fileName = resultUploadFile.fileName;
+      this.msgList[indexMessage].fileURL = resultUploadFile.fileURL;
+
+      newMsg.fileName = resultUploadFile.fileName;
+      newMsg.fileURL = resultUploadFile.fileURL;
+
+      this.storageApp.setMessagesByChat(this.chatSelected.idChat, this.msgList);
+
+      this.chatService.pushNewMessageChat(this.chatSelected.idChat, newMsg);
+
+    } catch (error) {
+
+      console.log(error);
+      console.log('error Uploading File')
+
+    }
+
   }
+
   sendMsg() {
     if (this.user_input !== '') {
 
@@ -227,6 +274,7 @@ export class ChatPage implements OnInit, OnDestroy {
 
     console.log('======ALL MESSAGES======')
     console.log(this.msgList);
+    this.scrollDown();
 
   }
 
@@ -248,6 +296,10 @@ export class ChatPage implements OnInit, OnDestroy {
         this.scrollDown();
 
       }));
+  }
+
+  checkPath(message: iMessage) {
+    console.log(this.manageFiles.pathForFile(message.path));
   }
 
   trackByFnmessages(id, message: iMessage) {

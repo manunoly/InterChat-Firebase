@@ -16,6 +16,7 @@ import { AngularFireStorageModule } from '@angular/fire/storage';
 
 import { IonicStorageModule } from '@ionic/storage';
 import { Keyboard } from '@ionic-native/keyboard/ngx';
+import { Camera } from '@ionic-native/camera/ngx';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { File } from '@ionic-native/File/ngx';
 import { MediaCapture } from '@ionic-native/media-capture/ngx';
@@ -48,6 +49,7 @@ import {AutosizeModule} from 'ngx-autosize';
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     Keyboard,
+    Camera,
     ImagePicker,
     MediaCapture,
     File,

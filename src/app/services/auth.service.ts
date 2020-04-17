@@ -43,7 +43,8 @@ export class AuthService {
           try {
             console.log(u.email);
 
-            const responseUser = (await this.dbService.getUser(u.email)).docs[0].data();
+            // console.log((await this.dbService.getUser(u.email)).docs[0].data());
+            const responseUser = (await this.dbService.getUser(u.email)).docs[0].data();           
             console.log(responseUser);
 
             this.utilService.saveUserSesion({

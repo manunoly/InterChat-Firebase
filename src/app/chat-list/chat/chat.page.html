@@ -5,9 +5,23 @@
     </ion-buttons>
     <ion-title>{{chatSelected?.title | titlecase }}</ion-title>
   </ion-toolbar>
+
+  <ion-progress-bar [hidden]='!loadingAFile' [value]="manageFiles.uploadProgress" color="success"></ion-progress-bar>
+
 </ion-header>
 
 <ion-content #IonContent [fullscreen]="true" (click)="ionContentTapped()">
+
+  <ion-row class="ion-padding-top" *ngIf="loadingChats">
+    <ion-col size="12" class="ion-text-center ion-no-padding">
+      <ion-spinner></ion-spinner>
+    </ion-col>
+    <ion-col size="12" class="ion-text-center ion-no-padding">
+      <ion-text>
+        <ion-note>Loading...</ion-note>
+      </ion-text>
+    </ion-col>
+  </ion-row>
 
   <ion-list>
 
@@ -15,15 +29,6 @@
       <ion-col>
         <!-- Show Created Date for Chat Always -->
         <ion-text color="medium">Chat Created at {{calendarDayFormat()}}</ion-text>
-      </ion-col>
-    </ion-row>
-
-    <ion-row *ngIf="loadingChats" class="ion-padding-top">
-      <ion-col size="12" class="ion-text-center">
-        <ion-spinner></ion-spinner> <br>
-        <ion-text>
-          <ion-note>Loading...</ion-note>
-        </ion-text>
       </ion-col>
     </ion-row>
 
@@ -62,11 +67,12 @@
               'sharper-top':(msgList[i-1] && msgList[i-1].idSender == message.idSender),
               'sharper-bottom':(msgList[i+1] && msgList[i+1].idSender == message.idSender)}">
 
-                <ion-text color="dark">
+                <ion-text color="dark" *ngIf="message.type == 'string'">
                   <p class="ion-text-wrap ion-padding" color="dark" [innerText]="message.message">
                   </p>
                 </ion-text>
 
+                <img *ngIf="message.type == 'image'" [src]="message.fileURL">
 
                 <div class="corner-parent-right">
                   <div class="corner-child-right">
@@ -102,7 +108,7 @@
                   </p>
                 </ion-text>
 
-                <img *ngIf="message.type != 'string'" [src]="message.path">
+                <img *ngIf="message.type != 'string'" [src]="isCordova ? message.path : message.fileURL">
 
 
                 <div class="corner-parent-left">
@@ -180,7 +186,8 @@
     </ion-buttons>
 
     <ion-textarea #area autosize [maxRows]="4" [spellcheck]="true" [rows]="1" class="input-box"
-      placeholder="Write a message..." [(ngModel)]="user_input" (ionFocus)="ionInputTapped()" (keypress)="userTyping($event)"></ion-textarea>
+      placeholder="Write a message..." [(ngModel)]="user_input" (ionFocus)="ionInputTapped()"
+      (keypress)="userTyping($event)"></ion-textarea>
 
     <ion-buttons slot="end">
       <ion-button (click)="sendMsg()" color="primary">
@@ -209,23 +216,23 @@
 
         <ion-col class="footer_col ion-activatable ripple-parent" size="4" (click)="selectAttach('camera')">
           <ion-label class="attchLabel">
-  
+
             <ion-icon class="attchIcon" slot="icon-only" ios="camera-outline" md="camera-sharp"></ion-icon>
 
             <p>Camera</p>
           </ion-label>
-          
+
           <ion-ripple-effect></ion-ripple-effect>
         </ion-col>
-  
+
         <ion-col class="footer_col ion-activatable ripple-parent" size="4" (click)="selectAttach('gallery')">
           <ion-label class="attchLabel">
-  
+
             <ion-icon class="attchIcon" slot="icon-only" ios="images-outline" md="images-sharp"></ion-icon>
-  
+
             <p>Gallery</p>
           </ion-label>
-  
+
           <ion-ripple-effect></ion-ripple-effect>
         </ion-col>
 
@@ -267,7 +274,7 @@
     </ion-list>
 
   </ng-container>
- 
+
 
 
 </ion-footer>
