@@ -112,9 +112,10 @@
                 </ion-text>
 
                 <div *ngIf="message.type == 'image'" class="imgBox" (click)="openModalImage(message)">
-                  <div class="img"
+                  <div #divImage class="img"
                     [ngStyle]="{'background-image': 'url(' + (isCordova ? message.path : message.fileURL) +')'}">
-                <img *ngIf="message.type != 'string'" [src]=" (isCordova ? message.path  : message.fileURL)" (error)="pictNotLoading($event , message.fileURL)">
+                    <!-- img Tag for handling Control Image Response from local Path -->
+                    <img *ngIf="isCordova" [hidden]="true" [src]="message.path" (error)="pictNotLoading($event , message.fileURL , divImage)" />
                   </div>
                 </div>
 
@@ -188,8 +189,8 @@
   <ion-item class="ion-align-items-center ion-no-padding">
 
     <ion-buttons slot="start">
-      
-      <input hidden type="file" #uploader (change)="onFileSelected($event)"/>
+
+      <input hidden type="file" #uploader (change)="onFileSelected($event)" />
 
       <ion-button (click)="isCordova ? toggleAttachBox() : uploader.click()" color="primary">
         <ion-icon slot="icon-only" ios="attach-outline" md="attach-sharp"></ion-icon>

@@ -322,8 +322,11 @@ export class ChatPage implements OnInit, OnDestroy {
     return this.manageFiles.pathForFile(path );
   }
 
-  pictNotLoading(event , urlBackup : string) { 
-    event.target.src = urlBackup; 
+  pictNotLoading(event : Event , urlBackup : string , divImage : Element) { 
+    console.log('=====404=====Some Image no loaded replacing with BackUp');
+    console.log('try to Load==>' , divImage['style'].backgroundImage)
+    divImage['style'].backgroundImage = `url('${urlBackup}')`; 
+    console.log('Loading BackUp==>' , divImage['style'].backgroundImage)
   }
 
   trackByFnmessages(id, message: iMessage) {
