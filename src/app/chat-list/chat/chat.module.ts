@@ -10,6 +10,7 @@ import { ChatPage } from './chat.page';
 
 import {AutosizeModule} from 'ngx-autosize';
 import { ModalImagePageModule } from 'src/app/modals/modal-image/modal-image.module';
+import { NgxIonicImageViewerModule } from 'ngx-ionic-image-viewer';
 
 @NgModule({
   imports: [
@@ -18,6 +19,7 @@ import { ModalImagePageModule } from 'src/app/modals/modal-image/modal-image.mod
     IonicModule,
     ChatPageRoutingModule,
     AutosizeModule,
+    NgxIonicImageViewerModule,
     ModalImagePageModule
   ],
   declarations: [ChatPage]

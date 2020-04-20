@@ -11,13 +11,22 @@
 
   <ion-list>
     <ion-item lines="full">
-      <ion-icon *ngIf="!utilService.preferedDarkTheme" slot="start" name="sunny"></ion-icon>
-      <ion-icon *ngIf="utilService.preferedDarkTheme" slot="start" name="moon"></ion-icon>
+      <ion-icon *ngIf="!utilService.preferedDarkTheme" slot="start" ios="sunny-outline" md="sunny-sharp"></ion-icon>
+      <ion-icon *ngIf="utilService.preferedDarkTheme" slot="start" ios="moon-outline" md="moon-sharp"></ion-icon>
       <ion-label>
         Toggle Dark Theme
       </ion-label>
       <ion-toggle [checked]="utilService.preferedDarkTheme" (ionChange)="utilService.toggleTheme()" slot="end"></ion-toggle>
     </ion-item>
+
+    <!-- <ion-item lines="full">
+      <ion-icon *ngIf="utilService.preferedDarkTheme" slot="start" ios="return-down-back-outline" md="return-down-back-sharp"></ion-icon>
+      <ion-label>
+       Enter to send message
+      </ion-label>
+      <ion-toggle [checked]="" (ionChange)="" slot="end"></ion-toggle>
+    </ion-item> -->
+
   </ion-list>
 
 </ion-content>

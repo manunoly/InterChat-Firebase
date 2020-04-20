@@ -26,7 +26,8 @@ import { WebView } from '@ionic-native/ionic-webview/ngx';
 import { environment } from 'src/environments/environment';
 
 import { NativeAudio } from '@ionic-native/native-audio/ngx';
-import {AutosizeModule} from 'ngx-autosize';
+import { AutosizeModule } from 'ngx-autosize';
+import { NgxIonicImageViewerModule } from 'ngx-ionic-image-viewer';
 
 @NgModule({
   declarations: [AppComponent],
@@ -43,7 +44,8 @@ import {AutosizeModule} from 'ngx-autosize';
       name: '__mydb',
       driverOrder: ['indexeddb', 'sqlite', 'websql']
     }),
-    AutosizeModule
+    AutosizeModule,
+    NgxIonicImageViewerModule
   ],
   providers: [
     StatusBar,
@@ -56,7 +58,7 @@ import {AutosizeModule} from 'ngx-autosize';
     MediaCapture,
     File,
     Media,
-    WebView   
+    WebView
   ],
   bootstrap: [AppComponent]
 })

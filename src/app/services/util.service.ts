@@ -126,6 +126,10 @@ export class UtilService {
     return moment(dateToCheck).isSame(this.today, 'day');
   }
 
+  timeFromNow(dateToCheck: Date){
+   return moment(dateToCheck).fromNow()
+  }
+
   getInstanceFirebase() {
     return firebase
   }
