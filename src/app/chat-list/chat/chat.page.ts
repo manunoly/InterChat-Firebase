@@ -1,10 +1,5 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  OnDestroy,
-  ChangeDetectorRef,
-} from "@angular/core";
+import { ManageWebAttachFilesService } from './../../services/manage-web-attach-files.service';
+import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { IonContent, ModalController } from "@ionic/angular";
 import { ActivatedRoute, Router } from "@angular/router";
 import { AuthService } from "src/app/services/auth.service";
@@ -15,7 +10,6 @@ import { iChat } from "../model/chat.model";
 import { iMessage } from "../model/message.model";
 import { AngularFirestore } from "@angular/fire/firestore";
 import { iUser } from "../model/user.model";
-
 import * as moment from "moment";
 import { StorageAppService } from "src/app/services/storage-app.service";
 import { Subscription } from "rxjs";
@@ -68,8 +62,8 @@ export class ChatPage implements OnInit, OnDestroy {
     private keyboard: Keyboard,
     public manageFiles: ManageAttachFilesService,
     private detectorChangeRef: ChangeDetectorRef,
-    private modalController: ModalController
-  ) {
+    private modalController: ModalController,
+    private webManageFiles: ManageWebAttachFilesService,) {
     this.isCordova = this.utilService.isCordova();
 
     this.chatSelected = this.chatService.chatData;
@@ -100,6 +94,13 @@ export class ChatPage implements OnInit, OnDestroy {
     this.subscriptions = [];
   }
 
+
+  onFileSelected(event){
+    const file = event.target.files[0];
+    if(file)
+      this.webManageFiles.uploadFile(file).then(resp=>console.log(resp)).catch(error=>console.log('fue error',error));
+  }
+
   /**
    *
    * @param type 'camera' | 'gallery'
@@ -110,7 +111,9 @@ export class ChatPage implements OnInit, OnDestroy {
         const resultData = await this.manageFiles.selectAttachAction(type);
         console.log(resultData);
 
-        this.sendMsgAttach(resultData);
+        if(resultData)
+          this.sendMsgAttach(resultData);
+
       } catch (error) {
         console.log("error retrieve attach");
         console.log(error);
@@ -315,8 +318,12 @@ export class ChatPage implements OnInit, OnDestroy {
   //=================================================================
   //=================================================================
 
-  checkPath(message: iMessage) {
-    console.log(this.manageFiles.pathForFile(message.path));
+  checkPath(path : string) {
+    return this.manageFiles.pathForFile(path );
+  }
+
+  pictNotLoading(event , urlBackup : string) { 
+    event.target.src = urlBackup; 
   }
 
   trackByFnmessages(id, message: iMessage) {

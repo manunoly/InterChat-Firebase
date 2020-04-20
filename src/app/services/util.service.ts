@@ -15,8 +15,9 @@ import { Subscription } from 'rxjs';
 export class UtilService {
 
   loading: any;
-
   private today = new Date();
+  // size in byte
+  public imageMaxSize = 1 * 1000000;
 
   constructor(private storage: Storage,
     private loadingController: LoadingController,
@@ -24,13 +25,14 @@ export class UtilService {
     private toastController: ToastController,
     private platform: Platform) { }
 
-
+  // FIXME: return type should be LoadingController
   async showLoading(msg = 'Please wait') {
     this.loading = await this.loadingController.create({
       message: msg,
       duration: 19000
     });
     await this.loading.present();
+    return this.loading;
   }
 
   async dismissLoading() {
@@ -146,4 +148,14 @@ export class UtilService {
     return this.platform.is('cordova');
   }
 
+  getMimeType(fileExt: string) {
+    // FIXME: que pasar con tipo de dato diferente, no se, si selcciono un gif, poner algo por defecto
+    if (fileExt == 'wav') return { type: 'audio/wav', messageType: 'audio' };
+    else if (fileExt == 'm4a') return { type: 'audio/m4a', messageType: 'audio' };
+    else if (fileExt == 'jpg') return { type: 'image/jpg', messageType: 'image' };
+    else if (fileExt == 'jpeg') return { type: 'image/jpeg', messageType: 'image' };
+    else if (fileExt == 'png') return { type: 'image/png', messageType: 'image' };
+    else if (fileExt == 'mp4') return { type: 'video/mp4', messageType: 'video' };
+    else if (fileExt == 'MOV') return { type: 'video/quicktime', messageType: 'video' };
+  }
 }
