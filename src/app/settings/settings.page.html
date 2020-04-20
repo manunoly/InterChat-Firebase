@@ -1,0 +1,23 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Settings</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+
+  <ion-list>
+    <ion-item lines="full">
+      <ion-icon *ngIf="!utilService.preferedDarkTheme" slot="start" name="sunny"></ion-icon>
+      <ion-icon *ngIf="utilService.preferedDarkTheme" slot="start" name="moon"></ion-icon>
+      <ion-label>
+        Toggle Dark Theme
+      </ion-label>
+      <ion-toggle [checked]="utilService.preferedDarkTheme" (ionChange)="utilService.toggleTheme()" slot="end"></ion-toggle>
+    </ion-item>
+  </ion-list>
+
+</ion-content>

@@ -16,6 +16,7 @@ export class UtilService {
 
   loading: any;
   private today = new Date();
+  preferedDarkTheme = false;
   // size in byte
   public imageMaxSize = 1 * 1000000;
 
@@ -23,7 +24,11 @@ export class UtilService {
     private loadingController: LoadingController,
     private alertController: AlertController,
     private toastController: ToastController,
-    private platform: Platform) { }
+    private platform: Platform) {
+
+    this.loadTheme();
+
+  }
 
   // FIXME: return type should be LoadingController
   async showLoading(msg = 'Please wait') {
@@ -83,7 +88,10 @@ export class UtilService {
     return JSON.parse(await this.storage.get('user')) as iUser;
   }
 
-  async getKeyStorage(key : string){
+  async setKeyStorage(key: string, data) {
+    return await this.storage.set(key, JSON.stringify(data));
+  }
+  async getKeyStorage(key: string) {
     return JSON.parse(await this.storage.get(key));
   }
 
@@ -144,12 +152,14 @@ export class UtilService {
     return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
   }
 
-  isCordova() : boolean {
+  isCordova(): boolean {
     return this.platform.is('cordova');
   }
 
   getMimeType(fileExt: string) {
     // FIXME: que pasar con tipo de dato diferente, no se, si selcciono un gif, poner algo por defecto
+    // FIXME: MAN este listado debe crecer tal cual los archivos validos utilizables en la app sean requeridos asi de sencillo
+    // yo coloque fueron algunos basicos man.
     if (fileExt == 'wav') return { type: 'audio/wav', messageType: 'audio' };
     else if (fileExt == 'm4a') return { type: 'audio/m4a', messageType: 'audio' };
     else if (fileExt == 'jpg') return { type: 'image/jpg', messageType: 'image' };
@@ -157,5 +167,26 @@ export class UtilService {
     else if (fileExt == 'png') return { type: 'image/png', messageType: 'image' };
     else if (fileExt == 'mp4') return { type: 'video/mp4', messageType: 'video' };
     else if (fileExt == 'MOV') return { type: 'video/quicktime', messageType: 'video' };
+  }
+
+  async loadTheme() {
+    console.log('Loading Setting Theme...');
+    const resolveTheme = await this.getKeyStorage('DarkTheme');
+    if (resolveTheme) {
+      this.preferedDarkTheme = resolveTheme;
+      document.body.classList.toggle('dark', this.preferedDarkTheme);
+    } else if (resolveTheme == null) {
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches)
+        this.toggleTheme();
+    }
+
+  }
+
+  toggleTheme() {
+    console.log('toggle Theme');
+    this.preferedDarkTheme = !this.preferedDarkTheme;
+    document.body.classList.toggle('dark', this.preferedDarkTheme);
+    this.setKeyStorage('DarkTheme', this.preferedDarkTheme);
+
   }
 }

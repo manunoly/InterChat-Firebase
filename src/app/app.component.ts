@@ -24,6 +24,11 @@ export class AppComponent implements OnInit {
       title: 'Users',
       url: 'select-user-to-chat',
       icon: 'chatbubbles'
+    },
+    {
+      title: 'Settings',
+      url: 'settings',
+      icon: 'settings'
     }
   ];
 
