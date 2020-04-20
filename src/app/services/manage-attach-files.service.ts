@@ -1,7 +1,7 @@
 import { Injectable, OnInit } from '@angular/core';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { MediaCapture, MediaFile, CaptureError } from '@ionic-native/media-capture/ngx';
-import { File, Entry, FileEntry } from '@ionic-native/File/ngx';
+import { File, Entry, FileEntry } from '@ionic-native/file/ngx';
 import { Media, MediaObject } from '@ionic-native/media/ngx';
 import { Platform } from '@ionic/angular';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
@@ -143,6 +143,16 @@ export class ManageAttachFilesService implements OnInit {
       console.log(error);
       return;
     }
+
+    /**
+     * FIXME: pensar que hacemos con el tamaño, seria triste yo hiciera un video y me digan que es muy grande, dejemos esto para derpues para darle algo de mente. por ahora las fotos no debe ser problema
+     * Propiedades
+      Blob.size Read only
+      El tamaño, en bytes,  de los datos contenidos en el objeto Blob
+      Blob.type Read only
+      Una cadena (String) indicando el tipo MIME de los datos contenidos en el Blob. Si el tipo es desconocido, esta cadena será vacía.
+      https://developer.mozilla.org/es/docs/Web/API/Blob
+     */
 
     const type = this.getMimeType(file.name.split('.').pop());
     const fileBlob = new Blob([buffer], type);
@@ -302,13 +312,7 @@ export class ManageAttachFilesService implements OnInit {
   }
 
   private getMimeType(fileExt: string) {
-    if (fileExt == 'wav') return { type: 'audio/wav', messageType: 'audio' };
-    else if (fileExt == 'm4a') return { type: 'audio/m4a', messageType: 'audio' };
-    else if (fileExt == 'jpg') return { type: 'image/jpg', messageType: 'image' };
-    else if (fileExt == 'jpeg') return { type: 'image/jpeg', messageType: 'image' };
-    else if (fileExt == 'png') return { type: 'image/png', messageType: 'image' };
-    else if (fileExt == 'mp4') return { type: 'video/mp4', messageType: 'video' };
-    else if (fileExt == 'MOV') return { type: 'video/quicktime', messageType: 'video' };
+    return this.utilService.getMimeType(fileExt);
   }
 
   private loadFiles() {

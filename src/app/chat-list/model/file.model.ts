@@ -1,4 +1,4 @@
-import { Entry } from '@ionic-native/File/ngx';
+import { Entry } from '@ionic-native/file/ngx';
 
 export interface iFile {
     name?: string, 
