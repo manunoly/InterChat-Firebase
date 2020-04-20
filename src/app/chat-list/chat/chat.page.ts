@@ -1,3 +1,4 @@
+import { ManageWebAttachFilesService } from './../../services/manage-web-attach-files.service';
 import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { IonContent } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -60,7 +61,8 @@ export class ChatPage implements OnInit, OnDestroy {
     private storageApp: StorageAppService,
     private keyboard: Keyboard,
     public manageFiles: ManageAttachFilesService,
-    private detectorChangeRef: ChangeDetectorRef) {
+    private detectorChangeRef: ChangeDetectorRef,
+    private webManageFiles: ManageWebAttachFilesService) {
 
     this.isCordova = this.utilService.isCordova();
 
@@ -98,6 +100,12 @@ export class ChatPage implements OnInit, OnDestroy {
 
   }
 
+
+  onFileSelected(event){
+    const file = event.target.files[0];
+    if(file)
+      this.webManageFiles.uploadFile(file).then(resp=>console.log(resp)).catch(error=>console.log('fue error',error));
+  }
 
   /**
    * 

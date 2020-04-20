@@ -179,7 +179,10 @@
   <ion-item class="ion-align-items-center ion-no-padding">
 
     <ion-buttons slot="start">
-      <ion-button (click)="toggleAttachBox()" color="primary">
+      
+      <input hidden type="file" #uploader (change)="onFileSelected($event)"/>
+
+      <ion-button (click)="isCordova ? toggleAttachBox() : uploader.click()" color="primary">
         <ion-icon slot="icon-only" ios="attach-outline" md="attach-sharp"></ion-icon>
       </ion-button>
     </ion-buttons>
