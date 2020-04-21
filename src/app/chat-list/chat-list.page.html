@@ -54,7 +54,11 @@
               {{chat.title | titlecase }}
             </h5>
           </ion-text>
-          <p class="descText ion-no-margin ion-no-padding">{{chat.lastMessage ? chat.lastMessage : 'Chat Created'}}</p>
+          <p class="descText ion-no-margin ion-no-padding">
+            <ion-icon *ngIf="chat.lastMessage == 'image'" ios="images-outline" md="images-sharp"></ion-icon>
+            <ion-icon *ngIf="chat.lastMessage == 'file'" ios="document-attach-outline" md="document-attach-sharp"></ion-icon>
+            {{chat.lastMessage ? (chat.typeLastMessage == 'string' ? chat.lastMessage : chat.lastMessage | titlecase) : 'Chat Created'}}
+          </p>
         </div>
       </div>
       <div slot="end" class="lastSection ion-no-margin">

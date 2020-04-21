@@ -159,7 +159,7 @@ export class ManageAttachFilesService implements OnInit {
     const randomId = Math.random().toString(36).substring(2, 8);
 
     // FIRESTORE LOGIC
-    const uploadTask = this.fireStorage.upload(`files/${file.name}_${randomId}`, fileBlob);
+    const uploadTask = this.fireStorage.upload(`files/${randomId}_${file.name}`, fileBlob);
 
     uploadTask.percentageChanges().subscribe(changes => {
       console.log('========Uploading File========')

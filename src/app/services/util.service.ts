@@ -126,8 +126,8 @@ export class UtilService {
     return moment(dateToCheck).isSame(this.today, 'day');
   }
 
-  timeFromNow(dateToCheck: Date){
-   return moment(dateToCheck).fromNow()
+  timeFromNow(dateToCheck: Date) {
+    return moment(dateToCheck).fromNow()
   }
 
   getInstanceFirebase() {
@@ -171,6 +171,31 @@ export class UtilService {
     else if (fileExt == 'png') return { type: 'image/png', messageType: 'image' };
     else if (fileExt == 'mp4') return { type: 'video/mp4', messageType: 'video' };
     else if (fileExt == 'MOV') return { type: 'video/quicktime', messageType: 'video' };
+    else {
+      // Document | file
+      return { type: '', messageType: 'file' };
+    }
+  }
+
+  /**
+   * 
+   * @param typeInput 'image' | 'document'
+   * @returns string accepted miMeType like https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file#accept
+   */
+  acceptedMimeTypes(typeInput: string): string {
+
+    if (typeInput == 'image')
+      return 'image/png, image/jpeg, image/jpg'
+    else if (typeInput == 'document')
+      return `application/pdf, application/x-pdf, application/acrobat, applications/vnd.pdf, text/pdf, text/x-pdf, 
+      .doc, .docx, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, 
+      .csv, .xlsx, .application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+      .ppt, .pptx, .application/vnd.openxmlformats-officedocument.presentationml.presentation,
+      text/plain, 
+      application/json,
+      application/rar,
+      application/zip, application/x-zip, application/x-zip-compressed, application/octet-stream, application/x-compress, application/x-compressed, multipart/x-zip`
+
   }
 
   async loadTheme() {

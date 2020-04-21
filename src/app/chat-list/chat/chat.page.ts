@@ -15,9 +15,9 @@ import { StorageAppService } from "src/app/services/storage-app.service";
 import { Subscription } from "rxjs";
 import { ManageAttachFilesService } from "src/app/services/manage-attach-files.service";
 import { Keyboard } from "@ionic-native/keyboard/ngx";
-import { iFile } from "../model/file.model";
-import { ModalImagePage } from 'src/app/modals/modal-image/modal-image.page';
+import { iFile, iFileUpload } from "../model/file.model";
 import { ViewerModalComponent } from 'ngx-ionic-image-viewer';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
 @Component({
   selector: "app-chat",
@@ -50,6 +50,7 @@ export class ChatPage implements OnInit, OnDestroy {
   attachBox = false;
 
   isCordova = false;
+  acceptedMimeTypes = '';
 
   constructor(
     public activRoute: ActivatedRoute,
@@ -64,7 +65,8 @@ export class ChatPage implements OnInit, OnDestroy {
     public manageFiles: ManageAttachFilesService,
     private detectorChangeRef: ChangeDetectorRef,
     private modalController: ModalController,
-    private webManageFiles: ManageWebAttachFilesService,) {
+    private webManageFiles: ManageWebAttachFilesService,
+    private iab: InAppBrowser ) {
     this.isCordova = this.utilService.isCordova();
 
     this.chatSelected = this.chatService.chatData;
@@ -96,34 +98,99 @@ export class ChatPage implements OnInit, OnDestroy {
   }
 
 
-  onFileSelected(event){
-    const file = event.target.files[0];
-    if(file)
-      this.webManageFiles.uploadFile(file).then(resp=>console.log(resp)).catch(error=>console.log('fue error',error));
+  onFileSelected(event) {
+    const file = event.target.files[0] as File;
+    console.log(file);
+    if (this.acceptedMimeTypes.indexOf(file.type) != -1) {
+      if (file)
+        this.webManageFiles.uploadFile(file).then(
+          resp => {
+            console.log(resp)
+            if (resp) {
+              const resultDataFile = this.webManageFiles.getIFileFromInput(file);
+              console.log(resultDataFile);
+              // this.sendMsgAttach(resultDataFile);
+
+              this.sendMsgAttchInputWeb(resultDataFile , resp);
+
+            }
+            
+          }
+        ).catch(
+          error => {
+            console.log('fue error', error)
+          }
+        );
+    } else {
+      this.utilService.showToast(`The Document with extension "${file.name.split('.').pop()}" is not supported`);
+    }
+
   }
 
   /**
    *
-   * @param type 'camera' | 'gallery'
+   * @param type 'camera' | 'gallery' | 'document'
    */
-  async selectAttach(type: string) {
+  async selectAttach(type: string, uploaderFileInput) {
+
+    console.log(uploaderFileInput);
+
     if (this.isCordova) {
       try {
+
+        if (type == 'document') {
+          this.acceptedMimeTypes = this.utilService.acceptedMimeTypes(type);
+          uploaderFileInput.click();
+          return;
+        }
+
         const resultData = await this.manageFiles.selectAttachAction(type);
         console.log(resultData);
 
-        if(resultData)
+        if (resultData)
           this.sendMsgAttach(resultData);
 
       } catch (error) {
         console.log("error retrieve attach");
         console.log(error);
       }
-    } else {
-      this.utilService.showToast("This Functionality is not supported on Web");
+    } else { //Web Functionability
+      this.acceptedMimeTypes = this.utilService.acceptedMimeTypes(type);
+      uploaderFileInput.click()
     }
   }
 
+
+  sendMsgAttchInputWeb(file: iFile , metaFileUpload : iFileUpload){
+    const idMessage = this.afs.createId();
+
+    console.log(idMessage);
+
+    const newMsg: iMessage = {
+      idMessage: idMessage,
+      idSender: this.authService.userSesion.value.idUser,
+      timestamp: this.utilService.timestampServerNow,
+      type: file.type,
+      message: file.type,
+      path: file.path ? file.path : null,
+      fileMimeTyme: file.mimeType,
+      localFileName: file.name,
+      fileName: metaFileUpload.fileName,
+      fileURL: metaFileUpload.fileURL
+    };
+
+    console.log(newMsg);
+
+    this.msgList.push(newMsg);
+    this.scrollDown();
+    this.detectorChangeRef.detectChanges();
+    this.toggleAttachBox();
+
+    this.storageApp.setMessagesByChat(this.chatSelected.idChat, this.msgList);
+    this.chatService.pushNewMessageChat(this.chatSelected.idChat, newMsg);
+    
+  }
+  
   async sendMsgAttach(file: iFile) {
     const idMessage = this.afs.createId();
 
@@ -305,7 +372,7 @@ export class ChatPage implements OnInit, OnDestroy {
     );
   }
 
-  async openModalImage(message: iMessage , userNameFrom : string) {
+  async openModalImage(message: iMessage, userNameFrom: string) {
 
     // const srcImage = this.utilService.isCordova() ? message.path : message.fileURL; <- Esperando a ver que dicen en el repo de porque no carga el fallback
     // console.log(srcImage);
@@ -313,13 +380,13 @@ export class ChatPage implements OnInit, OnDestroy {
     const modal = await this.modalController.create({
       component: ViewerModalComponent,
       componentProps: {
-        src: `${message.fileURL}` , // required, <--mientras se cargará siempre el fileURL
+        src: `${message.fileURL}`, // required, <--mientras se cargará siempre el fileURL
         srcFallBack: `${message.fileURL}`,
         title: `${this.utilService.toTitleCase(userNameFrom)} - ${this.utilService.timeFromNow(message.timestamp.toDate())}`, // optional
         titleSize: 'small',
         // text: '', // optional
         scheme: 'dark',
-        slideOptions: { zoom: { maxRatio: 7}},
+        slideOptions: { zoom: { maxRatio: 7 } },
       },
       cssClass: 'ion-img-viewer', // required
       keyboardClose: true,
@@ -330,20 +397,24 @@ export class ChatPage implements OnInit, OnDestroy {
 
   }
 
-  //=================================================================
-  //=================================================================
-  //=================================================================
-  //=================================================================
-
-  checkPath(path : string) {
-    return this.manageFiles.pathForFile(path );
+  async openFileMessage(message: iMessage){
+    this.iab.create(message.fileURL, '_system');
   }
 
-  pictNotLoading(event : Event , urlBackup : string , divImage : Element) { 
+  //=================================================================
+  //=================================================================
+  //=================================================================
+  //=================================================================
+
+  checkPath(path: string) {
+    return this.manageFiles.pathForFile(path);
+  }
+
+  pictNotLoading(event: Event, urlBackup: string, divImage: Element) {
     console.log('=====404=====Some Image no loaded replacing with BackUp');
-    console.log('try to Load==>' , divImage['style'].backgroundImage)
-    divImage['style'].backgroundImage = `url('${urlBackup}')`; 
-    console.log('Loading BackUp==>' , divImage['style'].backgroundImage)
+    console.log('try to Load==>', divImage['style'].backgroundImage)
+    divImage['style'].backgroundImage = `url('${urlBackup}')`;
+    console.log('Loading BackUp==>', divImage['style'].backgroundImage)
   }
 
   trackByFnmessages(id, message: iMessage) {

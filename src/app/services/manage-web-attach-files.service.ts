@@ -1,15 +1,16 @@
 import { Injectable } from "@angular/core";
 
 import { AngularFireStorage } from "@angular/fire/storage";
-import { iFileUpload } from "../chat-list/model/file.model";
+import { iFileUpload, iFile } from "../chat-list/model/file.model";
 import { UtilService } from "./util.service";
-import { finalize } from "rxjs/operators";
+import { Observable } from 'rxjs';
+
 
 @Injectable({
   providedIn: "root",
 })
 export class ManageWebAttachFilesService {
-  uploadProgress;
+  uploadProgress: Observable<number>;
 
   constructor(
     private fireStorage: AngularFireStorage,
@@ -30,9 +31,12 @@ export class ManageWebAttachFilesService {
     console.log("archivo a subir", file);
     
     return new Promise<iFileUpload>((resolve, reject) => {
+      const extension = file.name.split('.').pop() as string;
+      const dateNow = new Date().getTime();
+      const nameNow = `${dateNow}.${extension}`;
       const randomId = Math.random().toString(36).substring(2, 8);
 
-      const uploadTask = this.fireStorage.upload(`files/${randomId}`, file);
+      const uploadTask = this.fireStorage.upload(`files/${randomId}_${nameNow}`, file);
 
       // uploadTask
       //   .snapshotChanges()
@@ -59,7 +63,7 @@ export class ManageWebAttachFilesService {
       this.uploadProgress = uploadTask.percentageChanges();
       this.uploadProgress.subscribe(
         (percentage) => {
-          loading.message = percentage + "% ...";
+          loading.message = percentage.toFixed(2) + "% ...";
         },
         (err) => {
           loading.message = "Uploading error";
@@ -92,5 +96,15 @@ export class ManageWebAttachFilesService {
         }
       ).catch(error=>console.log(error));
     });
+  }
+
+  getIFileFromInput(file: File) : iFile{
+
+    const extension = file.name.split('.').pop() as string;
+    const dateNow = Date.now();
+    const name = `${dateNow}.${extension}`;
+    const mimeType = file.type;
+    const type = this.utilService.getMimeType(extension).messageType;
+    return {name, extension, type , mimeType}
   }
 }

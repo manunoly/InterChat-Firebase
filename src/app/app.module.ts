@@ -28,6 +28,7 @@ import { environment } from 'src/environments/environment';
 import { NativeAudio } from '@ionic-native/native-audio/ngx';
 import { AutosizeModule } from 'ngx-autosize';
 import { NgxIonicImageViewerModule } from 'ngx-ionic-image-viewer';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
 @NgModule({
   declarations: [AppComponent],
@@ -58,7 +59,8 @@ import { NgxIonicImageViewerModule } from 'ngx-ionic-image-viewer';
     MediaCapture,
     File,
     Media,
-    WebView
+    WebView,
+    InAppBrowser
   ],
   bootstrap: [AppComponent]
 })
