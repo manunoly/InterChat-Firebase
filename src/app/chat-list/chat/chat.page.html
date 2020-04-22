@@ -6,12 +6,10 @@
     <ion-title>{{chatSelected?.title | titlecase }}</ion-title>
   </ion-toolbar>
 
-  <ion-progress-bar [hidden]='!loadingAFile' [value]="manageFiles.uploadProgress" color="success"></ion-progress-bar>
-
+  <ion-progress-bar [hidden]="!loadingAFile" [value]="manageFiles.uploadProgress" color="success"></ion-progress-bar>
 </ion-header>
 
 <ion-content #IonContent [fullscreen]="true" (click)="ionContentTapped()">
-
   <ion-row class="ion-padding-top" *ngIf="loadingChats">
     <ion-col size="12" class="ion-text-center ion-no-padding">
       <ion-spinner></ion-spinner>
@@ -24,7 +22,6 @@
   </ion-row>
 
   <ion-list *ngIf="chatSelected">
-
     <ion-row>
       <ion-col>
         <!-- Show Created Date for Chat Always -->
@@ -33,7 +30,6 @@
     </ion-row>
 
     <div *ngFor="let message of msgList; let i = index; trackBy: trackByFnmessages ">
-
       <!-- Validation show grouped Chats for Same Date  -->
       <ion-row *ngIf=" !checkSameDay(i) ; else elseBlock" class="ion-padding-vertical">
         <ion-col>
@@ -43,7 +39,7 @@
 
       <ng-template #elseBlock>
         <span class="ion-padding-vertical">
-          <br>
+          <br />
         </span>
       </ng-template>
 
@@ -53,7 +49,6 @@
         <ion-col class="right ion-no-padding"
           [ngClass]="{'clubbed':((msgList[i+1] && msgList[i+1].idSender != message.idSender)|| !msgList[i+1])}">
           <div class="imageAvatarRight">
-
             <div class="imageAvatarBottom">
               <ion-avatar class="avatar"
                 [ngClass]="(msgList[i+1] && msgList[i+1].idSender == message.idSender)?'hidden':''">
@@ -68,45 +63,40 @@
               (msgList[i-1] && msgList[i-1].idSender == message.idSender)),
               'sharper-top':(msgList[i-1] && msgList[i-1].idSender == message.idSender),
               'sharper-bottom':(msgList[i+1] && msgList[i+1].idSender == message.idSender)}">
-
-
-               <!-- TEXT MESSAGE -->
+                <!-- TEXT MESSAGE -->
                 <ion-text color="dark" *ngIf="message.type == 'string'">
-                  <p class="ion-text-wrap ion-padding" color="dark" [innerText]="message.message">
-                  </p>
+                  <p class="ion-text-wrap ion-padding" color="dark" [innerText]="message.message"></p>
                 </ion-text>
 
-                 <!-- IMAGE OR PHOTO MESSAGE -->
-                <div *ngIf="message.type == 'image'" class="imgBox" (click)="openModalImage(message , chatSelected.title)">
-                  <div class="img" [ngStyle]="{'background-image': 'url(' + message.fileURL +')'}">
-                  </div>
+                <!-- IMAGE OR PHOTO MESSAGE -->
+                <div *ngIf="message.type == 'image'" class="imgBox">
+                  <ion-img-viewer class="imgBox" [src]="message.fileURL" [srcFallback]="message.fileURL"
+                    [title]="utilService.toTitleCase(chatSelected.title) + ' - ' + utilService.timeFromNow(message.timestamp.toDate())"
+                    titleSize="small" scheme="dark" [slideOptions]="{ zoom: { maxRatio: 7 }}"></ion-img-viewer>
                 </div>
 
-                  <!-- DOCUMENT/FILE MESSAGE -->
+                <!-- DOCUMENT/FILE MESSAGE -->
                 <div *ngIf="message.type == 'file'" class="fileBox">
-
                   <ion-item lines="full" [button]="true" (click)="openFileMessage(message)">
                     <ion-icon slot="start" ios="document-attach-outline" md="document-attach-sharp"></ion-icon>
                     <ion-text>
-                      <p class="ion-text-wrap" color="dark" [innerText]="message.localFileName">
-                      </p>
+                      <p class="ion-text-wrap" color="dark" [innerText]="message.localFileName"></p>
                     </ion-text>
                   </ion-item>
-                 
                 </div>
 
                 <div class="corner-parent-right">
-                  <div class="corner-child-right">
-
-                  </div>
+                  <div class="corner-child-right"></div>
                 </div>
 
                 <div class="timeBubbleChat">
                   <ion-text color="medium">
-                    <p class="timeChat"><small>{{message.timestamp.toDate() | date: 'shortTime'}}</small></p>
+                    <p class="timeChat">
+                      <small>{{message.timestamp.toDate() | date:
+                        'shortTime'}}</small>
+                    </p>
                   </ion-text>
                 </div>
-
               </div>
             </ion-label>
           </div>
@@ -123,50 +113,42 @@
               (msgList[i-1] && msgList[i-1].idSender == message.idSender)),
               'sharper-top':(msgList[i-1] && msgList[i-1].idSender == message.idSender),
               'sharper-bottom':(msgList[i+1] && msgList[i+1].idSender == message.idSender)}">
-
-
-              <!-- TEXT MESSAGE -->
+                <!-- TEXT MESSAGE -->
                 <ion-text color="dark" *ngIf="message.type == 'string'">
-                  <p class="ion-text-wrap ion-padding" color="dark" [innerText]="message.message">
-                  </p>
+                  <p class="ion-text-wrap ion-padding" color="dark" [innerText]="message.message"></p>
                 </ion-text>
 
-                 <!-- IMAGE OR PHOTO MESSAGE -->
-                <div *ngIf="message.type == 'image'" class="imgBox" (click)="openModalImage(message , 'You')">
-                  <div #divImage class="img"
-                    [ngStyle]="{'background-image': 'url(' + (isCordova ? message.path : message.fileURL) +')'}">
-                    <!-- img Tag for handling Control Image Response from local Path -->
-                    <img *ngIf="isCordova" [hidden]="true" [src]="message.path" (error)="pictNotLoading($event , message.fileURL , divImage)" />
-                  </div>
+                <!-- IMAGE OR PHOTO MESSAGE -->
+                <div *ngIf="message.type == 'image'" class="imgBox">
+                  <!-- img Tag for handling Control Image Response from local Path -->
+                  <ion-img-viewer class="imgBox" [src]="(isCordova ? message.path : message.fileURL)"
+                    [srcFallback]="message.fileURL"
+                    [title]="utilService.toTitleCase(chatSelected.title) + ' - ' + utilService.timeFromNow(message.timestamp.toDate())"
+                    titleSize="small" scheme="dark" [slideOptions]="{ zoom: { maxRatio: 7 }}"></ion-img-viewer>
                 </div>
 
                 <!-- DOCUMENT/FILE MESSAGE -->
                 <div *ngIf="message.type == 'file'" class="fileBox">
-
                   <ion-item lines="full" [button]="true" (click)="openFileMessage(message)">
                     <ion-icon slot="start" ios="document-attach-outline" md="document-attach-sharp"></ion-icon>
                     <ion-text>
-                      <p class="ion-text-wrap" color="dark" [innerText]="message.localFileName">
-                      </p>
+                      <p class="ion-text-wrap" color="dark" [innerText]="message.localFileName"></p>
                     </ion-text>
                   </ion-item>
-                 
                 </div>
 
-
                 <div class="corner-parent-left">
-                  <div class="corner-child-left">
-
-                  </div>
+                  <div class="corner-child-left"></div>
                 </div>
 
                 <div class="timeBubbleChat">
                   <ion-text color="medium">
-                    <p class="timeChat"><small>{{message.timestamp.toDate() | date: 'shortTime'}}</small></p>
+                    <p class="timeChat">
+                      <small>{{message.timestamp.toDate() | date:
+                        'shortTime'}}</small>
+                    </p>
                   </ion-text>
                 </div>
-
-
               </div>
             </ion-label>
             <div class="imageAvatarBottom">
@@ -182,7 +164,6 @@
           </div>
         </ion-col>
       </ion-row>
-
     </div>
   </ion-list>
 
@@ -207,23 +188,18 @@
             <!-- <ion-img src="./assets/img/chat/loader.gif"></ion-img> -->
             <!-- <p text-wrap padding> {{paramData.name || 'Pam'}} is typing...</p> -->
             <div class="corner-parent-right">
-              <div class="corner-child-right">
-
-              </div>
+              <div class="corner-child-right"></div>
             </div>
           </div>
         </ion-label>
       </div>
     </ion-col>
   </ion-row>
-
 </ion-content>
 
 <ion-footer [translucent]="true">
   <ion-item class="ion-align-items-center ion-no-padding">
-
     <ion-buttons slot="start">
-
       <input hidden type="file" #uploader (change)="onFileSelected($event)" />
 
       <ion-button (click)="toggleAttachBox()" color="primary">
@@ -240,29 +216,25 @@
         <ion-icon slot="icon-only" ios="send-outline" md="send-sharp"></ion-icon>
       </ion-button>
     </ion-buttons>
-
   </ion-item>
 
   <ng-container *ngIf="attachBox">
-
     <ion-list>
       <ion-row class="attchRow">
-
-        <ion-col class="footer_col ion-activatable ripple-parent" size="4" (click)="selectAttach('document' , uploader)">
+        <ion-col class="footer_col ion-activatable ripple-parent" size="4"
+          (click)="selectAttach('document' , uploader)">
           <ion-label class="attchLabel">
-  
             <ion-icon class="attchIcon" slot="icon-only" ios="document-outline" md="document-sharp"></ion-icon>
 
             <p>Document</p>
-           
           </ion-label>
 
           <ion-ripple-effect></ion-ripple-effect>
         </ion-col>
 
-        <ion-col *ngIf="isCordova" class="footer_col ion-activatable ripple-parent" size="4" (click)="selectAttach('camera' , uploader)">
+        <ion-col *ngIf="isCordova" class="footer_col ion-activatable ripple-parent" size="4"
+          (click)="selectAttach('camera' , uploader)">
           <ion-label class="attchLabel">
-
             <ion-icon class="attchIcon" slot="icon-only" ios="camera-outline" md="camera-sharp"></ion-icon>
 
             <p>Camera</p>
@@ -273,7 +245,6 @@
 
         <ion-col class="footer_col ion-activatable ripple-parent" size="4" (click)="selectAttach('gallery' , uploader)">
           <ion-label class="attchLabel">
-
             <ion-icon class="attchIcon" slot="icon-only" ios="images-outline" md="images-sharp"></ion-icon>
 
             <p>Gallery</p>
@@ -315,12 +286,7 @@
 
           <ion-ripple-effect></ion-ripple-effect>
         </ion-col> -->
-
       </ion-row>
     </ion-list>
-
   </ng-container>
-
-
-
 </ion-footer>

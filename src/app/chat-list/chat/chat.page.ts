@@ -16,7 +16,7 @@ import { Subscription } from "rxjs";
 import { ManageAttachFilesService } from "src/app/services/manage-attach-files.service";
 import { Keyboard } from "@ionic-native/keyboard/ngx";
 import { iFile, iFileUpload } from "../model/file.model";
-import { ViewerModalComponent } from 'ngx-ionic-image-viewer';
+import { NgxIonicImageViewerComponent } from 'ngx-ionic-image-viewer';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
 @Component({
@@ -372,28 +372,32 @@ export class ChatPage implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * @deprecated
+   * @param message 
+   * @param userNameFrom 
+   */
   async openModalImage(message: iMessage, userNameFrom: string) {
 
     // const srcImage = this.utilService.isCordova() ? message.path : message.fileURL; <- Esperando a ver que dicen en el repo de porque no carga el fallback
     // console.log(srcImage);
+    // const modal = await this.modalController.create({
+    //   component: ViewerModalComponent,
+    //   componentProps: {
+    //     src: `${message.fileURL}`, // required, <--mientras se cargará siempre el fileURL
+    //     srcFallback: `${message.fileURL}`,
+    //     title: `${this.utilService.toTitleCase(userNameFrom)} - ${this.utilService.timeFromNow(message.timestamp.toDate())}`, // optional
+    //     titleSize: 'small',
+    //     // text: '', // optional
+    //     scheme: 'dark',
+    //     slideOptions: { zoom: { maxRatio: 7 } },
+    //   },
+    //   cssClass: 'ion-img-viewer', // required
+    //   keyboardClose: true,
+    //   showBackdrop: true
+    // });
 
-    const modal = await this.modalController.create({
-      component: ViewerModalComponent,
-      componentProps: {
-        src: `${message.fileURL}`, // required, <--mientras se cargará siempre el fileURL
-        srcFallBack: `${message.fileURL}`,
-        title: `${this.utilService.toTitleCase(userNameFrom)} - ${this.utilService.timeFromNow(message.timestamp.toDate())}`, // optional
-        titleSize: 'small',
-        // text: '', // optional
-        scheme: 'dark',
-        slideOptions: { zoom: { maxRatio: 7 } },
-      },
-      cssClass: 'ion-img-viewer', // required
-      keyboardClose: true,
-      showBackdrop: true
-    });
-
-    return await modal.present();
+    // return await modal.present();
 
   }
 
