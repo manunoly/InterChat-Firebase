@@ -187,7 +187,7 @@ export class UtilService {
     if (typeInput == 'image')
       return 'image/png, image/jpeg, image/jpg'
     else if (typeInput == 'document')
-      return `application/pdf, application/x-pdf, application/acrobat, applications/vnd.pdf, text/pdf, text/x-pdf, 
+      return `image/png, image/jpeg, image/jpg, application/pdf, application/x-pdf, application/acrobat, applications/vnd.pdf, text/pdf, text/x-pdf, 
       .doc, .docx, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, 
       .csv, .xlsx, .application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
       .ppt, .pptx, .application/vnd.openxmlformats-officedocument.presentationml.presentation,
