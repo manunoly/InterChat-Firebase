@@ -271,7 +271,6 @@ export class ManageAttachFilesService implements OnInit {
 
   private loadStoredFiles() {
 
-    this.utilService.getUserFromStorage
     this.storage.get(STORAGE_KEY).then(files => {
       if (files) {
         let arr = JSON.parse(files);

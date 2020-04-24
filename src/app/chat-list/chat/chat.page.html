@@ -221,7 +221,8 @@
   <ng-container *ngIf="attachBox">
     <ion-list>
       <ion-row class="attchRow">
-        <ion-col class="footer_col ion-activatable ripple-parent" size="4"
+        
+        <!-- <ion-col class="footer_col ion-activatable ripple-parent" size="4"
           (click)="selectAttach('document' , uploader)">
           <ion-label class="attchLabel">
             <ion-icon class="attchIcon" slot="icon-only" ios="document-outline" md="document-sharp"></ion-icon>
@@ -230,9 +231,9 @@
           </ion-label>
 
           <ion-ripple-effect></ion-ripple-effect>
-        </ion-col>
+        </ion-col> -->
 
-        <ion-col *ngIf="isCordova" class="footer_col ion-activatable ripple-parent" size="4"
+        <ion-col *ngIf="isCordova" class="footer_col ion-activatable ripple-parent" size="6"
           (click)="selectAttach('camera' , uploader)">
           <ion-label class="attchLabel">
             <ion-icon class="attchIcon" slot="icon-only" ios="camera-outline" md="camera-sharp"></ion-icon>
@@ -243,7 +244,7 @@
           <ion-ripple-effect></ion-ripple-effect>
         </ion-col>
 
-        <ion-col class="footer_col ion-activatable ripple-parent" size="4" (click)="selectAttach('gallery' , uploader)">
+        <ion-col class="footer_col ion-activatable ripple-parent" size="6" (click)="selectAttach('gallery' , uploader)">
           <ion-label class="attchLabel">
             <ion-icon class="attchIcon" slot="icon-only" ios="images-outline" md="images-sharp"></ion-icon>
 
