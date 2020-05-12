@@ -198,6 +198,10 @@ export class UtilService {
 
   }
 
+  srcFallBackImg(event, urlBackup = './assets/icon/favicon.png' ){
+    event.target.src = urlBackup; 
+  }
+
   async loadTheme() {
     console.log('Loading Setting Theme...');
     const resolveTheme = await this.getKeyStorage('DarkTheme');

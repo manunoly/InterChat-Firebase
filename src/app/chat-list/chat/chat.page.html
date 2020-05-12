@@ -55,7 +55,7 @@
                 <!-- <div class="imageAvatarBottomIcon">
                   <ion-icon name="add" expand="icon-only" color="light"> </ion-icon>
                 </div> -->
-                <ion-img [src]="userSesion?.avatar ? userSesion?.avatar : './assets/icon/favicon.png'"></ion-img>
+                <ion-img [src]="chatSelected?.userReciever?.avatar ? chatSelected.userReciever?.avatar : './assets/icon/favicon.png'" (ionError)="utilService.srcFallBackImg($event)"></ion-img>
               </ion-avatar>
             </div>
             <ion-label color="light">
