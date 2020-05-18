@@ -8,6 +8,7 @@ export interface iFile {
     extension?: string,
     mimeType?: string;
     fileEntry?: Entry; //For Local Purpose
+    audioDurationSeconds?: number;
 }
 
 export interface iFileUpload {

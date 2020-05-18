@@ -20,11 +20,11 @@ export class AppComponent implements OnInit {
       url: 'chat-list',
       icon: 'chatbubbles'
     },
-    {
-      title: 'Users',
-      url: 'select-user-to-chat',
-      icon: 'chatbubbles'
-    },
+    // {
+    //   title: 'Users',
+    //   url: 'select-user-to-chat',
+    //   icon: 'chatbubbles'
+    // },
     {
       title: 'Settings',
       url: 'settings',

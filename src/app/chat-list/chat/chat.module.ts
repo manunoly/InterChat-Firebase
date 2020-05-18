@@ -11,6 +11,7 @@ import { ChatPage } from './chat.page';
 import {AutosizeModule} from 'ngx-autosize';
 import { ModalImagePageModule } from 'src/app/modals/modal-image/modal-image.module';
 import { NgxIonicImageViewerModule } from 'ngx-ionic-image-viewer';
+import { TimeFormatPipe } from 'src/app/_pipes/time-format.pipe';
 
 @NgModule({
   imports: [
@@ -22,6 +23,9 @@ import { NgxIonicImageViewerModule } from 'ngx-ionic-image-viewer';
     NgxIonicImageViewerModule,
     ModalImagePageModule
   ],
-  declarations: [ChatPage]
+  declarations: [
+    ChatPage,
+    TimeFormatPipe,
+  ]
 })
 export class ChatPageModule {}

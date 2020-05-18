@@ -1,15 +1,16 @@
 import { Injectable, OnInit } from '@angular/core';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
-import { MediaCapture, MediaFile, CaptureError } from '@ionic-native/media-capture/ngx';
+import { MediaCapture } from '@ionic-native/media-capture/ngx';
 import { File, Entry, FileEntry } from '@ionic-native/file/ngx';
-import { Media, MediaObject } from '@ionic-native/media/ngx';
 import { Platform } from '@ionic/angular';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
 import { Storage } from '@ionic/storage';
 import { iFile, iFileUpload } from '../chat-list/model/file.model';
-import { UtilService } from './util.service';
-import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
+import { AngularFireStorage } from '@angular/fire/storage';
 import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
+import { Media, MediaObject, MEDIA_STATUS } from '@ionic-native/media/ngx';
+import { timer, Observable, Subscription } from 'rxjs';
+import { UtilService } from './util.service';
 
 
 const MEDIA_FOLDER_NAME = 'chatDemo_Media';
@@ -20,17 +21,23 @@ const STORAGE_KEY = 'my_files';
 })
 export class ManageAttachFilesService implements OnInit {
 
+  private mediaAudioInstace: MediaObject;
   files = [];
 
   public uploadProgress = 0;
 
+  public recordAudioTimeObservable : Observable<number>;
+  private subscriptionTimer : Subscription;
+  private audioRecordTime = 0;
+  private isCanceledAudioRecord = false;
+
   constructor(private storage: Storage,
-    private utilService: UtilService,
+    private utilChatService: UtilService,
     private camera: Camera,
     private imagePicker: ImagePicker,
     private mediaCapture: MediaCapture,
-    private file: File,
     private media: Media,
+    private file: File,
     private plt: Platform,
     private webView: WebView,
     private fireStorage: AngularFireStorage) {
@@ -43,7 +50,7 @@ export class ManageAttachFilesService implements OnInit {
       let path = this.file.dataDirectory;
       console.log(path);
 
-      if (this.utilService.isCordova()) {
+      if (this.utilChatService.isCordova()) {
         this.file.checkDir(path, MEDIA_FOLDER_NAME).then(() => {
           this.loadStoredFiles();
         }, err => {
@@ -81,10 +88,10 @@ export class ManageAttachFilesService implements OnInit {
       const results = await this.imagePicker.getPictures({ maximumImagesCount: 1, quality: 40 });
       console.log('Picked Images ', results);
 
-      if(results.length > 0){
+      if (results.length > 0) {
         const fileResult = await this.copyFileToLocalDir(results[0]);
         return fileResult;
-      }     
+      }
 
     }
     catch (error) {
@@ -114,6 +121,137 @@ export class ManageAttachFilesService implements OnInit {
       console.log('========error Capture Photo========');
       console.log(error);
     }
+  }
+
+  async recordAudio() : Promise<iFile> {
+
+    const audioFileDirectory = this.file.dataDirectory + 'audio_file_temp.wav';
+
+    return new Promise<iFile>((resolve, reject) => {
+
+      this.file.createFile(this.file.dataDirectory, 'audio_file_temp.wav', true).then(async () => {
+
+        this.mediaAudioInstace = this.media.create(audioFileDirectory);
+
+        console.log('=========> STARTING audio record... <=========');
+        this.mediaAudioInstace.startRecord();
+
+
+        this.mediaAudioInstace.onError.subscribe(error => {
+          console.log(error);
+          reject(error);
+        });
+
+        this.mediaAudioInstace.onStatusUpdate.subscribe(observer => {
+          console.log('Status Change');
+          console.log(observer);
+
+          if(observer == MEDIA_STATUS.RUNNING) {
+
+            console.log('=========> Timer Starting <=========');
+            this.recordAudioTimeObservable = timer(1000, 1000);
+
+            this.subscriptionTimer = this.recordAudioTimeObservable.subscribe(observerTime => {
+
+              // console.log(observerTime);
+              this.audioRecordTime = (observerTime + 1);
+            });
+
+          }
+
+        });
+
+        this.mediaAudioInstace.onSuccess.subscribe(async () => {
+
+          if( !this.isCanceledAudioRecord ){ // si el complete no es por peticion de cancelacion 
+
+            console.log('=========> Audio record COMPLETED <=========');
+  
+            console.log('=========> Audio Duration <=========');
+            console.log(this.mediaAudioInstace.getDuration());
+
+            this.subscriptionTimer.unsubscribe();
+            this.recordAudioTimeObservable = null;
+  
+            try {
+  
+              this.mediaAudioInstace.release();
+  
+              const resultAudioFile = await this.copyFileToLocalDir(audioFileDirectory);
+              console.log('=========> RESULT AUDIO FILE <=========');
+              console.log(resultAudioFile); 
+              
+              resultAudioFile.audioDurationSeconds = this.audioRecordTime;
+
+              //CLearing instance MediaAUDIOINSTANCE
+              this.mediaAudioInstace = null;
+              this.audioRecordTime = 0;
+
+              resolve(resultAudioFile);
+  
+            } catch (error) {
+              console.log(error);
+              reject(error);
+            }
+
+          } else {
+
+            console.log('=========> Audio record CANCELED by USER <=========');
+
+            this.subscriptionTimer.unsubscribe();
+
+            this.mediaAudioInstace.release()
+
+             //CLearing instance MediaAUDIOINSTANCE
+             this.mediaAudioInstace = null;
+             this.audioRecordTime = 0;
+             
+  
+            reject({canceled: true , message: 'Canceled By User'});
+          }
+
+
+        });
+
+      });
+
+    })
+
+  }
+
+  async stopRecordAudio() {
+
+    this.mediaAudioInstace.stopRecord();
+
+  }
+
+  async cancelRecordAudio() {
+
+    if(this.mediaAudioInstace){
+
+      this.recordAudioTimeObservable = null;
+      this.isCanceledAudioRecord = true;
+      this.mediaAudioInstace.stopRecord();
+
+      try {
+        const result = await this.file.removeFile(this.file.dataDirectory, 'audio_file_temp.m4a');
+        console.log('+++++ Result Remove File Temp Audio Record +++++')
+        console.log(result);
+
+        this.isCanceledAudioRecord = false;
+        this.audioRecordTime = 0;
+
+      } catch (error) {
+        console.log('***** error Removing File Temp Audio Record *****')
+        console.log(error);
+        this.recordAudioTimeObservable = null;
+        this.isCanceledAudioRecord = false;
+        this.audioRecordTime = 0;
+      }
+     
+
+    }
+
   }
 
   //======================================================
@@ -158,6 +296,7 @@ export class ManageAttachFilesService implements OnInit {
     const fileBlob = new Blob([buffer], type);
     const randomId = Math.random().toString(36).substring(2, 8);
 
+    let loading = await this.utilChatService.showLoading();
     // FIRESTORE LOGIC
     const uploadTask = this.fireStorage.upload(`files/${randomId}_${file.name}`, fileBlob);
 
@@ -165,7 +304,11 @@ export class ManageAttachFilesService implements OnInit {
       console.log('========Uploading File========')
       console.log(changes);
       this.uploadProgress = changes * 0.01;
-    });
+      loading.message = changes + "% ...";
+    },
+      (error) => {
+        loading.message = "Uploading error";
+      });
 
     // RETURNIG PROMISE
     return new Promise<iFileUpload>((resolve, reject) => {
@@ -179,11 +322,20 @@ export class ManageAttachFilesService implements OnInit {
         const fileURL = await res.ref.getDownloadURL();
         const fileName = res.ref.name;
 
+        setTimeout(() => {
+          this.utilChatService.dismissLoading();
+        }, 100);
+
         resolve({ ok: true, fileURL, fileName })
       },
         (error) => {
           console.log(error);
           console.log('========problem uploading file========');
+
+          setTimeout(() => {
+            this.utilChatService.dismissLoading();
+          }, 100);
+
           reject({ ok: false, error });
         })
 
@@ -311,7 +463,7 @@ export class ManageAttachFilesService implements OnInit {
   }
 
   private getMimeType(fileExt: string) {
-    return this.utilService.getMimeType(fileExt);
+    return this.utilChatService.getMimeType(fileExt);
   }
 
   private loadFiles() {

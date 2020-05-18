@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
-import { iUser } from '../chat-list/model/user.model';
 
 import * as firebase from 'firebase/app';
 import { LoadingController, AlertController, ToastController, Platform } from '@ionic/angular';
@@ -30,7 +29,6 @@ export class UtilService {
 
   }
 
-  // FIXME: return type should be LoadingController
   async showLoading(msg = 'Please wait') {
     this.loading = await this.loadingController.create({
       message: msg,
@@ -74,7 +72,8 @@ export class UtilService {
       header: `Message From ${this.toTitleCase(nameSender)}`,
       message: `${message}`,
       duration: 1500,
-      position: "top"
+      position: "top",
+      cssClass: 'toastChat'
     });
     toast.present();
 
@@ -85,7 +84,7 @@ export class UtilService {
   }
 
   async getUserFromStorage() {
-    return JSON.parse(await this.storage.get('user')) as iUser;
+    return JSON.parse(await this.storage.get('user'));
   }
 
   async setKeyStorage(key: string, data) {
@@ -161,9 +160,7 @@ export class UtilService {
   }
 
   getMimeType(fileExt: string) {
-    // FIXME: que pasar con tipo de dato diferente, no se, si selcciono un gif, poner algo por defecto
-    // FIXME: MAN este listado debe crecer tal cual los archivos validos utilizables en la app sean requeridos asi de sencillo
-    // yo coloque fueron algunos basicos man.
+
     if (fileExt == 'wav') return { type: 'audio/wav', messageType: 'audio' };
     else if (fileExt == 'm4a') return { type: 'audio/m4a', messageType: 'audio' };
     else if (fileExt == 'jpg') return { type: 'image/jpg', messageType: 'image' };
@@ -184,7 +181,7 @@ export class UtilService {
    */
   acceptedMimeTypes(typeInput: string): string {
 
-    if (typeInput == 'image')
+    if (typeInput == 'image' || typeInput == 'gallery')
       return 'image/png, image/jpeg, image/jpg'
     else if (typeInput == 'document')
       return `image/png, image/jpeg, image/jpg, application/pdf, application/x-pdf, application/acrobat, applications/vnd.pdf, text/pdf, text/x-pdf, 

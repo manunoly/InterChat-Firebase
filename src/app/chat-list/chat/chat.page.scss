@@ -60,7 +60,7 @@ ion-list {
   .chatDiv {
     text-align: left;
     position: relative;
-    background: #9164ac7a;
+    background: rgb(32, 177, 212); //#9164ac7a;
     border-radius: 6px;
     border-bottom-left-radius: 0;
     // margin-bottom: 14px;
@@ -119,7 +119,7 @@ ion-list {
     width: 12px;
     height: 12px;
     border-radius: 50px;
-    background: var(--ion-color-tertiary-tint);
+    background: var(--ion-color-primary-tint);
     position: absolute;
     top: 17%;
     display: flex;
@@ -131,7 +131,7 @@ ion-list {
   .chatDiv {
     text-align: left;
     position: relative;
-    background: rgb(32, 177, 212);
+    background: var(--ion-color-primary); //rgb(32, 177, 212);
     border-radius: 6px;
     border-bottom-right-radius: 0;
     // margin-bottom: 14px;
@@ -177,7 +177,7 @@ ion-fab {
 
 .chatDivLoader {
   position: relative;
-  background: #9164ac7a;
+  background: rgb(32, 177, 212); //#9164ac7a;
   border-radius: 16px;
   min-width: 80px;
   max-width: 80px;
@@ -188,7 +188,7 @@ ion-fab {
   display: flex;
   justify-content: center;
   .corner-parent-right {
-    background: #9164ac7a;
+    background: rgb(32, 177, 212); //#9164ac7a;
     height: 10px;
     width: 10px;
     position: absolute;
@@ -269,7 +269,7 @@ ion-col {
           height: 30px;
           border-radius: 15px;
           background: transparent;
-          box-shadow: 15px 12px 0 0px #9164ac7a;
+          box-shadow: 15px 12px 0 0px #20b1d4; //#9164ac7a;
         }
       }
     }
@@ -290,7 +290,7 @@ ion-col {
           height: 30px;
           border-radius: 15px;
           background: transparent;
-          box-shadow: -15px 12px 0 0px #20b1d4;
+          box-shadow: -15px 12px 0 0px var(--ion-color-primary); //#20b1d4;
         }
       }
     }
@@ -331,6 +331,52 @@ ion-col {
 .ripple-parent {
   position: relative;
   overflow: hidden;
+}
+
+.item-chat-footer {
+  --inner-padding-end: 0;
+}
+
+.item-audio {
+  --inner-padding-top: 0.5rem;
+  --inner-padding-bottom: 0.5rem;
+  --inner-padding-end: 0.3rem;
+  --padding-start: 0.3rem;
+}
+
+.time-audio-duration {
+  float: left;
+  color: #d7d8da;
+}
+
+.audioBox {
+  audio::-webkit-media-controls-current-time-display {
+    position: absolute;
+    right: 2rem;
+    bottom: 0.3rem;
+    color: var(--ion-color-primary);
+  }
+  audio::-webkit-media-controls-timeline {
+    margin-left: 0;
+    margin-right: -1rem;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  audio::-webkit-media-controls-mute-button {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+  }
+  audio::-webkit-media-controls-volume-slider {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+  }
+  audio::-webkit-media-controls-time-remaining-display {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+  }
 }
 
 // .fileBox{ }

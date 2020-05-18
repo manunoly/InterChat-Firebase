@@ -1,7 +1,5 @@
 import { iMessage } from './message.model';
 import { iUser } from './user.model';
-import * as firebase from 'firebase/app';
-
 
 export interface iChat {
     idChat?: string;
@@ -11,8 +9,8 @@ export interface iChat {
     createdAt?: any;
     updatedAt?: any;
     typing?: boolean;
-    lastMessage?: string;
-    typeLastMessage?: string;
+    lastMessage: string;
+    typeLastMessage: string;
     timestamp?: any;
     participantsIDS?: string[];
     participantsMeta?: iUser[];
@@ -24,4 +22,5 @@ export interface iChat {
     lastMessageUserName?: string;
     idUserReciever?: string; //only for app purpose
     userReciever?: iUser; //only for app purpose
+    unreadMessagesLocal? : number; //only for app purpose
 }

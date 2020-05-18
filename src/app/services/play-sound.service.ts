@@ -47,7 +47,7 @@ export class PlaySoundService {
     if (!this.sounds.filter((sound) => sound.key === key).length) {
       if (this.isNative && !this.forceWebAudio) {
         this.platform.ready()
-          .then(() => this.nativeAudio.preloadSimple(key, asset));
+          .then(() => this.nativeAudio.preloadSimple(key, asset)).catch();
         this.sounds.push({
           key: key,
           asset: asset

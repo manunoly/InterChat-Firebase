@@ -1,6 +1,6 @@
 <ion-app>
-  <ion-split-pane contentId="main-content">
-    <ion-menu contentId="main-content" type="overlay" *ngIf="authService.firebaseUser$ | async ">
+  <ion-split-pane contentId="main-content" when="">
+    <ion-menu contentId="main-content" type="overlay" [hidden]="(authService.firebaseUser$ | async) ? false : true" >
       <ion-content>
         <ion-list id="inbox-list">
           <ion-list-header>Demo</ion-list-header>
@@ -14,7 +14,7 @@
 
           </ion-menu-toggle>
           
-          <ion-menu-toggle *ngIf="authService.firebaseUser$ | async ">
+          <ion-menu-toggle [hidden]="(authService.firebaseUser$ | async) ? false : true">
             <ion-item (click)="logout()" lines="none" detail="false">
               <ion-icon slot="start" [ios]="'log-out-outline'" [md]="'log-out-sharp'"></ion-icon>
               <ion-label>LogOut</ion-label>

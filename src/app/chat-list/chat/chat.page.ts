@@ -1,41 +1,45 @@
 import { ManageWebAttachFilesService } from './../../services/manage-web-attach-files.service';
-import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { IonContent, ModalController } from "@ionic/angular";
-import { ActivatedRoute, Router } from "@angular/router";
-import { AuthService } from "src/app/services/auth.service";
-import { UtilService } from "src/app/services/util.service";
-import { DbService } from "src/app/services/db.service";
-import { ChatService } from "src/app/services/chat.service";
-import { iChat } from "../model/chat.model";
-import { iMessage } from "../model/message.model";
-import { AngularFirestore } from "@angular/fire/firestore";
-import { iUser } from "../model/user.model";
-import * as moment from "moment";
-import { StorageAppService } from "src/app/services/storage-app.service";
-import { Subscription } from "rxjs";
-import { ManageAttachFilesService } from "src/app/services/manage-attach-files.service";
-import { Keyboard } from "@ionic-native/keyboard/ngx";
-import { iFile, iFileUpload } from "../model/file.model";
-import { NgxIonicImageViewerComponent } from 'ngx-ionic-image-viewer';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  OnDestroy,
+  ChangeDetectorRef,
+} from '@angular/core';
+import { IonContent } from '@ionic/angular';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ChatService } from 'src/app/services/chat.service';
+import { iChat } from '../model/chat.model';
+import { iMessage } from '../model/message.model';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { iUser } from '../model/user.model';
+import * as moment from 'moment';
+import { StorageAppService } from 'src/app/services/storage-app.service';
+import { Subscription } from 'rxjs';
+import { ManageAttachFilesService } from 'src/app/services/manage-attach-files.service';
+import { Keyboard } from '@ionic-native/keyboard/ngx';
+import { iFile, iFileUpload } from '../model/file.model';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { UtilService } from 'src/app/services/util.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
-  selector: "app-chat",
-  templateUrl: "./chat.page.html",
-  styleUrls: ["./chat.page.scss"],
+  selector: 'app-chat',
+  templateUrl: './chat.page.html',
+  styleUrls: ['./chat.page.scss'],
 })
 export class ChatPage implements OnInit, OnDestroy {
-  @ViewChild("IonContent", { static: false }) content: IonContent;
+  @ViewChild('IonContent', { static: false }) content: IonContent;
   paramData: any;
   msgList: iMessage[] = [];
   userName: any;
-  user_input: string = "";
-  User: string = "Me";
-  toUser: string = "Bot";
+  user_input: string = '';
+  User: string = 'Me';
+  toUser: string = 'Bot';
   start_typing: any;
   loader: boolean;
 
-  today = this.utilService.timestampServerNow.toDate();
+  today = this.utilChatService.timestampServerNow.toDate();
   chatSelected: iChat;
 
   userSesion: iUser;
@@ -52,39 +56,50 @@ export class ChatPage implements OnInit, OnDestroy {
   isCordova = false;
   acceptedMimeTypes = '';
 
+  recordingAudio = false;
+
   constructor(
     public activRoute: ActivatedRoute,
     private router: Router,
-    private authService: AuthService,
+    private authFirebaseService: AuthService,
     private afs: AngularFirestore,
-    public utilService: UtilService,
-    private db: DbService,
+    public utilChatService: UtilService,
     private chatService: ChatService,
     private storageApp: StorageAppService,
     private keyboard: Keyboard,
     public manageFiles: ManageAttachFilesService,
     private detectorChangeRef: ChangeDetectorRef,
-    private modalController: ModalController,
     private webManageFiles: ManageWebAttachFilesService,
-    private iab: InAppBrowser ) {
-    this.isCordova = this.utilService.isCordova();
+    private iab: InAppBrowser,
+    public utilService: UtilService
+  ) {
+    this.isCordova = this.utilChatService.isCordova();
 
     this.chatSelected = this.chatService.chatData;
-    this.userSesion = this.authService.userSesion.value;
+    this.userSesion = this.authFirebaseService.userSesion.value;
 
     if (this.chatSelected) {
       this.scrollDown();
 
       console.log(this.chatSelected);
+
+      //=================== CLEAR UNREAD MESSAGES ON Costructor
+
+      this.clearUnreadMessages();
+
+      //===========================================
+
       this.loadMessageHistory();
 
       this.scrollDown();
       // this.subscribeAndGetAllMessages();
     } else {
-      this.router.navigate(["chat-list"]);
+      this.router.navigate(['chat-list']);
     }
 
     // this.loadMessageHistory();
+
+    this.acceptedMimeTypes = this.utilChatService.acceptedMimeTypes('document');
   }
 
   ngOnInit() {
@@ -93,38 +108,53 @@ export class ChatPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.utilService.unsubscribeFrom(this.subscriptions);
+    this.utilChatService.unsubscribeFrom(this.subscriptions);
     this.subscriptions = [];
-  }
 
+
+    //=================== UPDATE LAST MESSAGE READED BY USER
+
+    this.updateLastMessageReaded();
+
+    //===========================================
+
+    //=================== CLEAR UNREAD MESSAGES WHEN Close the View
+
+    this.clearUnreadMessages();
+
+    //===========================================
+
+  }
 
   onFileSelected(event) {
     const file = event.target.files[0] as File;
     console.log(file);
     if (this.acceptedMimeTypes.indexOf(file.type) != -1) {
       if (file)
-        this.webManageFiles.uploadFile(file).then(
-          resp => {
-            console.log(resp)
+        this.webManageFiles
+          .uploadFile(file)
+          .then((resp) => {
+            console.log(resp);
             if (resp) {
-              const resultDataFile = this.webManageFiles.getIFileFromInput(file);
+              const resultDataFile = this.webManageFiles.getIFileFromInput(
+                file
+              );
               console.log(resultDataFile);
               // this.sendMsgAttach(resultDataFile);
 
-              this.sendMsgAttchInputWeb(resultDataFile , resp);
-
+              this.sendMsgAttchInputWeb(resultDataFile, resp);
             }
-            
-          }
-        ).catch(
-          error => {
-            console.log('fue error', error)
-          }
-        );
+          })
+          .catch((error) => {
+            console.log('fue error', error);
+          });
     } else {
-      this.utilService.showToast(`The Document with extension "${file.name.split('.').pop()}" is not supported`);
+      this.utilChatService.showToast(
+        `The Document with extension "${file.name
+          .split('.')
+          .pop()}" is not supported`
+      );
     }
-
   }
 
   /**
@@ -132,14 +162,12 @@ export class ChatPage implements OnInit, OnDestroy {
    * @param type 'camera' | 'gallery' | 'document'
    */
   async selectAttach(type: string, uploaderFileInput) {
-
     console.log(uploaderFileInput);
 
     if (this.isCordova) {
       try {
-
         if (type == 'document') {
-          this.acceptedMimeTypes = this.utilService.acceptedMimeTypes(type);
+          this.acceptedMimeTypes = this.utilChatService.acceptedMimeTypes(type);
           uploaderFileInput.click();
           return;
         }
@@ -147,36 +175,34 @@ export class ChatPage implements OnInit, OnDestroy {
         const resultData = await this.manageFiles.selectAttachAction(type);
         console.log(resultData);
 
-        if (resultData)
-          this.sendMsgAttach(resultData);
-
+        if (resultData) this.sendMsgAttach(resultData);
       } catch (error) {
-        console.log("error retrieve attach");
+        console.log('error retrieve attach');
         console.log(error);
       }
-    } else { //Web Functionability
-      this.acceptedMimeTypes = this.utilService.acceptedMimeTypes(type);
-      uploaderFileInput.click()
+    } else {
+      //Web Functionability
+      this.acceptedMimeTypes = this.utilChatService.acceptedMimeTypes(type);
+      uploaderFileInput.click();
     }
   }
 
-
-  sendMsgAttchInputWeb(file: iFile , metaFileUpload : iFileUpload){
+  sendMsgAttchInputWeb(file: iFile, metaFileUpload: iFileUpload) {
     const idMessage = this.afs.createId();
 
     console.log(idMessage);
 
     const newMsg: iMessage = {
       idMessage: idMessage,
-      idSender: this.authService.userSesion.value.idUser,
-      timestamp: this.utilService.timestampServerNow,
+      idSender: this.authFirebaseService.userSesion.value.idUser,
+      timestamp: this.utilChatService.timestampServerNow,
       type: file.type,
       message: file.type,
       path: file.path ? file.path : null,
       fileMimeTyme: file.mimeType,
       localFileName: file.name,
       fileName: metaFileUpload.fileName,
-      fileURL: metaFileUpload.fileURL
+      fileURL: metaFileUpload.fileURL,
     };
 
     console.log(newMsg);
@@ -187,32 +213,33 @@ export class ChatPage implements OnInit, OnDestroy {
     this.toggleAttachBox();
 
     this.storageApp.setMessagesByChat(this.chatSelected.idChat, this.msgList);
-    this.chatService.pushNewMessageChat(this.chatSelected.idChat, newMsg);
-    
+    this.chatService.pushNewMessageChat(this.chatSelected.idChat, newMsg, this.chatSelected.idUserReciever);
   }
-  
-  async sendMsgAttach(file: iFile) {
+
+  async sendMsgAttach(file: iFile, isFromAudio = false) {
     const idMessage = this.afs.createId();
 
     console.log(idMessage);
 
     const newMsg: iMessage = {
       idMessage: idMessage,
-      idSender: this.authService.userSesion.value.idUser,
-      timestamp: this.utilService.timestampServerNow,
+      idSender: this.authFirebaseService.userSesion.value.idUser,
+      timestamp: this.utilChatService.timestampServerNow,
       type: file.type,
       message: file.type,
       path: file.path,
       fileMimeTyme: file.mimeType,
       localFileName: file.name,
+      audioDuration: file.audioDurationSeconds ? file.audioDurationSeconds : null
     };
 
     console.log(newMsg);
 
-    this.msgList.push(newMsg);
+    // this.msgList.push(newMsg);
     this.scrollDown();
     this.detectorChangeRef.detectChanges();
-    this.toggleAttachBox();
+    if (!isFromAudio)
+      this.toggleAttachBox();
 
     try {
       this.loadingAFile = true;
@@ -224,44 +251,44 @@ export class ChatPage implements OnInit, OnDestroy {
       this.loadingAFile = false;
 
       // Realizando Correciones luego de la carga del archivo
-      const indexMessage = this.msgList.findIndex(
-        (message) => message.idMessage === idMessage
-      );
+      // const indexMessage = this.msgList.findIndex(
+      //   (message) => message.idMessage === idMessage
+      // );
 
-      this.msgList[indexMessage].fileName = resultUploadFile.fileName;
-      this.msgList[indexMessage].fileURL = resultUploadFile.fileURL;
+      // this.msgList[indexMessage].fileName = resultUploadFile.fileName;
+      // this.msgList[indexMessage].fileURL = resultUploadFile.fileURL;
 
       newMsg.fileName = resultUploadFile.fileName;
       newMsg.fileURL = resultUploadFile.fileURL;
 
-      this.storageApp.setMessagesByChat(this.chatSelected.idChat, this.msgList);
+      // this.storageApp.setMessagesByChat(this.chatSelected.idChat, this.msgList);
 
-      this.chatService.pushNewMessageChat(this.chatSelected.idChat, newMsg);
+      this.chatService.pushNewMessageChat(this.chatSelected.idChat, newMsg, this.chatSelected.idUserReciever);
     } catch (error) {
       console.log(error);
-      console.log("error Uploading File");
+      console.log('error Uploading File');
     }
   }
 
   sendMsg() {
-    if (this.user_input !== "") {
+    if (this.user_input !== '') {
       const idMessage = this.afs.createId();
 
-      console.log(idMessage);
+      // console.log(idMessage);
 
       const newMsg: iMessage = {
         idMessage: idMessage,
-        idSender: this.authService.userSesion.value.idUser,
-        timestamp: this.utilService.timestampServerNow,
-        type: "string",
+        idSender: this.authFirebaseService.userSesion.value.idUser,
+        timestamp: this.utilChatService.timestampServerNow,
+        type: 'string',
         message: this.user_input,
       };
 
       console.log(newMsg);
-      this.msgList.push(newMsg);
-      this.chatService.pushNewMessageChat(this.chatSelected.idChat, newMsg);
+      // this.msgList.push(newMsg);
+      this.chatService.pushNewMessageChat(this.chatSelected.idChat, newMsg, this.chatSelected.idUserReciever);
 
-      this.user_input = "";
+      this.user_input = '';
       this.scrollDown();
 
       // setTimeout(() => {
@@ -280,7 +307,7 @@ export class ChatPage implements OnInit, OnDestroy {
   }
 
   private scrollDown() {
-    console.log("scrolling down...");
+    // console.log('scrolling down...');
     setTimeout(() => {
       this.content.scrollToBottom(50);
     }, 50);
@@ -300,8 +327,10 @@ export class ChatPage implements OnInit, OnDestroy {
     if (messagesStorage) {
       console.log(messagesStorage);
 
+      let flagReaded = true;
+
       for (const iterator of messagesStorage) {
-        iterator.timestamp = this.utilService.newTimeStampFirestore(
+        iterator.timestamp = this.utilChatService.newTimeStampFirestore(
           iterator.timestamp.seconds,
           iterator.timestamp.nanoseconds
         );
@@ -311,7 +340,7 @@ export class ChatPage implements OnInit, OnDestroy {
 
       this.subscribeAndGetOnlyNewMessages();
     } else {
-      console.log("none messages on storage");
+      console.log('none messages on storage');
       this.subscribeAndGetAllMessages();
     }
 
@@ -319,7 +348,7 @@ export class ChatPage implements OnInit, OnDestroy {
   }
 
   subscribeAndGetOnlyNewMessages() {
-    console.log("Getting New Messages...");
+    console.log('Getting New Messages...');
 
     this.subscriptions.push(
       this.chatService
@@ -328,17 +357,25 @@ export class ChatPage implements OnInit, OnDestroy {
           this.msgList[this.msgList.length - 1].timestamp
         )
         .subscribe((messages) => {
-          console.log("======NewMessages on this ChatSesion======");
+          console.log('======NewMessages on this ChatSesion======');
           console.log(messages);
 
           this.msgList = [...this.msgList, ...messages];
+
           // avoid same message to push on the view locally when come from db
-          this.msgList = this.msgList.filter(
-            (message, index) =>
-              this.msgList.findIndex(
-                (messageUnique) => messageUnique.idMessage === message.idMessage
-              ) === index
-          );
+          // this.msgList = this.msgList.filter(
+          //   (message, index) =>
+          //     this.msgList.findIndex(
+          //       (messageUnique) => messageUnique.idMessage === message.idMessage
+          //     ) === index
+          // );
+
+
+          // CHECKING STATUS MESSAGES FOR SENDED OR READED
+
+          this.checkStatusMessages();
+
+          this.updateLastMessageReaded();
 
           this.storageApp.setMessagesByChat(
             this.chatSelected.idChat,
@@ -348,13 +385,13 @@ export class ChatPage implements OnInit, OnDestroy {
         })
     );
 
-    console.log("======ALL MESSAGES======");
-    console.log(this.msgList);
+    // console.log('======ALL MESSAGES======');
+    // console.log(this.msgList);
     this.scrollDown();
   }
 
   subscribeAndGetAllMessages() {
-    console.log("Getting ALL THE MESSAGES...");
+    console.log('Getting ALL THE MESSAGES...');
 
     this.loadingChats = true;
 
@@ -364,44 +401,159 @@ export class ChatPage implements OnInit, OnDestroy {
         .subscribe((messages) => {
           this.loadingChats = false;
 
-          console.log("estos son los mensajes de este chat ", messages);
+          console.log('estos son los mensajes de este chat ', messages);
           this.msgList = messages;
+
+          // CHECKING STATUS MESSAGES FOR SENDED OR READED
+
+          this.checkStatusMessages();
+
+          this.updateLastMessageReaded();
+
           this.storageApp.setMessagesByChat(this.chatSelected.idChat, messages);
           this.scrollDown();
         })
     );
   }
 
-  /**
-   * @deprecated
-   * @param message 
-   * @param userNameFrom 
-   */
-  async openModalImage(message: iMessage, userNameFrom: string) {
+  clearUnreadMessages() {
+    console.log('------->Trying to Clear Unreaded Messages<-------');
 
-    // const srcImage = this.utilService.isCordova() ? message.path : message.fileURL; <- Esperando a ver que dicen en el repo de porque no carga el fallback
-    // console.log(srcImage);
-    // const modal = await this.modalController.create({
-    //   component: ViewerModalComponent,
-    //   componentProps: {
-    //     src: `${message.fileURL}`, // required, <--mientras se cargará siempre el fileURL
-    //     srcFallback: `${message.fileURL}`,
-    //     title: `${this.utilService.toTitleCase(userNameFrom)} - ${this.utilService.timeFromNow(message.timestamp.toDate())}`, // optional
-    //     titleSize: 'small',
-    //     // text: '', // optional
-    //     scheme: 'dark',
-    //     slideOptions: { zoom: { maxRatio: 7 } },
-    //   },
-    //   cssClass: 'ion-img-viewer', // required
-    //   keyboardClose: true,
-    //   showBackdrop: true
-    // });
+    if (this.chatSelected) {
 
-    // return await modal.present();
+      let readedMessages = 0;
+      for (const index in this.chatService.chatData$.value) {
+        if (this.chatService.chatData$.value[index].idChat == this.chatSelected.idChat) {
+          readedMessages = this.chatService.chatData$.value[index].unreadMessagesLocal ? this.chatService.chatData$.value[index].unreadMessagesLocal : 0;
+        }
+      }
+
+      if (readedMessages > 0) {// to validate Quantity of Readed/Unreaded Messages
+
+        console.log('Clearing Unreaded Messages');
+        console.log('Messages to Clear Counter => ', readedMessages)
+
+        this.chatService.clearUnreadMessagesFirebase(this.chatSelected.idChat, this.userSesion.idUser, readedMessages)
+      } else {
+        console.log('------->Nothing to clear<-------');
+      }
+
+    }
 
   }
 
-  async openFileMessage(message: iMessage){
+  checkStatusMessages() {
+
+    let flagReaded = true;
+
+    for (const iterator of this.msgList) {
+
+      //TODO: VALIDATE idLastMessageReaded by the other user
+
+      if (iterator.idSender == this.userSesion.idUser) {
+
+        if (!this.chatSelected['idLastReadedMessage_' + this.userSesion.idUser]) {
+          iterator.statusMessage = 'sended';
+          continue;
+        }
+
+        if (flagReaded) {
+          iterator.statusMessage = 'readed';
+        } else {
+          iterator.statusMessage = 'sended';
+        }
+
+        if (this.chatSelected['idLastReadedMessage_' + this.userSesion.idUser] && this.chatSelected['idLastReadedMessage_' + this.userSesion.idUser] == iterator.idMessage) {
+          flagReaded = false;
+          iterator.statusMessage = 'readed';
+        }
+
+      }
+
+
+    }
+  }
+
+  updateLastMessageReaded() {
+
+    const msgListLength = this.msgList.length;
+
+    for (let index = msgListLength - 1; index >= 0; --index) {
+
+      if (this.msgList[index].idSender == this.chatSelected.idUserReciever) {
+        console.log('Last Message READED BY ME');
+        console.log(this.msgList[index]);
+
+        console.log('------->Trying to Update LastReaded Message<-------');
+
+        //VALIDATING THE LAST MESSAGE READED BY USER IS DIFERENT
+        if (this.chatSelected['idLastReadedMessage_' + this.chatSelected.idUserReciever] != this.msgList[index].idMessage) {
+
+          console.log('------->Updating...<-------');
+          this.chatService.updateLastMessageReaded(this.chatSelected.idChat, this.chatSelected.idUserReciever, this.msgList[index].idMessage);
+
+        } else {
+          console.log('------->NOTHING to Update<-------');
+        }
+        break;
+      }
+
+    }
+  }
+
+
+  async startRecordAudio() {
+    this.recordingAudio = true;
+
+    try {
+
+      const resultAudio = await this.manageFiles.recordAudio();
+
+      console.log('RESULT RECORD AUDIO');
+      console.log(resultAudio);
+
+      if (resultAudio) this.sendMsgAttach(resultAudio, true);
+
+      this.recordingAudio = false;
+
+    } catch (error) {
+      console.log(error);
+      this.recordingAudio = false;
+    }
+
+
+  }
+
+  async stopRecordAudio() {
+    this.manageFiles.stopRecordAudio();
+  }
+
+  async playAudioRecord(message: iMessage) {
+
+    // console.log(message);
+    const audio = new Audio(message.fileURL);
+    audio.load();
+    audio.play();
+
+  }
+
+  audioNotLoaded(event: any, srcFallBackAudio: string) {
+
+    if (event.target.error.code == 4 && event.target.src != srcFallBackAudio) {
+      console.log(event);
+      event.target.src = srcFallBackAudio;
+    }
+
+
+  }
+
+  audioPlaying(event) {
+    // console.log('Playing the audio');
+    // console.log(event);
+  }
+
+
+  async openFileMessage(message: iMessage) {
     this.iab.create(message.fileURL, '_system');
   }
 
@@ -416,9 +568,9 @@ export class ChatPage implements OnInit, OnDestroy {
 
   pictNotLoading(event: Event, urlBackup: string, divImage: Element) {
     console.log('=====404=====Some Image no loaded replacing with BackUp');
-    console.log('try to Load==>', divImage['style'].backgroundImage)
+    console.log('try to Load==>', divImage['style'].backgroundImage);
     divImage['style'].backgroundImage = `url('${urlBackup}')`;
-    console.log('Loading BackUp==>', divImage['style'].backgroundImage)
+    console.log('Loading BackUp==>', divImage['style'].backgroundImage);
   }
 
   trackByFnmessages(id, message: iMessage) {
@@ -445,37 +597,43 @@ export class ChatPage implements OnInit, OnDestroy {
   }
 
   ionContentTapped() {
-    console.log("content tapped...");
+    console.log('content tapped...');
     this.attachBox = false;
   }
 
   ionInputTapped() {
-    console.log("input tapped...");
+    console.log('input tapped...');
     this.attachBox = false;
+    this.updateLastMessageReaded();
   }
 
   toggleAttachBox() {
     this.attachBox = !this.attachBox;
     console.log(this.attachBox);
     this.scrollDown();
+
+    if (this.attachBox) {
+      this.updateLastMessageReaded();
+    }
+
   }
 
   checkSameDay(messageIndex: number) {
     if (messageIndex === 0) return false;
     return moment(this.msgList[messageIndex - 1].timestamp.toDate()).isSame(
       this.msgList[messageIndex].timestamp.toDate(),
-      "day"
+      'day'
     );
   }
 
   calendarDayFormat(dateRef: Date = this.chatSelected.createdAt.toDate()) {
     return moment(dateRef.toISOString()).calendar(this.today, {
-      sameDay: "[Today]",
-      nextDay: "DD/MM/YYYY",
-      nextWeek: "DD/MM/YYYY",
-      lastDay: "[Yesterday]",
-      lastWeek: "DD/MM/YYYY",
-      sameElse: "DD/MM/YYYY",
+      sameDay: '[Today]',
+      nextDay: 'DD/MM/YYYY',
+      nextWeek: 'DD/MM/YYYY',
+      lastDay: '[Yesterday]',
+      lastWeek: 'DD/MM/YYYY',
+      sameElse: 'DD/MM/YYYY',
     });
   }
 }

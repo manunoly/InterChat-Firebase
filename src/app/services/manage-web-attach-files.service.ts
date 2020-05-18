@@ -2,8 +2,8 @@ import { Injectable } from "@angular/core";
 
 import { AngularFireStorage } from "@angular/fire/storage";
 import { iFileUpload, iFile } from "../chat-list/model/file.model";
-import { UtilService } from "./util.service";
 import { Observable } from 'rxjs';
+import { UtilService } from './util.service';
 
 
 @Injectable({
@@ -14,19 +14,19 @@ export class ManageWebAttachFilesService {
 
   constructor(
     private fireStorage: AngularFireStorage,
-    private utilService: UtilService
+    private utilChatService: UtilService
   ) {}
 
   async uploadFile(file: File): Promise<iFileUpload> {
     
-    if (this.utilService.imageMaxSize < file.size) {
-      this.utilService.showAlert('Error','','Size exceeded!');
+    if (this.utilChatService.imageMaxSize < file.size) {
+      this.utilChatService.showAlert('Error','','Size exceeded!');
       return { ok: false };
     }
     
-    let loading = await this.utilService.showLoading();
+    let loading = await this.utilChatService.showLoading();
     
-    const type = this.utilService.getMimeType(file.name.split(".").pop());
+    const type = this.utilChatService.getMimeType(file.name.split(".").pop());
     
     console.log("archivo a subir", file);
     
@@ -63,6 +63,7 @@ export class ManageWebAttachFilesService {
       this.uploadProgress = uploadTask.percentageChanges();
       this.uploadProgress.subscribe(
         (percentage) => {
+          console.log(percentage);
           loading.message = percentage.toFixed(2) + "% ...";
         },
         (err) => {
@@ -79,7 +80,7 @@ export class ManageWebAttachFilesService {
           const fileName = res.ref.name;
 
           setTimeout(() => {
-            this.utilService.dismissLoading();
+            this.utilChatService.dismissLoading();
           }, 100);
 
           resolve({ ok: true, fileURL, fileName });
@@ -89,7 +90,7 @@ export class ManageWebAttachFilesService {
           console.log("========problem uploading file========");
 
           setTimeout(() => {
-            this.utilService.dismissLoading();
+            this.utilChatService.dismissLoading();
           }, 100);
 
           reject({ ok: false, error });
@@ -104,7 +105,7 @@ export class ManageWebAttachFilesService {
     const dateNow = Date.now();
     const name = `${dateNow}.${extension}`;
     const mimeType = file.type;
-    const type = this.utilService.getMimeType(extension).messageType;
+    const type = this.utilChatService.getMimeType(extension).messageType;
     return {name, extension, type , mimeType}
   }
 }
