@@ -16,9 +16,14 @@ export class AppComponent implements OnInit {
   public selectedIndex = 0;
   public appPages = [
     {
-      title: 'Chat List',
+      title: 'Active Chat List',
       url: 'chat-list',
       icon: 'chatbubbles'
+    },
+    {
+      title: 'Call Center Chat List',
+      url: 'call-center-chat-list',
+      icon: 'list-circle'
     },
     // {
     //   title: 'Users',
@@ -63,6 +68,7 @@ export class AppComponent implements OnInit {
     this.authService.userSesion.subscribe(user => {
       if (user) {
         this.chatService.loadChatData(user);
+        this.chatService.loadOnQueueChatData(user);
       }else
       this.chatService.clearChatdata();
     })

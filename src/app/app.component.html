@@ -3,8 +3,8 @@
     <ion-menu contentId="main-content" type="overlay" [hidden]="(authService.firebaseUser$ | async) ? false : true" >
       <ion-content>
         <ion-list id="inbox-list">
-          <ion-list-header>Demo</ion-list-header>
-          <ion-note>Chat App</ion-note>
+          <ion-list-header>Call Center</ion-list-header>
+          <ion-note>Chat System</ion-note>
 
           <ion-menu-toggle *ngFor="let p of appPages; let i = index">
             <ion-item (click)="selectedIndex = i" routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" [class.selected]="selectedIndex == i">

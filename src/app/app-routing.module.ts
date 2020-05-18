@@ -32,10 +32,15 @@ const routes: Routes = [
     loadChildren: () => import('./settings/settings.module').then( m => m.SettingsPageModule)
   },
   {
+    path: 'call-center-chat-list',
+    loadChildren: () => import('./call-center-chat-list/call-center-chat-list.module').then( m => m.CallCenterChatListPageModule)
+  },
+  {
     path: '**',
     redirectTo: 'chat-list',
     pathMatch: 'full'
-  }
+  },
+
 ];
 
 @NgModule({

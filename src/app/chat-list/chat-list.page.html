@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Conversations</ion-title>
+    <ion-title> Active Conversations</ion-title>
 
     <ion-buttons slot="end" *ngIf="offline | async" >
       <ion-button (click)="reloadChatData()">
@@ -18,7 +18,7 @@
   <!-- ios newStyle -->
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Conversations</ion-title>
+      <ion-title size="large">Active Conversations</ion-title>
     </ion-toolbar>
   </ion-header>
 
@@ -98,7 +98,7 @@
 
         <ion-text class="borderBottomLineNoneChat">
           <p class="ion-text-center">
-            You don't have any Chat <br>           
+            You don't have any Active Chat <br>           
             or maybe you don't have internet connection to retrieve data
           </p>
 
