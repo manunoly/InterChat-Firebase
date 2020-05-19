@@ -15,7 +15,6 @@ import { DbService } from '../services/db.service';
   styleUrls: ['./call-center-chat-list.page.scss'],
 })
 export class CallCenterChatListPage implements OnInit {
-
   chatsOnQueue: Observable<iChat[]>;
 
   subscriptionFirebase: Subscription;
@@ -25,22 +24,45 @@ export class CallCenterChatListPage implements OnInit {
   stepProcess: number;
   loadingProcess = false;
 
-  constructor(private router: Router,
+  constructor(
+    private router: Router,
     private chatService: ChatService,
     public utilService: UtilService,
     private afAuth: AngularFireAuth,
     private auth: AuthService,
-    private dbFirebaseService: DbService) { }
+    private dbFirebaseService: DbService
+  ) {}
 
   ngOnInit() {
     this.chatsOnQueue = this.chatService.chatQueueData$;
   }
 
-  selectChatToProcess(selectedChat : iChat) {
+  async selectChatToProcess(selectedChat: iChat) {
     console.log(selectedChat);
-    // this.chatService.setChatData(selectedChat);
-    // this.router.navigate(['chat']);
+
+    const confirm = await this.utilService.showAlertConfirmAction(
+      'Process Chat',
+      'Are you you want to take this chat?'
+    );
+
+    if (confirm) {
+      try {
+        
+       const updatedChatSelected = await this.chatService.transferQueueChatToActive(
+          selectedChat,
+          this.auth.userSesion.value
+        );
+        this.chatService.setChatData(updatedChatSelected);
+
+        this.router.navigate(['chat-list']).then(_ =>{
+          this.router.navigate(['chat']);
+        });  
+
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    
   }
-
-
 }

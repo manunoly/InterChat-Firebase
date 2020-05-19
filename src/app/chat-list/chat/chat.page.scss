@@ -207,6 +207,11 @@ ion-fab {
     }
   }
 }
+
+.p-text-message{
+  color: white !important;
+}
+
 ion-text {
   font-size: 12px;
   // color: #d7d8dac7;
@@ -331,6 +336,10 @@ ion-col {
 .ripple-parent {
   position: relative;
   overflow: hidden;
+}
+
+.ion-activatable {
+  cursor: pointer;
 }
 
 .item-chat-footer {

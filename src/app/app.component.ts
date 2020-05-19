@@ -42,7 +42,7 @@ export class AppComponent implements OnInit {
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     public authService: AuthService,
-    private chatService: ChatService,
+    public chatService: ChatService,
     private manageFiles: ManageAttachFilesService
   ) {
     this.initializeApp();

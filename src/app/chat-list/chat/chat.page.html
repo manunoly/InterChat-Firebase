@@ -3,254 +3,255 @@
     <ion-buttons slot="start">
       <ion-back-button color="secondary"></ion-back-button>
     </ion-buttons>
-    <ion-title color="light">{{chatSelected?.title | titlecase }}</ion-title>
+    <ion-title>
+      {{chatSelected?.title | titlecase }}
+      <ion-title class="ion-no-margin ion-no-padding" size="small" *ngIf="chatSelected.type == 'callcenter'">
+        <small>Chat Status: {{chatSelected?.status | titlecase}}</small>
+      </ion-title>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button color="secondary" (click)="openChatMenu($event)">
+        <ion-icon slot="icon-only" ios="ellipsis-horizontal" md="ellipsis-horizontal"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 
   <ion-progress-bar [hidden]="!loadingAFile" [value]="manageFiles.uploadProgress" color="success"></ion-progress-bar>
 </ion-header>
 
 <ion-content #IonContent [fullscreen]="true" (click)="ionContentTapped()">
-  <ion-row class="ion-padding-top" *ngIf="loadingChats">
-    <ion-col size="12" class="ion-text-center ion-no-padding">
-      <ion-spinner color="primary"></ion-spinner>
-    </ion-col>
-    <ion-col size="12" class="ion-text-center ion-no-padding">
-      <ion-text>
-        <ion-note>Loading...</ion-note>
-      </ion-text>
-    </ion-col>
-  </ion-row>
 
-  <ion-list *ngIf="chatSelected">
-    <ion-row>
-      <ion-col>
-        <!-- Show Created Date for Chat Always -->
-        <ion-text color="medium">Chat Created at {{calendarDayFormat()}}</ion-text>
+  <div class="scrollbar" #divContent>
+
+    <ion-row class="ion-padding-top" *ngIf="loadingChats">
+      <ion-col size="12" class="ion-text-center ion-no-padding">
+        <ion-spinner color="primary"></ion-spinner>
+      </ion-col>
+      <ion-col size="12" class="ion-text-center ion-no-padding">
+        <ion-text>
+          <ion-note>Loading...</ion-note>
+        </ion-text>
       </ion-col>
     </ion-row>
 
-    <div *ngFor="let message of msgList; let i = index; trackBy: trackByFnmessages ">
-      <!-- Validation show grouped Chats for Same Date  -->
-      <ion-row *ngIf=" !checkSameDay(i) ; else elseBlock" class="ion-padding-vertical">
+    <ion-list *ngIf="chatSelected">
+      <ion-row>
         <ion-col>
-          <ion-text class="chatsDatesGrouped">{{ calendarDayFormat(message.timestamp.toDate()) }}</ion-text>
+          <!-- Show Created Date for Chat Always -->
+          <ion-text color="medium">Chat Created at {{calendarDayFormat()}}</ion-text>
         </ion-col>
       </ion-row>
 
-      <ng-template #elseBlock>
-        <span class="ion-padding-vertical">
-          <br />
-        </span>
-      </ng-template>
+      <div *ngFor="let message of msgList; let i = index; trackBy: trackByFnmessages ">
+        <!-- Validation show grouped Chats for Same Date  -->
+        <ion-row *ngIf=" !checkSameDay(i) ; else elseBlock" class="ion-padding-vertical">
+          <ion-col>
+            <ion-text class="chatsDatesGrouped">{{ calendarDayFormat(message.timestamp.toDate()) }}</ion-text>
+          </ion-col>
+        </ion-row>
 
-      <!-- ROW FOR MESSAGE RECIEVED -->
+        <ng-template #elseBlock>
+          <span class="ion-padding-vertical">
+            <br />
+          </span>
+        </ng-template>
 
-      <ion-row *ngIf="message.idSender == chatSelected.idUserReciever">
-        <ion-col class="right ion-no-padding"
-          [ngClass]="{'clubbed':((msgList[i+1] && msgList[i+1].idSender != message.idSender)|| !msgList[i+1])}">
-          <div class="imageAvatarRight">
-            <div class="imageAvatarBottom">
-              <ion-avatar class="avatar"
-                [ngClass]="(msgList[i+1] && msgList[i+1].idSender == message.idSender)?'hidden':''">
-                <!-- <div class="imageAvatarBottomIcon">
-                  <ion-icon name="add" expand="icon-only" color="light"> </ion-icon>
-                </div> -->
-                <ion-img
-                  [src]="chatSelected?.userReciever?.avatar ? chatSelected.userReciever?.avatar : './assets/icon/favicon.png'"
-                  (ionError)="utilChatService.srcFallBackImg($event)"></ion-img>
-              </ion-avatar>
-            </div>
-            <ion-label color="light">
-              <div class="chatDiv" [ngClass]="{'sharper':((msgList[i+1] && msgList[i+1].idSender == message.idSender) && 
-              (msgList[i-1] && msgList[i-1].idSender == message.idSender)),
-              'sharper-top':(msgList[i-1] && msgList[i-1].idSender == message.idSender),
-              'sharper-bottom':(msgList[i+1] && msgList[i+1].idSender == message.idSender)}">
-                <!-- TEXT MESSAGE -->
-                <ion-text color="light" *ngIf="message.type == 'string'">
-                  <p class="ion-text-wrap ion-padding" color="light" [innerText]="message.message"></p>
-                </ion-text>
+        <!-- ROW FOR MESSAGE RECIEVED -->
 
-                <!-- IMAGE OR PHOTO MESSAGE -->
-                <div *ngIf="message.type == 'image'" class="imgBox">
-                  <ion-img-viewer class="imgBox" [src]="message.fileURL" [srcFallback]="message.fileURL"
-                    [title]="utilChatService.toTitleCase(chatSelected.title) + ' - ' + utilChatService.timeFromNow(message.timestamp.toDate())"
-                    titleSize="small" scheme="dark" [slideOptions]="{ zoom: { maxRatio: 7 }}"></ion-img-viewer>
-                </div>
-
-                <!-- DOCUMENT/FILE MESSAGE -->
-                <div *ngIf="message.type == 'file'" class="fileBox">
-                  <ion-item lines="full" [button]="true" (click)="openFileMessage(message)">
-                    <ion-icon slot="start" name="attach"></ion-icon>
-                    <ion-text>
-                      <p class="ion-text-wrap" color="light" [innerText]="message.localFileName"></p>
-                    </ion-text>
-                  </ion-item>
-                </div>
-
-                <!-- AUDIO RECORDS/FILE MESSAGE -->
-                <div *ngIf="message.type == 'audio'" class="fileBox audioBox">
-
-                  <ion-item lines="full" class="item-audio">
-
-                    <audio controls controlsList="nodownload" [src]="(isCordova ? message.path : message.fileURL)"
-                      (timeupdate)="audioPlaying($event)" (error)="audioNotLoaded($event , message.fileURL)"></audio>
-
-                  </ion-item>
-                </div>
-
-                <div class="corner-parent-right">
-                  <div class="corner-child-right"></div>
-                </div>
-
-                <div class="timeBubbleChat">
-                  <ion-text color="medium">
-                    <!-- FOR AUDIO MESSAGE DURATION TIME -->
-                    <p *ngIf="message.type == 'audio'" class="time-audio-duration">
-                      <small>{{message.audioDuration | timeFormat }}</small>
-                    </p>
-
-                    <p class="timeChat">
-                      <small>{{message.timestamp.toDate() | date:
-                        'shortTime'}}</small>
-                    </p>
-                  </ion-text>
-                </div>
+        <ion-row *ngIf="message.idSender == chatSelected.idUserReciever">
+          <ion-col class="right ion-no-padding"
+            [ngClass]="{'clubbed':((msgList[i+1] && msgList[i+1].idSender != message.idSender)|| !msgList[i+1])}">
+            <div class="imageAvatarRight">
+              <div class="imageAvatarBottom">
+                <ion-avatar class="avatar"
+                  [ngClass]="(msgList[i+1] && msgList[i+1].idSender == message.idSender)?'hidden':''">
+                  <!-- <div class="imageAvatarBottomIcon">
+                    <ion-icon name="add" expand="icon-only"> </ion-icon>
+                  </div> -->
+                  <ion-img
+                    [src]="chatSelected?.userReciever?.avatar ? chatSelected.userReciever?.avatar : './assets/icon/favicon.png'"
+                    (ionError)="utilChatService.srcFallBackImg($event)"></ion-img>
+                </ion-avatar>
               </div>
-            </ion-label>
-          </div>
-        </ion-col>
-      </ion-row>
-
-      <!-- ROW FOR MESSAGES Sended -->
-      <ion-row *ngIf="message.idSender == userSesion.idUser">
-        <ion-col class="left ion-no-padding"
-          [ngClass]="{'clubbed':((msgList[i+1] && msgList[i+1].idSender != message.idSender)|| !msgList[i+1])}">
-          <div class="imageAvatarLeft">
-            <ion-label color="light">
-              <div class="chatDiv" [ngClass]="{'sharper':((msgList[i+1] && msgList[i+1].idSender == message.idSender) && 
-              (msgList[i-1] && msgList[i-1].idSender == message.idSender)),
-              'sharper-top':(msgList[i-1] && msgList[i-1].idSender == message.idSender),
-              'sharper-bottom':(msgList[i+1] && msgList[i+1].idSender == message.idSender)}">
-                <!-- TEXT MESSAGE -->
-                <ion-text color="light" *ngIf="message.type == 'string'">
-                  <p class="ion-text-wrap ion-padding" color="light" [innerText]="message.message"></p>
-                </ion-text>
-
-                <!-- IMAGE OR PHOTO MESSAGE -->
-                <div *ngIf="message.type == 'image'" class="imgBox">
-                  <!-- img Tag for handling Control Image Response from local Path -->
-                  <ion-img-viewer class="imgBox" [src]="(isCordova ? message.path : message.fileURL)"
-                    [srcFallback]="message.fileURL"
-                    [title]="utilChatService.toTitleCase(chatSelected.title) + ' - ' + utilChatService.timeFromNow(message.timestamp.toDate())"
-                    titleSize="small" scheme="dark" [slideOptions]="{ zoom: { maxRatio: 7 }}"></ion-img-viewer>
-                </div>
-
-                <!-- DOCUMENT/FILE MESSAGE -->
-                <div *ngIf="message.type == 'file'" class="fileBox">
-                  <ion-item lines="full" [button]="true" (click)="openFileMessage(message)">
-                    <ion-icon slot="start" name="attach"></ion-icon>
-                    <ion-text>
-                      <p class="ion-text-wrap" color="light" [innerText]="message.localFileName"></p>
-                    </ion-text>
-                  </ion-item>
-                </div>
-
-
-                <!-- AUDIO RECORDS/FILE MESSAGE -->
-                <div *ngIf="message.type == 'audio'" class="fileBox audioBox">
-
-                  <ion-item lines="full" class="item-audio">
-
-                    <!-- <ion-icon slot="start" name="musical-notes"></ion-icon>
-                    <ion-text>
-                      <p class="ion-text-wrap" color="light" [innerText]="message.localFileName"></p>
-                    </ion-text> -->
-
-                    <audio controls controlsList="nodownload" [src]="(isCordova ? message.path : message.fileURL)"
-                      (timeupdate)="audioPlaying($event)" (error)="audioNotLoaded($event , message.fileURL)"></audio>
-
-                    <!-- <ion-button color="primary" fill="clear" (click)="playAudioRecord(message)">
-                      <ion-icon slot="icon-only" name="play" color="primary"></ion-icon>
-                    </ion-button> -->
-
-                  </ion-item>
-                </div>
-
-                <div class="corner-parent-left">
-                  <div class="corner-child-left"></div>
-                </div>
-
-                <div class="timeBubbleChat">
-                  <ion-text color="medium">
-
-                    <!-- FOR AUDIO MESSAGE DURATION TIME -->
-                    <p *ngIf="message.type == 'audio'" class="time-audio-duration">
-                      <small>{{message.audioDuration | timeFormat }}</small>
-                    </p>
-
-                    <p class="timeChat">
-                      <small>{{message.timestamp.toDate() | date:
-                        'shortTime'}}
-                      
-                        <!-- STATUS MESSAGE -->
-                        <ion-icon [hidden]=" message.statusMessage != 'sended' " name="checkmark"></ion-icon>
-                        <ion-icon [hidden]=" message.statusMessage != 'readed' " name="done-all"></ion-icon>
-                      
-                      </small>
-                    </p>
+              <ion-label>
+                <div class="chatDiv" [ngClass]="{'sharper':((msgList[i+1] && msgList[i+1].idSender == message.idSender) && 
+                (msgList[i-1] && msgList[i-1].idSender == message.idSender)),
+                'sharper-top':(msgList[i-1] && msgList[i-1].idSender == message.idSender),
+                'sharper-bottom':(msgList[i+1] && msgList[i+1].idSender == message.idSender)}">
+                  <!-- TEXT MESSAGE -->
+                  <ion-text *ngIf="message.type == 'string'">
+                    <p class="ion-text-wrap ion-padding p-text-message" [innerText]="message.message"></p>
                   </ion-text>
+
+                  <!-- IMAGE OR PHOTO MESSAGE -->
+                  <div *ngIf="message.type == 'image'" class="imgBox">
+                    <ion-img-viewer class="imgBox" [src]="message.fileURL" [srcFallback]="message.fileURL"
+                      [title]="utilChatService.toTitleCase(chatSelected.title) + ' - ' + utilChatService.timeFromNow(message.timestamp.toDate())"
+                      titleSize="small" scheme="dark" [slideOptions]="{ zoom: { maxRatio: 7 }}"></ion-img-viewer>
+                  </div>
+
+                  <!-- DOCUMENT/FILE MESSAGE -->
+                  <div *ngIf="message.type == 'file'" class="fileBox">
+                    <ion-item lines="full" [button]="true" (click)="openFileMessage(message)">
+                      <ion-icon slot="start" name="attach"></ion-icon>
+                      <ion-text>
+                        <p class="ion-text-wrap" [innerText]="message.localFileName"></p>
+                      </ion-text>
+                    </ion-item>
+                  </div>
+
+                  <!-- AUDIO RECORDS/FILE MESSAGE -->
+                  <div *ngIf="message.type == 'audio'" class="fileBox audioBox">
+                    <ion-item lines="full" class="item-audio">
+                      <audio controls controlsList="nodownload" [src]="(isCordova ? message.path : message.fileURL)"
+                        (timeupdate)="audioPlaying($event)" (error)="audioNotLoaded($event , message.fileURL)"></audio>
+                    </ion-item>
+                  </div>
+
+                  <div class="corner-parent-right">
+                    <div class="corner-child-right"></div>
+                  </div>
+
+                  <div class="timeBubbleChat">
+                    <ion-text color="medium">
+                      <!-- FOR AUDIO MESSAGE DURATION TIME -->
+                      <p *ngIf="message.type == 'audio'" class="time-audio-duration">
+                        <small>{{message.audioDuration | timeFormat }}</small>
+                      </p>
+
+                      <p class="timeChat">
+                        <small>{{message.timestamp.toDate() | date:
+                          'shortTime'}}</small>
+                      </p>
+                    </ion-text>
+                  </div>
                 </div>
+              </ion-label>
+            </div>
+          </ion-col>
+        </ion-row>
+
+        <!-- ROW FOR MESSAGES Sended -->
+        <ion-row *ngIf="message.idSender == userSesion.idUser">
+          <ion-col class="left ion-no-padding"
+            [ngClass]="{'clubbed':((msgList[i+1] && msgList[i+1].idSender != message.idSender)|| !msgList[i+1])}">
+            <div class="imageAvatarLeft">
+              <ion-label>
+                <div class="chatDiv" [ngClass]="{'sharper':((msgList[i+1] && msgList[i+1].idSender == message.idSender) && 
+                (msgList[i-1] && msgList[i-1].idSender == message.idSender)),
+                'sharper-top':(msgList[i-1] && msgList[i-1].idSender == message.idSender),
+                'sharper-bottom':(msgList[i+1] && msgList[i+1].idSender == message.idSender)}">
+                  <!-- TEXT MESSAGE -->
+                  <ion-text *ngIf="message.type == 'string'">
+                    <p class="ion-text-wrap ion-padding p-text-message" [innerText]="message.message"></p>
+                  </ion-text>
+
+                  <!-- IMAGE OR PHOTO MESSAGE -->
+                  <div *ngIf="message.type == 'image'" class="imgBox">
+                    <!-- img Tag for handling Control Image Response from local Path -->
+                    <ion-img-viewer class="imgBox" [src]="(isCordova ? message.path : message.fileURL)"
+                      [srcFallback]="message.fileURL"
+                      [title]="utilChatService.toTitleCase(chatSelected.title) + ' - ' + utilChatService.timeFromNow(message.timestamp.toDate())"
+                      titleSize="small" scheme="dark" [slideOptions]="{ zoom: { maxRatio: 7 }}"></ion-img-viewer>
+                  </div>
+
+                  <!-- DOCUMENT/FILE MESSAGE -->
+                  <div *ngIf="message.type == 'file'" class="fileBox">
+                    <ion-item lines="full" [button]="true" (click)="openFileMessage(message)">
+                      <ion-icon slot="start" name="attach"></ion-icon>
+                      <ion-text>
+                        <p class="ion-text-wrap" [innerText]="message.localFileName"></p>
+                      </ion-text>
+                    </ion-item>
+                  </div>
+
+                  <!-- AUDIO RECORDS/FILE MESSAGE -->
+                  <div *ngIf="message.type == 'audio'" class="fileBox audioBox">
+                    <ion-item lines="full" class="item-audio">
+                      <!-- <ion-icon slot="start" name="musical-notes"></ion-icon>
+                      <ion-text>
+                        <p class="ion-text-wrap" [innerText]="message.localFileName"></p>
+                      </ion-text> -->
+
+                      <audio controls controlsList="nodownload" [src]="(isCordova ? message.path : message.fileURL)"
+                        (timeupdate)="audioPlaying($event)" (error)="audioNotLoaded($event , message.fileURL)"></audio>
+
+                      <!-- <ion-button color="primary" fill="clear" (click)="playAudioRecord(message)">
+                        <ion-icon slot="icon-only" name="play" color="primary"></ion-icon>
+                      </ion-button> -->
+                    </ion-item>
+                  </div>
+
+                  <div class="corner-parent-left">
+                    <div class="corner-child-left"></div>
+                  </div>
+
+                  <div class="timeBubbleChat">
+                    <ion-text color="medium">
+                      <!-- FOR AUDIO MESSAGE DURATION TIME -->
+                      <p *ngIf="message.type == 'audio'" class="time-audio-duration">
+                        <small>{{message.audioDuration | timeFormat }}</small>
+                      </p>
+
+                      <p class="timeChat">
+                        <small>{{message.timestamp.toDate() | date: 'shortTime'}}
+
+                          <!-- STATUS MESSAGE -->
+                          <ion-icon [hidden]=" message.statusMessage != 'sended' " name="checkmark"></ion-icon>
+                          <ion-icon [hidden]=" message.statusMessage != 'readed' " name="checkmark-done"></ion-icon>
+                        </small>
+                      </p>
+                    </ion-text>
+                  </div>
+                </div>
+              </ion-label>
+              <div class="imageAvatarBottom">
+                <!-- <ion-icon class="imageAvatarBottomIcon" name="add" expand="icon-only" color="success"></ion-icon> -->
+                <ion-avatar class="avatar"
+                  [ngClass]="(msgList[i+1] && msgList[i+1].idSender == message.idSender)?'hidden':''">
+                  <!-- <div class="imageAvatarBottomIcon">
+                    <ion-icon name="add" expand="icon-only"> </ion-icon>
+                  </div> -->
+                  <ion-img [src]="userSesion?.avatar ? userSesion?.avatar : './assets/icon/favicon.png'"
+                    (ionError)="utilChatService.srcFallBackImg($event)"></ion-img>
+                </ion-avatar>
               </div>
-            </ion-label>
-            <div class="imageAvatarBottom">
-              <!-- <ion-icon class="imageAvatarBottomIcon" name="add" expand="icon-only" color="success"></ion-icon> -->
-              <ion-avatar class="avatar"
-                [ngClass]="(msgList[i+1] && msgList[i+1].idSender == message.idSender)?'hidden':''">
-                <!-- <div class="imageAvatarBottomIcon">
-                  <ion-icon name="add" expand="icon-only" color="light"> </ion-icon>
-                </div> -->
-                <ion-img [src]="userSesion?.avatar ? userSesion?.avatar : './assets/icon/favicon.png'"
-                  (ionError)="utilChatService.srcFallBackImg($event)"></ion-img>
-              </ion-avatar>
             </div>
-          </div>
-        </ion-col>
-      </ion-row>
-    </div>
-  </ion-list>
-
-  <!-- <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)=" sendMsg()">
-      <ion-icon name="send" expand="icon-only"></ion-icon>
-    </ion-fab-button>
-  </ion-fab> -->
-
-  <!-- section for another user typing...  -->
-  <ion-row *ngIf="loader" class="rowTypingSender">
-    <ion-col class="ion-no-padding loading-col">
-      <div class="imageAvatarRight">
-        <div class="imageAvatarBottomLoader">
-          <ion-avatar class="avatar">
-            <ion-img src="./assets/icon/favicon.png"></ion-img>
-          </ion-avatar>
-        </div>
-        <ion-label>
-          <div class="chatDivLoader">
-            <ion-spinner name="dots" color="light"></ion-spinner>
-            <!-- <ion-img src="./assets/img/chat/loader.gif"></ion-img> -->
-            <!-- <p text-wrap padding> {{paramData.name || 'Pam'}} is typing...</p> -->
-            <div class="corner-parent-right">
-              <div class="corner-child-right"></div>
-            </div>
-          </div>
-        </ion-label>
+          </ion-col>
+        </ion-row>
       </div>
-    </ion-col>
-  </ion-row>
+    </ion-list>
+
+    <!-- section for another user typing...  -->
+    <ion-row *ngIf="loader" class="rowTypingSender">
+      <ion-col class="ion-no-padding loading-col">
+        <div class="imageAvatarRight">
+          <div class="imageAvatarBottomLoader">
+            <ion-avatar class="avatar">
+              <ion-img src="./assets/icon/favicon.png"></ion-img>
+            </ion-avatar>
+          </div>
+          <ion-label>
+            <div class="chatDivLoader">
+              <ion-spinner name="dots"></ion-spinner>
+              <!-- <ion-img src="./assets/img/chat/loader.gif"></ion-img> -->
+              <!-- <p text-wrap padding> {{paramData.name || 'Pam'}} is typing...</p> -->
+              <div class="corner-parent-right">
+                <div class="corner-child-right"></div>
+              </div>
+            </div>
+          </ion-label>
+        </div>
+      </ion-col>
+    </ion-row>
+
+  </div>
+
 </ion-content>
 
 <ion-footer>
-  <ion-item class="ion-align-items-center ion-no-padding item-chat-footer">
+  <ion-item class="ion-align-items-center ion-no-padding item-chat-footer"
+    *ngIf="chatSelected?.status != 'closed' ; else chatClosed">
     <ion-buttons slot="start" class="ion-no-margin">
       <input hidden type="file" #uploader (change)="onFileSelected($event)" [accept]="acceptedMimeTypes" />
 
@@ -277,17 +278,13 @@
       </ng-template>
 
       <!-- TIMER FOR AUDIO RECORD -->
-
     </ion-buttons>
 
     <ion-textarea #area autosize [maxRows]="4" [spellcheck]="true" [rows]="1" class="input-box"
       placeholder="Write a message..." [(ngModel)]="user_input" enterkeyhint="send" (ionFocus)="ionInputTapped()"
       (keypress)="userTyping($event)" [hidden]="recordingAudio"></ion-textarea>
 
-
-
     <ion-buttons slot="end">
-
       <!-- SEND TEXT MESSAGE BUTTON -->
       <ion-button [hidden]="user_input === '' " (click)="sendMsg()" color="primary">
         <ion-icon slot="icon-only" name="send"></ion-icon>
@@ -295,7 +292,8 @@
 
       <!-- CONTROLS FOR AUDIO RECORD -->
 
-      <ion-button [hidden]="user_input !== '' || recordingAudio || !isCordova" (click)="startRecordAudio()" color="primary">
+      <ion-button [hidden]="user_input !== '' || recordingAudio || !isCordova" (click)="startRecordAudio()"
+        color="primary">
         <ion-icon slot="icon-only" name="mic"></ion-icon>
       </ion-button>
 
@@ -309,18 +307,13 @@
       </ion-button>
 
       <!-- =========================== -->
-
     </ion-buttons>
-
-
-
   </ion-item>
 
   <ng-container *ngIf="attachBox">
     <ion-list>
       <ion-row class="attchRow">
-
-        <ion-col class="footer_col ion-activatable ripple-parent" size="4"
+        <ion-col class="footer_col ion-activatable ripple-parent" size="6"
           (click)="selectAttach('document' , uploader)">
           <ion-label class="attchLabel">
             <ion-icon class="attchIcon" slot="icon-only" name="document"></ion-icon>
@@ -331,16 +324,24 @@
           <ion-ripple-effect></ion-ripple-effect>
         </ion-col>
 
-        <ion-col *ngIf="isCordova" class="footer_col ion-activatable ripple-parent" size="6"
-          (click)="selectAttach('camera' , uploader)">
+        <!-- <ion-col
+          *ngIf="isCordova"
+          class="footer_col ion-activatable ripple-parent"
+          size="6"
+          (click)="selectAttach('camera' , uploader)"
+        >
           <ion-label class="attchLabel">
-            <ion-icon class="attchIcon" slot="icon-only" name="camera"></ion-icon>
+            <ion-icon
+              class="attchIcon"
+              slot="icon-only"
+              name="camera"
+            ></ion-icon>
 
             <p>Camera</p>
           </ion-label>
 
           <ion-ripple-effect></ion-ripple-effect>
-        </ion-col>
+        </ion-col> -->
 
         <ion-col class="footer_col ion-activatable ripple-parent" size="6" (click)="selectAttach('gallery' , uploader)">
           <ion-label class="attchLabel">
@@ -388,5 +389,12 @@
       </ion-row>
     </ion-list>
   </ng-container>
+
+  <!-- WHEN CHAT STATUS IS CLOSED -->
+  <ng-template #chatClosed>
+    <ion-button expand="block" shape="round" [routerLink]="['/chat-list']" routerDirection="back">
+      Close
+    </ion-button>
+  </ng-template>
 
 </ion-footer>

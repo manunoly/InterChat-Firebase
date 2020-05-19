@@ -8,6 +8,11 @@
 
           <ion-menu-toggle *ngFor="let p of appPages; let i = index">
             <ion-item (click)="selectedIndex = i" routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" [class.selected]="selectedIndex == i">
+
+              <ion-badge color="danger" class="badge-floating-end" *ngIf="p.url == 'chat-list'">{{chatService.unreadedMessagesHome > 0 ? ( (chatService.unreadedMessagesHome < 99) ? chatService.unreadedMessagesHome : '+99' ) : null}}</ion-badge>
+              
+              <ion-badge color="danger" class="badge-floating-end" *ngIf="p.url == 'call-center-chat-list' && chatService.chatQueueData$.value">{{chatService.chatQueueData$.value.length > 0 ? ( (chatService.chatQueueData$.value.length < 99) ? chatService.chatQueueData$.value.length : '+99' ) : null}}</ion-badge>
+
               <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
               <ion-label>{{ p.title }}</ion-label>
             </ion-item>
@@ -15,7 +20,7 @@
           </ion-menu-toggle>
           
           <ion-menu-toggle [hidden]="(authService.firebaseUser$ | async) ? false : true">
-            <ion-item (click)="logout()" lines="none" detail="false">
+            <ion-item (click)="logout()" lines="none" detail="false" button="true">
               <ion-icon slot="start" [ios]="'log-out-outline'" [md]="'log-out-sharp'"></ion-icon>
               <ion-label>LogOut</ion-label>
             </ion-item>

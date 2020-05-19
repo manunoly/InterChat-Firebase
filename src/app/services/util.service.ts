@@ -56,6 +56,41 @@ export class UtilService {
     await alert.present();
   }
 
+  async showAlertConfirmAction(header: string, subHeader: string, message: string = '' , btnLabels : string[] = ['Accept' , 'Cancel']): Promise<boolean> {
+
+    let resolveFunction: (confirm: boolean) => void;
+    const promise = new Promise<boolean>(resolve => {
+      resolveFunction = resolve;
+    });
+
+    const alert = await this.alertController.create({
+      header: header,
+      subHeader: subHeader,
+      message: message,
+      buttons: [
+        {
+          text: btnLabels[0],
+          cssClass: 'secondary',
+          handler: () => {
+            resolveFunction(true)
+          }
+        },
+        {
+          text: btnLabels[1],
+          role: 'cancel',
+          handler: () => {
+            console.log('alert Cancel');
+            resolveFunction(false)
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+    return promise;
+
+  }
+
   async showToast(message: string) {
 
     const toast = await this.toastController.create({
@@ -184,7 +219,7 @@ export class UtilService {
     if (typeInput == 'image' || typeInput == 'gallery')
       return 'image/png, image/jpeg, image/jpg'
     else if (typeInput == 'document')
-      return `image/png, image/jpeg, image/jpg, application/pdf, application/x-pdf, application/acrobat, applications/vnd.pdf, text/pdf, text/x-pdf, 
+      return `application/pdf, application/x-pdf, application/acrobat, applications/vnd.pdf, text/pdf, text/x-pdf, 
       .doc, .docx, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, 
       .csv, .xlsx, .application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
       .ppt, .pptx, .application/vnd.openxmlformats-officedocument.presentationml.presentation,

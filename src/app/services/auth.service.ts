@@ -116,6 +116,7 @@ export class AuthService {
     try {
       const userD = await this.afAuth.auth.createUserWithEmailAndPassword(data.email, data.password);
 
+      data.type = 'callcenter';
       let user: iUser =
       {
         idUser: data.id ? data.id : userD.user.uid,

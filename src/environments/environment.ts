@@ -12,7 +12,8 @@ export const environment = {
     storageBucket: "givbux-beta.appspot.com",
     messagingSenderId: "348819315376",
     appId: "1:348819315376:web:579256044aa51368d5b975"
-  }
+  },
+  apiUrl: 'https://apidev.gvbx.io/api/',
 };
 
 /*

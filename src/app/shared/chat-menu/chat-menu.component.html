@@ -1,0 +1,22 @@
+ <ion-content>
+  <ion-list>
+  
+    <ion-item lines="full" button="true" *ngIf="typeUser == 'callcenter' " (click)="showInfoUser()">
+      <ion-label class="ion-text-wrap">
+       Show Info User
+      </ion-label>
+    </ion-item>
+    <ion-item lines="full" button="true" *ngIf="typeUser == 'callcenter' " (click)="transferActiveChat()">
+      <ion-label class="ion-text-wrap">
+       Transfer Chat
+      </ion-label>
+    </ion-item>
+    <ion-item lines="full" button="true" (click)="finalizeActiveChat()">
+      <ion-label class="ion-text-wrap">
+       Finalize Chat
+      </ion-label>
+    </ion-item>
+  
+  </ion-list>
+
+</ion-content>

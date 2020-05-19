@@ -13,6 +13,7 @@ import { UtilService } from './util.service';
 import { AuthService } from './auth.service';
 import { StorageAppService } from 'src/app/services/storage-app.service';
 import { DbService } from './db.service';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root',
@@ -35,7 +36,8 @@ export class ChatService {
     private authService: AuthService,
     private storageAppService: StorageAppService,
     private sound: PlaySoundService,
-    private db: DbService
+    private db: DbService,
+    private apiService: ApiService
   ) {}
 
   clearChatdata() {
@@ -61,7 +63,7 @@ export class ChatService {
         this.chatData$.value.forEach(async (oldChat, index) => {
           // console.log('tengo este chat antiguo antes de verificarlo', oldChat);
 
-          if (oldChat.idChat == chats[index].idChat) {
+          if (oldChat && chats[index]  && oldChat.idChat == chats[index].idChat) {
             // console.log('same ChatID, lets check if lastMessage changed....')
             if (oldChat.lastMessage != chats[index].lastMessage) {
               console.log('New Message in some Chat');
@@ -140,72 +142,194 @@ export class ChatService {
     });
   }
 
+  /* ================================================
+  ================================================
+               CALL CENTER METHODS
+  ================================================
+     ================================================ */
   async loadOnQueueChatData(user: iUser) {
-
     if (this.chatQueueDataObj) this.chatQueueDataObj.unsubscribe();
 
-    this.chatQueueDataObj = this.db.getOnQueueChats().subscribe(async (chats) => {
-      if (this.chatQueueData$.value)
-        this.chatQueueData$.value.forEach(async (oldChat, index) => {
-          // console.log('tengo este chat antiguo antes de verificarlo', oldChat);
+    this.chatQueueDataObj = this.db
+      .getOnQueueChats()
+      .subscribe(async (chats) => {
+        if (this.chatQueueData$.value)
+          this.chatQueueData$.value.forEach(async (oldChat, index) => {
+            // console.log('tengo este chat antiguo antes de verificarlo', oldChat);
 
-          if (oldChat.idChat == chats[index].idChat) {
-            // console.log('same ChatID, lets check if lastMessage changed....')
-            if (oldChat.lastMessage != chats[index].lastMessage) {
-              console.log('New Message in some Chat');
-              console.log(chats[index]);
+            if (
+              oldChat &&
+              chats[index] &&
+              oldChat.idChat == chats[index].idChat
+            ) {
+              // console.log('same ChatID, lets check if lastMessage changed....')
+              if (oldChat.lastMessage != chats[index].lastMessage) {
+                console.log('New Message in some QUEUE Chat');
+                console.log(chats[index]);
 
-              const userSesion = this.authService.userSesion.value;
+                const userSesion = this.authService.userSesion.value;
 
-              if (chats[index].lastMessageIdSender != userSesion.idUser) {
-                //new message received by some other user
-                console.log('======NEW MESSAGE FROM======');
-                console.log(`User => ${chats[index].lastMessageUserName}`);
+                if (chats[index].lastMessageIdSender != userSesion.idUser) {
+                  //new message received by some other user
+                  console.log('======NEW MESSAGE FROM======');
+                  console.log(`User => ${chats[index].lastMessageUserName}`);
 
-                this.utilService.showToastNewMessageRecieved(
-                  chats[index].lastMessageUserName,
-                  chats[index].lastMessage
-                );
-                this.sound.play();
+                  // this.utilService.showToastNewMessageRecieved(
+                  //   chats[index].lastMessageUserName,
+                  //   chats[index].lastMessage
+                  // );
+                  // this.sound.play();
+                }
               }
             }
+          });
+        else if (chats.length == 0) {
+          //NONE FROM STORAGE ONLY ONLINE
+        }
+
+        console.log('=============== Chats on QUEUE ===============');
+        console.log(chats);
+
+        // this.unreadedMessagesHome = 0;
+
+        chats.forEach((chat) => {
+          for (const iterator of chat.participantsMeta) {
+            //iterator.idUser != user.idUser
+            if (iterator.type == 'user') {
+              chat.avatarUserChat = iterator.avatar;
+              chat.title = iterator.userName;
+              chat.idUserReciever = iterator.idUser;
+              chat.userReciever = iterator;
+              chat.unreadMessagesLocal = chat['unreadMessage_' + user.idUser]
+                ? chat['unreadMessage_' + user.idUser]
+                : null;
+              continue;
+            }
+          }
+
+          if (
+            chat['unreadMessage_' + user.idUser] &&
+            chat['unreadMessage_' + user.idUser] > 0
+          ) {
+            // ++this.unreadedMessagesHome;
           }
         });
-      else if (chats.length == 0) {
-        //NONE FROM STORAGE ONLY ONLINE
+
+        this.chatQueueData$.next(chats);
+      });
+  }
+
+  async transferQueueChatToActive(chatSelected: iChat, userCallCenter: iUser) {
+    this.utilService.showLoading('Processing the chat...');
+
+    if (chatSelected.status == 'open') {
+      // still opened the chat
+
+      const updatedParticipantsIDS = [
+        chatSelected.participantsIDS[0],
+        userCallCenter.idUser,
+      ];
+      const updatedParticipantsMeta = [
+        chatSelected.participantsMeta[0],
+        userCallCenter,
+      ];
+
+      // UPDATING CHAT WITH new Data
+      const chatUpdate: iChat = {
+        status: 'active',
+        lastMessage: '',
+        typeLastMessage: 'string',
+        participantsIDS: updatedParticipantsIDS,
+        participantsMeta: updatedParticipantsMeta,
+      };
+
+      try {
+        await this.updateCreateAt('chats/' + chatSelected.idChat, chatUpdate);
+      } catch (error) {
+        console.log(error);
+        this.utilService.showAlert(
+          'Info',
+          'Error Processing the chat. Please try again Later'
+        );
+        this.utilService.dismissLoading();
+        return;
       }
 
-      console.log('=============== Chats on QUEUE ===============');
-      console.log(chats);
+      // CREATING AUTOMATIC RESPONSE FOR USER WHEN CALLCENTER USER CHANGE TO ACTIVE THE CHAT
 
-      this.unreadedMessagesHome = 0;
+      const idMessage = this.afs.createId();
 
-      chats.forEach((chat) => {
-        for (const iterator of chat.participantsMeta) {
-          //iterator.idUser != user.idUser
-          if (iterator.type == 'user') {
-            chat.avatarUserChat = iterator.avatar;
-            chat.title = iterator.userName;
-            chat.idUserReciever = iterator.idUser;
-            chat.userReciever = iterator;
-            chat.unreadMessagesLocal = chat['unreadMessage_' + user.idUser]
-              ? chat['unreadMessage_' + user.idUser]
-              : null;
-              continue;
-          }
-        }
+      // console.log(idMessage);
 
-        if (
-          chat['unreadMessage_' + user.idUser] &&
-          chat['unreadMessage_' + user.idUser] > 0
-        ) {
-          ++this.unreadedMessagesHome;
-        }
-      });
+      const newMsg: iMessage = {
+        idMessage: idMessage,
+        idSender: userCallCenter.idUser,
+        timestamp: this.utilService.timestampServerNow,
+        type: 'string',
+        message: `Hello and thanks for using The GivBux ChatSupport, my name is ${userCallCenter.userName} and I will be attending to your requirements how can I help you?`,
+      };
 
-      this.chatQueueData$.next(chats);
-    });
+      try {
+        await this.pushNewMessageChat(
+          chatSelected.idChat,
+          newMsg,
+          chatSelected.idUserReciever
+        );
+
+        this.utilService.dismissLoading();
+
+        return {...chatSelected , ... chatUpdate} as iChat;
+
+      } catch (error) {
+        console.log(error);
+        this.utilService.showAlert(
+          'Info',
+          'Error Processing the chat. Please try again Later'
+        );
+        this.utilService.dismissLoading();
+        return;
+      }
+     
+    } else {
+      this.utilService.showAlert(
+        'ATENTION',
+        'The Current Chat is already taken'
+      );
+    }
   }
+
+  async closeActiveSupportChat(idChat: string, user: iUser) {
+
+    this.utilService.showLoading('Closing Chat...');
+
+    // UPDATING CHAT WITH Status Closed
+    const chatUpdate: iChat = {
+      status: 'closed',
+      chatClosedBy: user,
+      updatedAt: this.utilService.timestampServerNow,
+    };
+
+    try {
+      await this.updateCreateAt('chats/' + idChat, chatUpdate);
+      this.utilService.dismissLoading();
+      this.chatData.status = 'closed';
+    } catch (error) {
+      console.log(error);
+      this.utilService.showAlert(
+        'Info',
+        'Error Closing the Chat. Please try again Later'
+      );
+      this.utilService.dismissLoading();
+      return;
+    }
+
+  }
+
+  /* ================================================
+  ================================================
+               CALL CENTER METHODS
+  ================================================
+     ================================================ */
 
   /**
    * @param user // if (user.isAnonymous === false) by firebase auth user
@@ -511,7 +635,12 @@ export class ChatService {
       const userSesion = this.authService.userSesion.value;
 
       //TODO: PUSH NOTIFICATION NEW CHAT
-      // this.db.pushNotificationChat(userSesion.idUser, userSesion.userName, message.message, idUserReciever)
+      this.apiService.pushNotificationChat(
+        userSesion.idUser,
+        userSesion.userName,
+        message.message,
+        idUserReciever
+      );
 
       const increment = this.utilService
         .getInstanceFirebase()

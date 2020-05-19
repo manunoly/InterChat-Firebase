@@ -54,8 +54,6 @@
           <div class="UserimgSection">
             <ion-avatar class="chatImage" slot="start">
 
-              <ion-badge *ngIf="chat.type == 'callcenter'" color="tertiary" class="badge-floating-support"><ion-icon name="headset" color="light"></ion-icon></ion-badge>
-
               <ion-badge color="danger" class="badge-floating">{{chat.unreadMessagesLocal > 0 ? ( (chat.unreadMessagesLocal < 99) ? chat.unreadMessagesLocal : '+99' ) : null}}</ion-badge>
 
               <ion-img [src]="chat.avatarUserChat ? chat.avatarUserChat : './assets/icon/favicon.png'" (ionError)="utilService.srcFallBackImg($event)"></ion-img>
@@ -87,6 +85,10 @@
 
           <!-- para cuantos mensajes sin leer -->
           <!-- <ion-badge slot="end" class="userBadge" *ngIf="chat.badge">{{chat.badge}}</ion-badge> -->
+
+          <ion-badge slot="end" class="userBadge" *ngIf="chat.status == 'closed'">
+            <ion-icon name="lock-closed"></ion-icon>
+          </ion-badge>
 
           <ion-note slot="end" class="sendTime" *ngIf="chat.updatedAt"> 
             {{ utilService.isDifferentDayFromToday(chat.updatedAt.toDate()) ? (chat.updatedAt.toDate() | date: 'shortTime') : utilService.calendarDayFormat(chat.updatedAt.toDate()) }}

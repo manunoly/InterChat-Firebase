@@ -10,13 +10,13 @@
 <ion-content [fullscreen]="true" class="ion-padding">
 
   <ion-list>
-    <ion-item lines="full">
+    <ion-item lines="full" button="true" (click)="utilService.toggleTheme()">
       <ion-icon *ngIf="!utilService.preferedDarkTheme" slot="start" ios="sunny-outline" md="sunny-sharp"></ion-icon>
       <ion-icon *ngIf="utilService.preferedDarkTheme" slot="start" ios="moon-outline" md="moon-sharp"></ion-icon>
       <ion-label>
         Toggle Dark Theme
       </ion-label>
-      <ion-toggle [checked]="utilService.preferedDarkTheme" (ionChange)="utilService.toggleTheme()" slot="end"></ion-toggle>
+      <ion-toggle [checked]="utilService.preferedDarkTheme" slot="end"></ion-toggle>
     </ion-item>
 
     <!-- <ion-item lines="full">
