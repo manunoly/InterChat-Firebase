@@ -43,6 +43,7 @@ export class ChatListPage implements OnInit {
 
   openChat(selectedChat) {
     console.log(selectedChat);
+    this.chatService.stateChatDataActual.next(selectedChat);
     this.chatService.setChatData(selectedChat);
     this.router.navigate(['chat']);
   }

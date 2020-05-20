@@ -4,6 +4,7 @@ import { ModalController, PopoverController } from '@ionic/angular';
 import { ModalUserInfoComponent } from '../modal-user-info/modal-user-info.component';
 import { UtilService } from 'src/app/services/util.service';
 import { ChatService } from 'src/app/services/chat.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-chat-menu',
@@ -13,12 +14,14 @@ import { ChatService } from 'src/app/services/chat.service';
 export class ChatMenuComponent implements OnInit {
 
   @Input() typeUser : string;
-  @Input() userInfo : iUser;
+  @Input() userInfoToShow : iUser;
+  @Input() statusChat : string;
 
   constructor(private popoverController: PopoverController,
     private modalController : ModalController,
     private utilService : UtilService,
-    private chatService: ChatService) {}
+    private chatService: ChatService,
+    private authService: AuthService) {}
 
   ngOnInit() {
     // console.log(this.typeUser);
@@ -30,7 +33,7 @@ export class ChatMenuComponent implements OnInit {
     const modal = await this.modalController.create({
       component: ModalUserInfoComponent,
       componentProps: {
-       userInfo : this.userInfo
+       userInfo : this.userInfoToShow
       }
     });
     return await modal.present();
@@ -51,7 +54,7 @@ export class ChatMenuComponent implements OnInit {
 
     if(confirm){
       try {
-        await this.chatService.closeActiveSupportChat(this.chatService.chatData.idChat , this.userInfo);
+        await this.chatService.closeActiveSupportChat(this.chatService.chatData.idChat , this.authService.userSesion.value);
       } catch (error) {
         console.log(error);        
       }

@@ -20,6 +20,8 @@ import { ApiService } from './api.service';
 })
 export class ChatService {
   private chatDataActual: iChat;
+  public stateChatDataActual: BehaviorSubject<iChat> = new BehaviorSubject(null);
+
   public chatData$: BehaviorSubject<iChat[]> = new BehaviorSubject(null);
   private chatDataObj: Subscription;
 
@@ -38,7 +40,7 @@ export class ChatService {
     private sound: PlaySoundService,
     private db: DbService,
     private apiService: ApiService
-  ) {}
+  ) { }
 
   clearChatdata() {
     this.chatDataActual = null;
@@ -63,7 +65,7 @@ export class ChatService {
         this.chatData$.value.forEach(async (oldChat, index) => {
           // console.log('tengo este chat antiguo antes de verificarlo', oldChat);
 
-          if (oldChat && chats[index]  && oldChat.idChat == chats[index].idChat) {
+          if (oldChat && chats[index] && oldChat.idChat == chats[index].idChat) {
             // console.log('same ChatID, lets check if lastMessage changed....')
             if (oldChat.lastMessage != chats[index].lastMessage) {
               console.log('New Message in some Chat');
@@ -83,6 +85,15 @@ export class ChatService {
                 this.sound.play();
               }
             }
+
+            //chat selected and still opened and Status Change
+            if (this.chatData && chats[index].status && this.chatData.idChat == chats[index].idChat && this.chatData.status != chats[index].status) {
+
+              console.log('*****************CHANGING STATE OF CHAT*************************');
+              this.stateChatDataActual.next(chats[index]);
+
+            }
+
           }
         });
       else if (chats.length == 0) {
@@ -278,7 +289,7 @@ export class ChatService {
 
         this.utilService.dismissLoading();
 
-        return {...chatSelected , ... chatUpdate} as iChat;
+        return { ...chatSelected, ...chatUpdate } as iChat;
 
       } catch (error) {
         console.log(error);
@@ -289,7 +300,7 @@ export class ChatService {
         this.utilService.dismissLoading();
         return;
       }
-     
+
     } else {
       this.utilService.showAlert(
         'ATENTION',

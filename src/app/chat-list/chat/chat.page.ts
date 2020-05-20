@@ -99,6 +99,21 @@ export class ChatPage implements OnInit, OnDestroy {
 
       this.scrollDown();
       // this.subscribeAndGetAllMessages();
+
+      this.subscriptions.push(this.chatService.stateChatDataActual.subscribe(stateChat => {
+        if(stateChat){
+          console.log('=======> Current Status Chat <========');
+          console.log(stateChat.status)
+          this.chatSelected = stateChat;  
+          
+          //CLEAN ACTUAL STATE BECAUSE NOT MORE NEEDED
+          if(stateChat.status == 'closed'){
+            this.chatService.stateChatDataActual.next(null);
+          }      
+        }
+      }));
+
+
     } else {
       this.router.navigate(['chat-list']);
     }
@@ -128,6 +143,11 @@ export class ChatPage implements OnInit, OnDestroy {
     this.clearUnreadMessages();
 
     //===========================================
+    if(this.chatService.stateChatDataActual.value){
+      this.chatService.stateChatDataActual.next(null);
+      console.log('State Chat =>' ,  this.chatService.stateChatDataActual.value);
+    }
+    
   }
 
   onFileSelected(event) {
@@ -550,7 +570,8 @@ export class ChatPage implements OnInit, OnDestroy {
       translucent: true,
       componentProps: {
         typeUser: 'callcenter',
-        userInfo: this.chatSelected.userReciever,
+        userInfoToShow: this.chatSelected.userReciever,
+        statusChat: this.chatSelected.status
       },
     });
     return await popover.present();

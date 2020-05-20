@@ -52,6 +52,7 @@ export class CallCenterChatListPage implements OnInit {
           selectedChat,
           this.auth.userSesion.value
         );
+        this.chatService.stateChatDataActual.next(updatedChatSelected);
         this.chatService.setChatData(updatedChatSelected);
 
         this.router.navigate(['chat-list']).then(_ =>{
