@@ -58,6 +58,9 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  async checkActivedRoute() {
     const path = window.location.pathname.split('/')[1];
     console.log(path);
     if (path !== undefined) {
