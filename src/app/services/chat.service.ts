@@ -97,28 +97,30 @@ export class ChatService {
           }
         });
       else if (chats.length == 0) {
-        const tmpChat = await this.storageAppService.getChats();
-        if (tmpChat && tmpChat.length > 0) {
-          chats = tmpChat.map((x) => {
-            return {
-              ...x,
-              ...{
-                createdAt: this.utilService.newTimeStampFirestore(
-                  x.createdAt.seconds,
-                  x.createdAt.nanoseconds
-                ),
-                updatedAt: this.utilService.newTimeStampFirestore(
-                  x.createdAt.seconds,
-                  x.createdAt.nanoseconds
-                ),
-                timestamp: this.utilService.newTimeStampFirestore(
-                  x.createdAt.seconds,
-                  x.createdAt.nanoseconds
-                ),
-              },
-            };
-          });
-        }
+        //FULL ONLINE
+        
+        // const tmpChat = await this.storageAppService.getChats();
+        // if (tmpChat && tmpChat.length > 0) {
+        //   chats = tmpChat.map((x) => {
+        //     return {
+        //       ...x,
+        //       ...{
+        //         createdAt: this.utilService.newTimeStampFirestore(
+        //           x.createdAt.seconds,
+        //           x.createdAt.nanoseconds
+        //         ),
+        //         updatedAt: this.utilService.newTimeStampFirestore(
+        //           x.createdAt.seconds,
+        //           x.createdAt.nanoseconds
+        //         ),
+        //         timestamp: this.utilService.newTimeStampFirestore(
+        //           x.createdAt.seconds,
+        //           x.createdAt.nanoseconds
+        //         ),
+        //       },
+        //     };
+        //   });
+        // }
       }
 
       console.log('=============== ACTIVE CHATS ===============');
@@ -149,7 +151,7 @@ export class ChatService {
 
       this.chatData$.next(chats);
       this.offlineData$.next(false);
-      this.storageAppService.setChats(chats);
+      // this.storageAppService.setChats(chats);
     });
   }
 

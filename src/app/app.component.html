@@ -1,12 +1,12 @@
 <ion-app>
-  <ion-split-pane contentId="main-content" when="">
+  <ion-split-pane contentId="main-content">
     <ion-menu contentId="main-content" type="overlay" [hidden]="(authService.firebaseUser$ | async) ? false : true" >
       <ion-content>
         <ion-list id="inbox-list">
           <ion-list-header>Call Center</ion-list-header>
           <ion-note>Chat System</ion-note>
 
-          <ion-menu-toggle *ngFor="let p of appPages; let i = index">
+          <ion-menu-toggle *ngFor="let p of appPages; let i = index" auto-hide="false">
             <ion-item (click)="selectedIndex = i" routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" [class.selected]="selectedIndex == i">
 
               <ion-badge color="danger" class="badge-floating-end" *ngIf="p.url == 'chat-list'">{{chatService.unreadedMessagesHome > 0 ? ( (chatService.unreadedMessagesHome < 99) ? chatService.unreadedMessagesHome : '+99' ) : null}}</ion-badge>
@@ -19,7 +19,7 @@
 
           </ion-menu-toggle>
           
-          <ion-menu-toggle [hidden]="(authService.firebaseUser$ | async) ? false : true">
+          <ion-menu-toggle [hidden]="(authService.firebaseUser$ | async) ? false : true" auto-hide="false">
             <ion-item (click)="logout()" lines="none" detail="false" button="true">
               <ion-icon slot="start" [ios]="'log-out-outline'" [md]="'log-out-sharp'"></ion-icon>
               <ion-label>LogOut</ion-label>
