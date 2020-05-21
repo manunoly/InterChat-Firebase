@@ -251,7 +251,7 @@
 
 <ion-footer>
   <ion-item class="ion-align-items-center ion-no-padding item-chat-footer"
-    *ngIf="chatSelected?.status != 'closed' ; else chatClosed">
+    [hidden]="chatSelected?.status == 'closed'">
     <ion-buttons slot="start" class="ion-no-margin">
       <input hidden type="file" #uploader (change)="onFileSelected($event)" [accept]="acceptedMimeTypes" />
 
@@ -282,7 +282,7 @@
 
     <ion-textarea #area autosize [maxRows]="4" [spellcheck]="true" [rows]="1" class="input-box"
       placeholder="Write a message..." [(ngModel)]="user_input" enterkeyhint="send" (ionFocus)="ionInputTapped()"
-      (keypress)="userTyping($event)" [hidden]="recordingAudio"></ion-textarea>
+      (keypress)="userTyping($event)" (keyup.enter)="sendMsg()" [hidden]="recordingAudio"></ion-textarea>
 
     <ion-buttons slot="end">
       <!-- SEND TEXT MESSAGE BUTTON -->
@@ -391,10 +391,10 @@
   </ng-container>
 
   <!-- WHEN CHAT STATUS IS CLOSED -->
-  <ng-template #chatClosed>
+  <ng-container *ngIf="chatSelected?.status == 'closed'" >
     <ion-button expand="block" shape="round" [routerLink]="['/chat-list']" routerDirection="back">
       Close
     </ion-button>
-  </ng-template>
+  </ng-container>
 
 </ion-footer>
