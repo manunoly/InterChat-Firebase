@@ -107,6 +107,10 @@ ion-viewer-modal ion-content{
   border-radius: 200px;
 }
 
+.item-chat{
+  --inner-padding-top: 0.5rem;
+}
+
 .scrollbar {
   min-height: 50px;
   overflow-y: auto;

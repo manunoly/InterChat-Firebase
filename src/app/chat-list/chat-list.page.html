@@ -22,7 +22,7 @@
     </ion-toolbar>
   </ion-header>
 
-  <ion-grid>
+
 
 
     <ion-row class="ion-padding-top" *ngIf="loadingProcess">
@@ -48,7 +48,7 @@
 
     <ion-list class="ion-no-padding" *ngIf="(chats | async) as chatData; else loading">
 
-      <ion-item *ngFor="let chat of chatData" lines="none" button=true (click)="openChat(chat)">
+      <ion-item *ngFor="let chat of chatData" lines="none" button=true (click)="openChat(chat)" class="item-chat">
         <div class="borderBottomLine"></div>
         <div class="listSection">
           <div class="UserimgSection">
@@ -114,7 +114,6 @@
       </ion-item>
     </ion-list>
 
-  </ion-grid>
 
 
 

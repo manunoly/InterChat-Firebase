@@ -39,7 +39,7 @@
 
   <ion-list class="ion-no-padding" *ngIf="(chatsOnQueue | async) as chatsQueue; else loading">
 
-    <ion-item *ngFor="let chat of chatsQueue" lines="none" button=true (click)="selectChatToProcess(chat)">
+    <ion-item *ngFor="let chat of chatsQueue" lines="none" button=true (click)="selectChatToProcess(chat)" class="item-chat">
       <div class="borderBottomLine"></div>
       <div class="listSection">
         <div class="UserimgSection">
