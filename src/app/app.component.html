@@ -1,5 +1,5 @@
 <ion-app>
-  <ion-split-pane contentId="main-content">
+  <ion-split-pane contentId="main-content" class="split-pane">
     <ion-menu contentId="main-content" type="overlay" [hidden]="(authService.firebaseUser$ | async) ? false : true" >
       <ion-content>
         <ion-list id="inbox-list">

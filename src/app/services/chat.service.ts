@@ -32,6 +32,8 @@ export class ChatService {
 
   public unreadedMessagesHome: number;
 
+  private counterMessagesQueue : number = 0;
+
   constructor(
     private afs: AngularFirestore,
     private utilService: UtilService,
@@ -203,6 +205,19 @@ export class ChatService {
         console.log('=============== Chats on QUEUE ===============');
         console.log(chats);
 
+        // ===================== // ===================== // ===================== // =====================
+        // ===================== CONTROL PARA CUANDO HAYA UN NUEVO CHAT EN COLA SE DISPARE UN SONIDO
+         // ===================== // ===================== // ===================== // =====================
+        if(chats.length > this.counterMessagesQueue) {
+          this.sound.play();
+        }
+
+        // ===================== VARIABLE DE CONTROL
+        this.counterMessagesQueue = chats.length;
+        
+         // ===================== // ===================== // ===================== // =====================
+        // ===================== // ===================== // ===================== // =====================
+
         // this.unreadedMessagesHome = 0;
 
         chats.forEach((chat) => {
@@ -220,12 +235,6 @@ export class ChatService {
             }
           }
 
-          if (
-            chat['unreadMessage_' + user.idUser] &&
-            chat['unreadMessage_' + user.idUser] > 0
-          ) {
-            // ++this.unreadedMessagesHome;
-          }
         });
 
         this.chatQueueData$.next(chats);
