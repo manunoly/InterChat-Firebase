@@ -12,6 +12,7 @@ import {AutosizeModule} from 'ngx-autosize';
 import { NgxIonicImageViewerModule } from 'ngx-ionic-image-viewer';
 import { TimeFormatPipe } from 'src/app/_pipes/time-format.pipe';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { IonicRatingModule } from 'ionic-rating';
 
 @NgModule({
   imports: [
@@ -21,7 +22,8 @@ import { SharedModule } from 'src/app/shared/shared.module';
     ChatPageRoutingModule,
     AutosizeModule,
     NgxIonicImageViewerModule,
-    SharedModule
+    SharedModule,
+    IonicRatingModule
   ],
   declarations: [
     ChatPage,
