@@ -71,6 +71,7 @@ export class UserDetailPage implements OnInit {
         [
           Validators.required,
           Validators.email,
+          Validators.pattern('^[\w\d_.-]+$'),
           Validators.minLength(3),
           Validators.maxLength(100),
         ],
