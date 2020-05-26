@@ -10,5 +10,6 @@ export interface iMessage {
   fileMimeTyme?: string;
   localFileName?: string;
   audioDuration?: number;
+  isMessageInfo?:boolean;
   statusMessage? : string; // only for app purpouse 'sended' | 'readed'
 }
