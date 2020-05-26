@@ -181,6 +181,14 @@ export class DbService {
       );
   }
 
+  /**
+   * @param  {string} path path to document
+   *
+   * Deletes document from Firestore 
+   **/
+  delete(path) {
+    return this.afs.doc(path).delete();
+  }
 
 /**
  * 
