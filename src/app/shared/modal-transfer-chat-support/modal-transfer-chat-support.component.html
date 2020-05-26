@@ -1,0 +1,62 @@
+<ion-content>
+  <ion-fab
+    vertical="top"
+    horizontal="end"
+    slot="fixed"
+    (click)="close()"
+    title="Close Detail"
+  >
+    <ion-fab-button>
+      <ion-icon name="close" size="large"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <ion-grid class="ion-padding">
+    <ion-row class="ion-padding">
+      <ion-col size="12" class="ion-margin-auto ion-text-center">
+        <ion-text>
+          <h1 class="ion-no-margin">Transfer ChatSupport</h1>
+        </ion-text>
+      </ion-col>
+
+      <ion-col
+        *ngIf="!loadingUsers; else loadingUsersCallCenter"
+        size="12"
+        class="ion-margin-top ion-no-padding ion-text-center"
+      >
+        <ion-list>
+          <ion-radio-group [(ngModel)]="selectedUserCallCenter">
+            <ion-item
+              *ngFor="let userCallCenter of usersCallCenter"
+              lines="none"
+            >
+              <ion-label>{{ userCallCenter.userName | titlecase }}</ion-label>
+              <ion-radio slot="start" [value]="userCallCenter"></ion-radio>
+            </ion-item>
+          </ion-radio-group>
+        </ion-list>
+      </ion-col>
+
+      <ng-template #loadingUsersCallCenter>
+        <ion-col size="12" class="ion-text-center ion-margin-top">
+          <ion-spinner></ion-spinner> <br />
+          <ion-text>
+            <ion-note>Loading CallCenter Users...</ion-note>
+          </ion-text>
+        </ion-col>
+      </ng-template>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+
+<ion-footer class="ion-margin-vertical ion-text-center">
+  <ng-container>
+    <ion-button
+      shape="round"
+      [disabled]="!selectedUserCallCenter"
+      (click)="transferChat()"
+    >
+      Transfer ChatSupport
+    </ion-button>
+  </ng-container>
+</ion-footer>

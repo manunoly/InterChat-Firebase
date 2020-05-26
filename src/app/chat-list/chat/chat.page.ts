@@ -415,12 +415,12 @@ export class ChatPage implements OnInit, OnDestroy {
           this.msgList = [...this.msgList, ...messages];
 
           // avoid same message to push on the view locally when come from db
-          // this.msgList = this.msgList.filter(
-          //   (message, index) =>
-          //     this.msgList.findIndex(
-          //       (messageUnique) => messageUnique.idMessage === message.idMessage
-          //     ) === index
-          // );
+          this.msgList = this.msgList.filter(
+            (message, index) =>
+              this.msgList.findIndex(
+                (messageUnique) => messageUnique.idMessage === message.idMessage
+              ) === index
+          );
 
           // CHECKING STATUS MESSAGES FOR SENDED OR READED
 

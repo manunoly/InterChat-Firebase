@@ -6,6 +6,7 @@ import { LoadingController, AlertController, ToastController, Platform } from '@
 
 import * as moment from 'moment';
 import { Subscription } from 'rxjs';
+import { Location } from '@angular/common';
 
 
 @Injectable({
@@ -23,7 +24,8 @@ export class UtilService {
     private loadingController: LoadingController,
     private alertController: AlertController,
     private toastController: ToastController,
-    private platform: Platform) {
+    private platform: Platform,
+    private _navigation: Location) {
 
     this.loadTheme();
 
@@ -253,5 +255,9 @@ export class UtilService {
     document.body.classList.toggle('dark', this.preferedDarkTheme);
     this.setKeyStorage('DarkTheme', this.preferedDarkTheme);
 
+  }
+
+  backOnNavigation(){
+      this._navigation.back();
   }
 }
