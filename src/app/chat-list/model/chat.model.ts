@@ -21,6 +21,9 @@ export interface iChat {
     lastMessageIdSender?: string;
     lastMessageUserName?: string;
     chatClosedBy?: iUser;
+    rating?: number;
+    isRated?: boolean;
+    ratingCommentary?: string;
     idUserReciever?: string; //only for app purpose
     userReciever?: iUser; //only for app purpose
     unreadMessagesLocal? : number; //only for app purpose

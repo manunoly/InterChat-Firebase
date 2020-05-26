@@ -46,6 +46,7 @@
     "cordova-sqlite-storage": "^5.0.0",
     "core-js": "^2.5.4",
     "firebase": ">= 5.5.7 <8",
+    "ionic-rating": "^2.0.0",
     "moment": "^2.24.0",
     "ngx-autosize": "^1.7.5",
     "ngx-ionic-image-viewer": "^0.7.0",

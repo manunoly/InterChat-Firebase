@@ -145,6 +145,11 @@ ion-viewer-modal ion-content{
   background-image: -webkit-gradient(linear, 40% 0%, 75% 84%, from(#0be8cb), to(#0be8cb), color-stop(0.6, #6633cb));
 }
 
+ion-rating {
+  // --star-color: gray;
+  // --star-color-filled: green;
+  margin: auto;
+}
 
 // UTILS CLASS
 
