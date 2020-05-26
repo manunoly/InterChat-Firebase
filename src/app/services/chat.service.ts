@@ -206,15 +206,17 @@ export class ChatService {
         console.log(chats);
 
         // ===================== // ===================== // ===================== // =====================
-        // ===================== CONTROL PARA CUANDO HAYA UN NUEVO CHAT EN COLA SE DISPARE UN SONIDO
-         // ===================== // ===================== // ===================== // =====================
+        // ===================== Feature SI HAY UN NUEVO CHAT EN COLA SE DISPARE UN SONIDO
+        // ===================== // ===================== // ===================== // =====================
+
         if(chats.length > this.counterMessagesQueue) {
           this.sound.play();
         }
 
         // ===================== VARIABLE DE CONTROL
-        this.counterMessagesQueue = chats.length;
         
+        this.counterMessagesQueue = chats.length;
+
          // ===================== // ===================== // ===================== // =====================
         // ===================== // ===================== // ===================== // =====================
 
@@ -329,6 +331,7 @@ export class ChatService {
       status: 'closed',
       chatClosedBy: user,
       updatedAt: this.utilService.timestampServerNow,
+      isRated: false,
     };
 
     try {
