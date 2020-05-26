@@ -32,6 +32,10 @@ const routes: Routes = [
     loadChildren: () => import('./call-center-chat-list/call-center-chat-list.module').then( m => m.CallCenterChatListPageModule)
   },
   {
+    path: 'users',
+    loadChildren: () => import('./user-crud/user-crud.module').then( m => m.UserCrudPageModule)
+  },
+  {
     path: '**',
     redirectTo: 'chat-list',
     pathMatch: 'full'
