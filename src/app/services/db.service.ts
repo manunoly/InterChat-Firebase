@@ -11,6 +11,11 @@ import { iChat } from '../chat-list/model/chat.model';
   providedIn: 'root',
 })
 export class DbService {
+  public userType$ = [
+    { id: 'user', text: 'User' },
+    { id: 'callcenter', text: 'Call center' },
+  ];
+
   constructor(private afs: AngularFirestore) {}
 
   /**
@@ -172,6 +177,21 @@ export class DbService {
             const id = action.payload.doc.id;
             return { id, ...data };
           });
+        })
+      );
+  }
+
+/**
+ * 
+ * @param path Get any documentent by ID
+ */
+  doc$(path): Observable<any> {
+    return this.afs
+      .doc(path)
+      .snapshotChanges()
+      .pipe(
+        map(doc => {
+          return { id: doc.payload.id, ...doc.payload.data() };
         })
       );
   }
