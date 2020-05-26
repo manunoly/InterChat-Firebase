@@ -175,4 +175,21 @@ export class DbService {
         })
       );
   }
+
+/**
+ * 
+ * @param type user | callcenter | othertype
+ * @param directionOrder (optional) 'asc' | 'desc', default = 'asc'
+ * @param limit (optional) positive integer, default = 50
+ * @return Promise<firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>>
+ */
+  getUsersByType(type: string , directionOrder: firebase.firestore.OrderByDirection = 'asc', limit: number = 50) {
+    return this.afs
+      .collection<iUser[]>('users', (ref) =>
+        ref.where('type', '==', type).limit(limit).orderBy('userName', directionOrder)
+      )
+      .get()
+      .pipe(take(1))
+      .toPromise();
+  }
 }
