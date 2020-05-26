@@ -5,6 +5,7 @@ import { ModalUserInfoComponent } from '../modal-user-info/modal-user-info.compo
 import { UtilService } from 'src/app/services/util.service';
 import { ChatService } from 'src/app/services/chat.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { ModalTransferChatSupportComponent } from '../modal-transfer-chat-support/modal-transfer-chat-support.component';
 
 @Component({
   selector: 'app-chat-menu',
@@ -40,10 +41,16 @@ export class ChatMenuComponent implements OnInit {
 
   }
 
-  transferActiveChat(){
+ async transferActiveChat(){
     this.popoverController.dismiss();
 
-    this.utilService.showAlert('INFORMATION' , 'Functionality not yet available')
+    const modal = await this.modalController.create({
+      component: ModalTransferChatSupportComponent,
+      componentProps: {
+       chatSelected : this.chatService.chatData
+      }
+    });
+    return await modal.present();
 
   }
 

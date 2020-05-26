@@ -32,7 +32,7 @@ export class ChatService {
 
   public unreadedMessagesHome: number;
 
-  private counterMessagesQueue : number = 0;
+  private counterMessagesQueue: number = 0;
 
   constructor(
     private afs: AngularFirestore,
@@ -100,7 +100,7 @@ export class ChatService {
         });
       else if (chats.length == 0) {
         //FULL ONLINE
-        
+
         // const tmpChat = await this.storageAppService.getChats();
         // if (tmpChat && tmpChat.length > 0) {
         //   chats = tmpChat.map((x) => {
@@ -209,15 +209,15 @@ export class ChatService {
         // ===================== Feature SI HAY UN NUEVO CHAT EN COLA SE DISPARE UN SONIDO
         // ===================== // ===================== // ===================== // =====================
 
-        if(chats.length > this.counterMessagesQueue) {
+        if (chats.length > this.counterMessagesQueue) {
           this.sound.play();
         }
 
         // ===================== VARIABLE DE CONTROL
-        
+
         this.counterMessagesQueue = chats.length;
 
-         // ===================== // ===================== // ===================== // =====================
+        // ===================== // ===================== // ===================== // =====================
         // ===================== // ===================== // ===================== // =====================
 
         // this.unreadedMessagesHome = 0;
@@ -291,6 +291,7 @@ export class ChatService {
         timestamp: this.utilService.timestampServerNow,
         type: 'string',
         message: `Hello and thanks for using The GivBux ChatSupport, my name is ${userCallCenter.userName} and I will be attending to your requirements how can I help you?`,
+        isMessageInfo: true,
       };
 
       try {
@@ -347,6 +348,87 @@ export class ChatService {
       this.utilService.dismissLoading();
       return;
     }
+
+  }
+
+  /**
+   * 
+   * @param chatSelected actual chatSelected
+   * @param newCallCenterUser iUser Selected on Modal
+   */
+  async transferActiveChatSupport(chatSelected: iChat, newCallCenterUser: iUser) {
+
+    const actualCallCenterUser: iUser = this.authService.userSesion.value;
+
+    this.utilService.showLoading('Processing Chat Transfer...');
+
+    const updatedParticipantsIDS = [
+      chatSelected.participantsIDS[0],
+      newCallCenterUser.idUser,
+    ];
+    const updatedParticipantsMeta = [
+      chatSelected.participantsMeta[0],
+      newCallCenterUser,
+    ];
+
+    // UPDATING CHAT WITH new USER META DATA
+    const chatUpdate: iChat = {
+      participantsIDS: updatedParticipantsIDS,
+      participantsMeta: updatedParticipantsMeta,
+
+    };
+
+    console.log(chatUpdate);
+
+    //SENDING AUTOMATIC RESPONSE 
+    try {
+      await this.db.updateCreateAt('chats/' + chatSelected.idChat, chatUpdate);
+      this.utilService.dismissLoading();
+
+      // CREATING AUTOMATIC RESPONSE FOR USER WHEN CALLCENTER USER TRANSFER THE CHAT
+
+      const idMessage = this.afs.createId();
+
+      const newMsg: iMessage = {
+        idMessage: idMessage,
+        idSender: newCallCenterUser.idUser,
+        timestamp: this.utilService.timestampServerNow,
+        type: 'string',
+        message: `GivBux ChatSupport, you Chat has been Transfered by: ${actualCallCenterUser.userName} To: ${newCallCenterUser.userName}`,
+        isMessageInfo : true
+      };
+
+      try {
+        await this.pushNewMessageChat(
+          chatSelected.idChat,
+          newMsg,
+          chatSelected.idUserReciever
+        );
+
+        this.utilService.dismissLoading();
+
+        return true;
+
+      } catch (error) {
+        console.log(error);
+        this.utilService.showAlert(
+          'Info',
+          'Error Processing the chat. Please try again Later'
+        );
+        this.utilService.dismissLoading();
+        return false;
+      }
+
+    } catch (error) {
+      console.log(error);
+      this.utilService.showAlert(
+        'Info',
+        'Error Transfering The Chat. Please try again Later'
+      );
+      this.utilService.dismissLoading();
+      return false;
+    }
+
 
   }
 

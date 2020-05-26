@@ -56,6 +56,25 @@
           </span>
         </ng-template>
 
+        <!-- ROW FOR MESSAGE TYPE INFO isMessageInfo -->
+        <ng-container *ngIf=" (message.idSender != userSesion.idUser && message?.isMessageInfo ) ||
+        (message.idSender != userSesion.idUser && message.idSender != chatSelected.idUserReciever)">
+
+          <ion-row>
+            <ion-col>
+              <ion-text class="messagesInfo">
+                {{ message.message }}
+                <p class="ion-no-margin ion-margin-top timeChat timeInfo">
+                  <small>{{message.timestamp.toDate() | date:
+                    'shortTime'}}</small>
+                </p>
+              </ion-text>
+            </ion-col>
+          </ion-row>          
+
+
+        </ng-container>
+
         <!-- ROW FOR MESSAGE RECIEVED -->
 
         <ion-row *ngIf="message.idSender == chatSelected.idUserReciever">
