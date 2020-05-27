@@ -15,7 +15,7 @@ import { Component, OnInit } from '@angular/core';
 export class UserDetailPage implements OnInit {
   dataForm: FormGroup;
   id = null;
-  user: iUser;
+  userObj;
 
   constructor(
     private fb: FormBuilder,
@@ -26,16 +26,24 @@ export class UserDetailPage implements OnInit {
     private utilService: UtilService
   ) {}
 
-  async ngOnInit() {
+  async ngOnInit() {}
+
+  ionViewWillEnter() {
     this.buildForm();
 
     this.id = this.route.snapshot.paramMap.get('id');
     if (this.id && this.id != 'null') {
-      const user = await this.db.doc$(`users/${this.id}`);
-      this.dataForm.patchValue(user);
+      this.userObj = this.db.doc$(`users/${this.id}`).subscribe((user) => {
+        console.log('user query get', user);
+        this.dataForm.patchValue(user);
+      });
     } else {
       this.id = null;
     }
+  }
+
+  ionViewDidLeave() {
+    this.userObj.unsubscribe();
   }
 
   buildForm() {
@@ -71,7 +79,7 @@ export class UserDetailPage implements OnInit {
         [
           Validators.required,
           Validators.email,
-          Validators.pattern('^[\w\d_.-]+$'),
+          // Validators.pattern('^[wd_.-]+$'),
           Validators.minLength(3),
           Validators.maxLength(100),
         ],
@@ -93,14 +101,22 @@ export class UserDetailPage implements OnInit {
       this.dataForm.controls['idUser'].setValue(id);
       this.dataForm.controls['uid'].setValue(id);
     }
+    this.dataForm.controls['email'].setValue(
+      this.dataForm.value.email.toLowerCase()
+    );
     console.log(this.dataForm.value);
     this.creteUpdate();
   }
 
   async creteUpdate() {
-    await this.db.updateCreateAt(
-      'users/' + this.dataForm.value.uid,
-      this.dataForm.value
-    );
+    try {
+      await this.db.updateCreateAt(
+        'users/' + this.dataForm.value.uid,
+        this.dataForm.value
+      );
+      this.utilService.showAlert('Information', 'User Updated');
+    } catch (error) {
+      this.utilService.showAlert('Error', 'Error updating the user');
+    }
   }
 }
