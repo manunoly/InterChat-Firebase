@@ -41,6 +41,10 @@ const routes: Routes = [
     } 
   },
   {
+    path: 'users',
+    loadChildren: () => import('./user-crud/user-crud.module').then( m => m.UserCrudPageModule)
+  },
+  {
     path: '**',
     redirectTo: 'chat-list',
     pathMatch: 'full'

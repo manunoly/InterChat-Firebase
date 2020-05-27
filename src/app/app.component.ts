@@ -35,6 +35,11 @@ export class AppComponent implements OnInit {
     //   icon: 'chatbubbles'
     // },
     // {
+    //   title: 'Users in DB',
+    //   url: 'users',
+    //   icon: 'list-circle'
+    // },
+    // {
     //   title: 'Settings',
     //   url: 'settings',
     //   icon: 'settings'

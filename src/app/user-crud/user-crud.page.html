@@ -1,0 +1,62 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>DataBase Users</ion-title>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <ion-row class=" ion-no-padding ion-no-margin">
+    <ion-col size-sm="6" offset-md="6" size-md="6" class="ion-text-start">
+
+      <ion-item class="ion-no-padding ion-no-margin ion-text-warap" lines="none">
+        <ion-label class="ion-no-padding ion-no-margin ion-text-end"> Filter by type: </ion-label>
+
+        <ion-select (ionChange)="getUserFromDatabase($event.detail.value)">
+          <ion-select-option *ngFor="let userT of userType" [value]="userT.id">{{userT.text}}</ion-select-option>
+        </ion-select>
+
+      </ion-item>
+    </ion-col>
+    </ion-row>
+
+    <ion-row *ngIf="loadingProcess" class="ion-padding-top">
+      <ion-col size="12" class="ion-text-center">
+        <ion-spinner></ion-spinner> <br>
+        <ion-text>
+          <ion-note>Loading...</ion-note>
+        </ion-text>
+      </ion-col>
+    </ion-row>
+
+    <ion-list>
+      <ion-item *ngFor="let user of users; trackBy: trackByID">
+        <ion-avatar class="chatImage" slot="start">
+          <img [src]="user && user.avatar ? user.avatar : 'assets/icon/favicon.png'">
+        </ion-avatar>
+
+        <ion-label>
+          <h2> {{user?.userName | titlecase}} </h2>
+          <h3>{{user?.email }}</h3>
+          <h5>{{user?.phone }}</h5>
+          <h5>{{user?.type }}</h5>
+        </ion-label>
+
+        <ion-buttons slot="end">
+
+          <ion-button fill="clear" [routerLink]="['user-detail/'+user.idUser]">
+            <ion-icon name="create" size="large" color="primary"></ion-icon>
+          </ion-button>
+
+          <ion-button fill="clear" (click)="delete(user)">
+            <ion-icon name="trash" size="large" color="danger"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+
+      </ion-item>
+    </ion-list>
+</ion-content>
