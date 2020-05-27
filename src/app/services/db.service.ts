@@ -14,6 +14,7 @@ export class DbService {
   public userType$ = [
     { id: 'user', text: 'User' },
     { id: 'callcenter', text: 'Call center' },
+    { id: 'admin', text: 'Administrator' },
   ];
 
   constructor(private afs: AngularFirestore) {}
