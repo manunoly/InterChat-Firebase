@@ -201,7 +201,8 @@ doc$(path): Observable<any> {
     .snapshotChanges()
     .pipe(
       map(doc => {
-        return { id: doc.payload.id, ...doc.payload.data() };
+        const data = doc.payload.data() as iUser;
+        return { id: doc.payload.id, ...data };
       })
     );
 }
