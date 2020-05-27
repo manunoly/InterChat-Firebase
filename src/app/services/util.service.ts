@@ -93,11 +93,11 @@ export class UtilService {
 
   }
 
-  async showToast(message: string) {
+  async showToast(message: string , duration : number = 1500) {
 
     const toast = await this.toastController.create({
       message: message,
-      duration: 1500
+      duration: duration
     });
     toast.present();
 

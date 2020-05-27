@@ -105,7 +105,7 @@ export class AuthService {
   }
 
   async logout() {
-    this.router.navigateByUrl('login');
+    this.router.navigateByUrl('login' , {replaceUrl: true});
     return await this.afAuth.auth.signOut();
   }
 
