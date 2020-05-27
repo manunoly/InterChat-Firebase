@@ -15,9 +15,10 @@ import { DbService } from './../services/db.service';
   styleUrls: ['./user-crud.page.scss'],
 })
 export class UserCrudPage implements OnInit {
-  users;
+  users = [];
   // users: Observable<iUser[]>;
   userType;
+  loadingProcess = false;
 
   constructor(
     private db: DbService,
@@ -29,37 +30,23 @@ export class UserCrudPage implements OnInit {
 
   ngOnInit() {
     this.userType = this.db.userType$;
-    this.getUserFromDatabase('user');
+    this.getUserFromDatabase(this.userType[0]['id']);
   }
 
-  async getUserFromDatabase(type) {
+  async getUserFromDatabase(type?) {
     try {
-      const user = await this.userService
-        .getUsersByType(type);
-        
-        this.users = user.map((x) => x.data() as iUser);
-      console.log(this.users);
-      return (this.users = user);
-      this.users = [
-        {
-          idUser: 'Manuel Ramon',
-          uid: '1',
-          userName: '1',
-          avatar: '',
-          type: '1',
-          email: '1',
-        },
+      this.loadingProcess = true;
+      this.users = [];
+      console.log('el type', type);
 
-        {
-          idUser: 'Javier jsp',
-          uid: '2',
-          userName: '2',
-          avatar: '',
-          type: '2',
-          email: '2',
-        },
-      ];
+      this.userService.getUsersByTypeObservable(type).subscribe((user) => {
+        this.users = user;
+        this.loadingProcess = false;
+      });
+
+      return console.log(this.users);
     } catch (error) {
+      this.loadingProcess = false;
       console.log(error);
     }
   }
@@ -75,8 +62,15 @@ export class UserCrudPage implements OnInit {
         'Are you sure you want to delete?'
       ))
     ) {
-      this.db.delete(`users/${user.uid}`);
-      // TODO:Check if delete user from DB or just disabled
+      try {
+        await this.db.delete(`users/${user.uid}`);
+
+        this.utilService.showAlert('Information', 'User deleted');
+        // TODO:Check if delete user from DB or just disabled
+      } catch (error) {
+        this.utilService.showAlert('Error', 'Error deleting user');
+
+      }
     }
   }
 

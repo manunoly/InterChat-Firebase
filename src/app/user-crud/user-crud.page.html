@@ -11,10 +11,10 @@
 <ion-content [fullscreen]="true">
 
   <ion-row class=" ion-no-padding ion-no-margin">
-    <ion-col size-sm="6" offset-md="8" size-md="4" class="ion-text-start">
+    <ion-col size-sm="6" offset-md="6" size-md="6" class="ion-text-start">
 
       <ion-item class="ion-no-padding ion-no-margin ion-text-warap" lines="none">
-        <ion-label class="ion-no-padding ion-no-margin"> Filter by type: </ion-label>
+        <ion-label class="ion-no-padding ion-no-margin ion-text-end"> Filter by type: </ion-label>
 
         <ion-select (ionChange)="getUserFromDatabase($event.detail.value)">
           <ion-select-option *ngFor="let userT of userType" [value]="userT.id">{{userT.text}}</ion-select-option>
@@ -24,7 +24,7 @@
     </ion-col>
     </ion-row>
 
-    <ion-row *ngIf="!users" class="ion-padding-top">
+    <ion-row *ngIf="loadingProcess" class="ion-padding-top">
       <ion-col size="12" class="ion-text-center">
         <ion-spinner></ion-spinner> <br>
         <ion-text>
