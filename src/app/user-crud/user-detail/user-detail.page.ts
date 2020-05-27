@@ -111,10 +111,10 @@ export class UserDetailPage implements OnInit {
   async creteUpdate() {
     try {
       await this.db.updateCreateAt(
-        'users/' + this.dataForm.value.uid,
+        'users/' + this.dataForm.value.idUser,
         this.dataForm.value
       );
-      this.utilService.showAlert('Information', 'User Updated');
+      this.utilService.showAlert('ATENTION', 'User updated');
     } catch (error) {
       this.utilService.showAlert('Error', 'Error updating the user');
     }

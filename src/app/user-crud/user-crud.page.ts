@@ -51,19 +51,17 @@ export class UserCrudPage implements OnInit {
     }
   }
 
-  async edit(user) {}
-
   async delete(user: iUser) {
     if (
       user &&
-      user.uid &&
+      user.idUser &&
       (await this.utilService.showAlertConfirmAction(
-        'Atention',
+        'ATENTION',
         'Are you sure you want to delete?'
       ))
     ) {
       try {
-        await this.db.delete(`users/${user.uid}`);
+        await this.db.delete(`users/${user.idUser}`);
 
         this.utilService.showAlert('Information', 'User deleted');
         // TODO:Check if delete user from DB or just disabled
