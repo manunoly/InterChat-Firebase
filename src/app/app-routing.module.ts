@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { RolesGuard } from './_guards/roles.guard';
 
 const routes: Routes = [
   {
@@ -17,7 +18,11 @@ const routes: Routes = [
   },
   {
     path: 'select-user-to-chat',
-    loadChildren: () => import('./select-user-to-chat/select-user-to-chat.module').then(m => m.SelectUserToChatPageModule)
+    loadChildren: () => import('./select-user-to-chat/select-user-to-chat.module').then(m => m.SelectUserToChatPageModule),
+    canActivate: [RolesGuard], 
+    data: { 
+      expectedRole: 'user'
+    } 
   },
   {
     path: 'login',
@@ -29,7 +34,11 @@ const routes: Routes = [
   },
   {
     path: 'call-center-chat-list',
-    loadChildren: () => import('./call-center-chat-list/call-center-chat-list.module').then( m => m.CallCenterChatListPageModule)
+    loadChildren: () => import('./call-center-chat-list/call-center-chat-list.module').then( m => m.CallCenterChatListPageModule),
+    canActivate: [RolesGuard], 
+    data: { 
+      expectedRole: 'callcenter'
+    } 
   },
   {
     path: '**',

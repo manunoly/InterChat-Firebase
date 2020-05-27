@@ -18,6 +18,17 @@
             </ion-item>
 
           </ion-menu-toggle>
+
+          <ng-container>
+            <ion-row class="ion-padding-top" *ngIf="appPages.length == 0">
+              <ion-col size="12" class="ion-text-center">
+                <ion-spinner color="secondary"></ion-spinner> <br>
+                <ion-text>
+                  <ion-note>Loading Menu...</ion-note>
+                </ion-text> 
+              </ion-col>
+            </ion-row>
+          </ng-container>
           
           <ion-menu-toggle [hidden]="(authService.firebaseUser$ | async) ? false : true" auto-hide="false">
             <ion-item (click)="logout()" lines="none" detail="false" button="true">
