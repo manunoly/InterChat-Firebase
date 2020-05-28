@@ -10,6 +10,7 @@ import { iRoutePage } from './_routes/routePage.model';
 import { AdminRoutes } from './_routes/admin.routes';
 import { UserRoutes } from './_routes/user.routes';
 import { CallCenterRoutes } from './_routes/callcenter.routes';
+import { UtilService } from './services/util.service';
 
 @Component({
   selector: 'app-root',
@@ -52,7 +53,8 @@ export class AppComponent implements OnInit {
     private statusBar: StatusBar,
     public authService: AuthService,
     public chatService: ChatService,
-    private manageFiles: ManageAttachFilesService
+    private manageFiles: ManageAttachFilesService,
+    public utilService: UtilService
   ) {
     this.initializeApp();
   }

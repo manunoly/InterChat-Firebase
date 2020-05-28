@@ -5,7 +5,7 @@
         <ion-list id="inbox-list">
           <ion-list-header *ngIf="authService?.userSesion?.value?.type == 'callcenter'">Call Center</ion-list-header>
           <ion-list-header *ngIf="authService?.userSesion?.value?.type != 'callcenter'">{{authService?.userSesion?.value?.type | titlecase}}</ion-list-header>
-          <ion-note>Chat System</ion-note>
+          <ion-note>Chat System {{utilService.version}}</ion-note>
 
           <ion-menu-toggle *ngFor="let p of appPages; let i = index" auto-hide="false">
             <ion-item (click)="selectedIndex = i" routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" [class.selected]="selectedIndex == i">

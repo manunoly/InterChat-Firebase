@@ -14,6 +14,7 @@ import { Location } from '@angular/common';
 })
 export class UtilService {
 
+  public readonly version = 'V-1.0.0';
   loading: any;
   private today = new Date();
   preferedDarkTheme = false;
