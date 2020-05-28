@@ -3,7 +3,8 @@
     <ion-menu contentId="main-content" type="overlay" [hidden]="(authService.firebaseUser$ | async) ? false : true" >
       <ion-content>
         <ion-list id="inbox-list">
-          <ion-list-header>Call Center</ion-list-header>
+          <ion-list-header *ngIf="authService?.userSesion?.value?.type == 'callcenter'">Call Center</ion-list-header>
+          <ion-list-header *ngIf="authService?.userSesion?.value?.type != 'callcenter'">{{authService?.userSesion?.value?.type | titlecase}}</ion-list-header>
           <ion-note>Chat System</ion-note>
 
           <ion-menu-toggle *ngFor="let p of appPages; let i = index" auto-hide="false">

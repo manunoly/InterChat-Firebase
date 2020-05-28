@@ -19,6 +19,16 @@
         </ion-text>
       </ion-col>
 
+      <ion-col size="12" class="ion-margin-auto ion-text-center">
+        <ion-searchbar
+          placeholder="Search Call Center User"
+          type="text"
+          (ionChange)="onSearchChange($event)"
+          [debounce]="350"
+          mode="ios"
+        ></ion-searchbar>
+      </ion-col>
+
       <ion-col
         *ngIf="!loadingUsers; else loadingUsersCallCenter"
         size="12"

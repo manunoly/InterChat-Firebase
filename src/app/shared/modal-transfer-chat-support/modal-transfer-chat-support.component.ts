@@ -14,29 +14,31 @@ import { Location } from '@angular/common';
   styleUrls: ['./modal-transfer-chat-support.component.scss'],
 })
 export class ModalTransferChatSupportComponent implements OnInit {
+  @Input() chatSelected: iChat;
 
-  @Input() chatSelected : iChat;
-
-  selectedUserCallCenter : iUser;
-  usersCallCenter : iUser[] = [];
+  selectedUserCallCenter: iUser;
+  usersCallCenter: iUser[] = [];
+  usersCallCenterALL: iUser[] = [];
   loadingUsers = false;
 
-  constructor(private modalController : ModalController,
+  constructor(
+    private modalController: ModalController,
     private authService: AuthService,
     private dbService: DbService,
     private chatService: ChatService,
-    private utilService : UtilService) { }
+    private utilService: UtilService
+  ) {}
 
   async ngOnInit() {
-
     try {
-
       this.loadingUsers = true;
-      
-      const responseDocument = await this.dbService.getUsersByType('callcenter');
+
+      const responseDocument = await this.dbService.getUsersByType(
+        'callcenter'
+      );
 
       responseDocument.forEach((userCallCenter) => {
-       this.usersCallCenter.push(userCallCenter.data() as iUser);        
+        this.usersCallCenter.push(userCallCenter.data() as iUser);
       });
 
       console.log('=========== Users CallCenter ===========');
@@ -46,47 +48,64 @@ export class ModalTransferChatSupportComponent implements OnInit {
         return element.idUser != this.authService.userSesion.value.idUser;
       });
 
-      this.loadingUsers = false;
+      //COPY BACKUP
+      this.usersCallCenterALL = [...this.usersCallCenter];
 
+      this.loadingUsers = false;
     } catch (error) {
       console.log(error);
       this.loadingUsers = true;
-      this.utilService.showAlert('ERROR' , 'An error has occurred retrieving users data'); 
-      this.close();     
+      this.utilService.showAlert(
+        'ERROR',
+        'An error has occurred retrieving users data'
+      );
+      this.close();
     }
-
   }
 
-  async transferChat(){
+  async transferChat() {
+    const confirm = await this.utilService.showAlertConfirmAction(
+      'CHAT TRANSFER',
+      `Are you sure you want to transfer this chat to ${this.selectedUserCallCenter.userName}? `
+    );
 
-
-    const confirm = await this.utilService.showAlertConfirmAction('CHAT TRANSFER' , `Are you sure you want to transfer this chat to ${this.selectedUserCallCenter.userName}? `)
-
-    if(confirm){
-
+    if (confirm) {
       try {
-       
-       const result = await this.chatService.transferActiveChatSupport(this.chatSelected, this.selectedUserCallCenter);
+        const result = await this.chatService.transferActiveChatSupport(
+          this.chatSelected,
+          this.selectedUserCallCenter
+        );
 
-       console.log('========= RESULT CHAT TRANSFER =========');
-       console.log(result);
-   
-       if(result){
-         this.close();
-         this.utilService.backOnNavigation();
-       }
-   
+        console.log('========= RESULT CHAT TRANSFER =========');
+        console.log(result);
+
+        if (result) {
+          this.close();
+          this.utilService.backOnNavigation();
+        }
       } catch (error) {
-        console.log(error);     
+        console.log(error);
       }
-
     }
-
-
   }
 
-  close(){
+  onSearchChange(event : CustomEvent) {
+    // console.log(event.detail.value);
+    const searchQuery = event.detail.value as string;
+    if (searchQuery && searchQuery != '') {
+      this.usersCallCenter = this.usersCallCenterALL.filter((user) => {
+        return (
+          user.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      });
+      // console.log(this.usersCallCenter);
+    } else {
+      this.usersCallCenter = [...this.usersCallCenterALL];
+    }
+  }
+
+  close() {
     this.modalController.dismiss();
   }
-
 }

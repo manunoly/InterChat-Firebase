@@ -85,7 +85,7 @@ export class AppComponent implements OnInit {
         this.loadRoutesByRole(user.type);
         this.chatService.loadChatData(user);
 
-        if(user.type == 'callcenter')
+        if(user.type == 'callcenter' || user.type == 'admin' )
           this.chatService.loadOnQueueChatData(user);
 
       } else {
