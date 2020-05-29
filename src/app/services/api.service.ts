@@ -21,4 +21,11 @@ export class ApiService {
 
     return this.http.post(url, { id_user , name , message , id_user_send }).toPromise();
   }
+
+  isMailGivbux(emailD) {
+    let url = this.apiUrl + "userbyemail";
+
+    return this.http.post(url, { email:emailD }).toPromise();
+  }
+
 }

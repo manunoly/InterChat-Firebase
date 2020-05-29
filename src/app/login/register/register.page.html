@@ -6,7 +6,7 @@
 
 <ion-content>
 
-  <ion-grid class="ion-padding ion-text-center">
+  <ion-grid class="ion-padding centerContent">
 
     <form [formGroup]="loginForm" (ngSubmit)="register()">
       <ion-row>
@@ -73,8 +73,8 @@
             Password is handler by GOOGLE services.
           </h6>
 
-          <ion-button (click)="close()" fill="clear">
-            Back
+          <ion-button routerLink="/login" shape="round" fill="outline">
+            Just Login
           </ion-button>
         </ion-col>
       </ion-row>

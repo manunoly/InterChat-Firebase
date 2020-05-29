@@ -1,6 +1,6 @@
 <ion-header>
     <ion-toolbar>
-        <ion-title>Login</ion-title>
+        <ion-title class="ion-text-center">Login</ion-title>
     </ion-toolbar>
 </ion-header>
 
@@ -21,18 +21,18 @@
         </ion-grid>
     </div>
 
-    <ion-grid class="ion-padding" *ngIf="!user">
+    <ion-grid class="ion-padding centerContent" *ngIf="!user">
         <ion-row class="ion-padding">
-            <ion-col size-sm="12" size-md="8" offset-md="2">
+            <ion-col>
                 <ion-item>
-                    <ion-label position="floating">
+                    <ion-label position="floating" color="primary">
                         Email
                     </ion-label>
                     <ion-input type="email" [(ngModel)]="email" [autofocus]="true"></ion-input>
                 </ion-item>
 
                 <ion-item>
-                    <ion-label position="floating">
+                    <ion-label position="floating" color="primary">
                         Password
                     </ion-label>
                     <ion-input type="password" [(ngModel)]="password"></ion-input>
@@ -56,7 +56,7 @@
         <ion-row class="ion-padding">
             <ion-col size-sm="10" size-md="6" offset-md="3">
 
-                <ion-button [disabled]="!email || !password" expand="block" shape="round" (click)="login()">
+                <ion-button [disabled]="!email || !password" expand="block" shape="round" fill="outline" (click)="login()">
                     Login
                 </ion-button>
 
@@ -72,7 +72,7 @@
 
             </ion-col>
         </ion-row> -->
-        
+
     </ion-grid>
 
 </ion-content>

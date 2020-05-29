@@ -5,7 +5,7 @@ import { RolesGuard } from './_guards/roles.guard';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'login',
+    redirectTo: 'welcome',
     pathMatch: 'full'
   },
   {
@@ -47,6 +47,10 @@ const routes: Routes = [
     data: { 
       expectedRole: 'admin'
     } 
+  },
+  {
+    path: 'welcome',
+    loadChildren: () => import('./welcome/welcome.module').then( m => m.WelcomePageModule)
   },
   {
     path: '**',

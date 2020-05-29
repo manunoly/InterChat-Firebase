@@ -17,6 +17,7 @@ export class RegisterPage implements OnInit {
   constructor(private auth: AuthService, private modalController: ModalController, private fb: FormBuilder) { }
 
   ngOnInit() {
+    console.log('register component');
     this.buildForm();
   }
 

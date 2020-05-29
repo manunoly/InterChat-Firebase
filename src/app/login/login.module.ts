@@ -1,4 +1,4 @@
-import { RegisterPageModule } from './register/register.module';
+// import { RegisterPageModule } from './register/register.module';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,7 +12,7 @@ import { LoginPage } from './login.page';
 @NgModule({
   imports: [
     CommonModule,
-    RegisterPageModule,
+    // RegisterPageModule,
     FormsModule,
     IonicModule,
     LoginPageRoutingModule

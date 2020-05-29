@@ -11,6 +11,10 @@ const routes: Routes = [
   {
     path: 'register',
     loadChildren: () => import('./register/register.module').then( m => m.RegisterPageModule)
+  },
+  {
+    path: 'givbux',
+    loadChildren: () => import('./givbux-login/givbux-login.module').then( m => m.GivbuxLoginPageModule)
   }
 ];
 
