@@ -118,7 +118,7 @@ export class AuthService {
     try {
       const userD = await this.afAuth.auth.createUserWithEmailAndPassword(data.email, data.password);
 
-      data.type = 'callcenter';
+      data.type = 'user';
 
       const idUser = this.afs.createId();
 
