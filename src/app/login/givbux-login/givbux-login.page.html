@@ -1,0 +1,59 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Givbux User</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-grid class="ion-padding centerContent">
+    <ion-row class="ion-padding">
+      <ion-col>
+        <ion-item>
+          <ion-label position="floating" color="primary">
+            Email
+          </ion-label>
+          <ion-input type="email" [(ngModel)]="email" [autofocus]="true"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="floating" color="primary">
+            Givbux Secure Pin
+          </ion-label>
+          <ion-input [type]="typeP" [(ngModel)]="pin"></ion-input>
+          <div slot="end" class="ion-no-padding ion-no-margin item-float-end ion-padding-top">
+            <ion-button fill="clear" (click)="typeP = typeP=='text'? 'password': 'text'">
+              <ion-icon [name]="typeP == 'text' ? 'eye-off': 'eye'"></ion-icon>
+            </ion-button>
+          </div>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+
+    <ion-row class="ion-padding" *ngIf="errorMsg">
+      <ion-col>
+        <ion-text color="danger">
+          <h5 class="ion-text-center">
+            {{errorMsg}}
+          </h5>
+        </ion-text>
+      </ion-col>
+      <ion-col size="12" class="ion-text-center">
+        <ion-spinner *ngIf="loading" color="secondary"></ion-spinner>
+      </ion-col>
+    </ion-row>
+
+    <ion-row class="ion-padding">
+      <ion-col size-sm="10" size-md="6" offset-md="3">
+
+        <ion-button [disabled]="!email || !pin" expand="block" shape="round" fill="outline" (click)="login()">
+          Login
+        </ion-button>
+
+      </ion-col>
+    </ion-row>
+
+
+  </ion-grid>
+
+</ion-content>
