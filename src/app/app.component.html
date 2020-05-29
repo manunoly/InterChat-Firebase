@@ -3,8 +3,9 @@
     <ion-menu contentId="main-content" type="overlay" [hidden]="(authService.firebaseUser$ | async) ? false : true" >
       <ion-content>
         <ion-list id="inbox-list">
-          <ion-list-header>Call Center</ion-list-header>
-          <ion-note>Chat System</ion-note>
+          <ion-list-header *ngIf="authService?.userSesion?.value?.type == 'callcenter'">Call Center</ion-list-header>
+          <ion-list-header *ngIf="authService?.userSesion?.value?.type != 'callcenter'">{{authService?.userSesion?.value?.type | titlecase}}</ion-list-header>
+          <ion-note>Chat System {{utilService.version}}</ion-note>
 
           <ion-menu-toggle *ngFor="let p of appPages; let i = index" auto-hide="false">
             <ion-item (click)="selectedIndex = i" routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" [class.selected]="selectedIndex == i">
@@ -18,6 +19,17 @@
             </ion-item>
 
           </ion-menu-toggle>
+
+          <ng-container>
+            <ion-row class="ion-padding-top" *ngIf="appPages.length == 0">
+              <ion-col size="12" class="ion-text-center">
+                <ion-spinner color="secondary"></ion-spinner> <br>
+                <ion-text>
+                  <ion-note>Loading Menu...</ion-note>
+                </ion-text> 
+              </ion-col>
+            </ion-row>
+          </ng-container>
           
           <ion-menu-toggle [hidden]="(authService.firebaseUser$ | async) ? false : true" auto-hide="false">
             <ion-item (click)="logout()" lines="none" detail="false" button="true">

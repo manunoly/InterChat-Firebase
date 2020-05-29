@@ -8,6 +8,7 @@ import { DbService } from './db.service';
 import { UtilService } from './util.service';
 
 import { iUser } from '../chat-list/model/user.model';
+import { AngularFirestore } from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,8 @@ export class AuthService {
     private zone: NgZone,
     private router: Router,
     private dbService: DbService,
-    private utilService: UtilService) {
+    private utilService: UtilService,
+    private afs : AngularFirestore) {
 
     this.firebaseUser$ = this.afAuth.authState;
     // console.log(this.firebaseUser$);
@@ -105,7 +107,7 @@ export class AuthService {
   }
 
   async logout() {
-    this.router.navigateByUrl('login');
+    this.router.navigateByUrl('login' , {replaceUrl: true});
     return await this.afAuth.auth.signOut();
   }
 
@@ -117,9 +119,12 @@ export class AuthService {
       const userD = await this.afAuth.auth.createUserWithEmailAndPassword(data.email, data.password);
 
       data.type = 'callcenter';
+
+      const idUser = this.afs.createId();
+
       let user: iUser =
       {
-        idUser: data.id ? data.id : userD.user.uid,
+        idUser: idUser,
         uid: userD.user.uid,
         userName: data.displayName ? data.displayName : "Automatic User",
         avatar: data.avatar ? data.avatar : "./assets/icon/favicon.png",
@@ -128,7 +133,7 @@ export class AuthService {
         phone: data.phone ? data.phone : "",
       }
 
-      await this.dbService.updateCreateAt('users',user);
+      await this.dbService.updateCreateAt('users/' + idUser ,user);
 
       this.utilService.dismissLoading();
 

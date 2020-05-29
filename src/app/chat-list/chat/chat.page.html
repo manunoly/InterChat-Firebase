@@ -9,7 +9,7 @@
         <small>Chat Status: {{chatSelected?.status | titlecase}}</small>
       </ion-title>
     </ion-title>
-    <ion-buttons slot="end">
+    <ion-buttons slot="end" *ngIf="chatSelected.type == 'callcenter'">
       <ion-button color="secondary" (click)="openChatMenu($event)">
         <ion-icon slot="icon-only" ios="ellipsis-horizontal" md="ellipsis-horizontal"></ion-icon>
       </ion-button>

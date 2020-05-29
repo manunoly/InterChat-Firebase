@@ -14,6 +14,7 @@ import { Location } from '@angular/common';
 })
 export class UtilService {
 
+  public readonly version = 'V-1.0.0';
   loading: any;
   private today = new Date();
   preferedDarkTheme = false;
@@ -93,11 +94,11 @@ export class UtilService {
 
   }
 
-  async showToast(message: string) {
+  async showToast(message: string , duration : number = 1500) {
 
     const toast = await this.toastController.create({
       message: message,
-      duration: 1500
+      duration: duration
     });
     toast.present();
 
