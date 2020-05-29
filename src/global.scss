@@ -174,3 +174,10 @@ ion-rating {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.centerContent {
+  @media screen and (min-width: 790px) {
+    margin-left: 25% !important;
+    margin-right: 25% !important;
+  }
+}
