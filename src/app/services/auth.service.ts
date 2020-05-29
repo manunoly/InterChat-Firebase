@@ -73,7 +73,7 @@ export class AuthService {
             console.log(error);
             this.utilService.showAlert('Information', 'A problem was ocurred on login. Please try again later');
             this.logout()
-            this.router.navigate(['login'], { replaceUrl: true });
+            this.router.navigate(['welcome'], { replaceUrl: true });
 
           }
 
@@ -85,7 +85,7 @@ export class AuthService {
 
         this.utilService.removeKeyStorage('user');
         this.userSesion.next(null);
-        this.router.navigate(['login'], { replaceUrl: true });
+        this.router.navigate(['welcome'], { replaceUrl: true });
 
 
       }
@@ -107,7 +107,7 @@ export class AuthService {
   }
 
   async logout() {
-    this.router.navigateByUrl('login' , {replaceUrl: true});
+    this.router.navigateByUrl('welcome' , {replaceUrl: true});
     return await this.afAuth.auth.signOut();
   }
 
